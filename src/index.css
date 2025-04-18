@@ -11,3 +11,237 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* li a {
+  font-size: 15px;
+  color: black !important;
+} */
+
+/* .logo img {
+  width: 70px;
+  height: 50px;
+} */
+
+/* .icon img {
+  width: 120px;
+  height: 20px;
+  margin-left: 20px;
+} */
+.body{
+  text-align: center;
+  margin-top: 20px;
+}
+
+.body h3{
+  font-weight:700;
+}
+
+.home2 h4 {
+  text-align: center;
+  font-weight:700;
+}
+
+/* .checkout img {
+  width: 300px;
+  height: 300px;
+  
+}
+.checkout {
+  gap: 20px;
+  
+}
+
+.checkout  p {
+  font-size: 10px
+} */
+
+/* .checkout h4 {
+  font-size: 14px;
+} */
+
+.view {
+  margin-top: 50px;
+  margin-bottom: 50px;
+  text-align: center;
+}
+
+.col1{
+  width: 320px;
+  height: 320px;
+  text-align: left;
+  margin-left: 145px;
+
+  
+}
+
+.col img{
+  width: 320px;
+  height: 320px;
+  
+}
+
+/* .container {
+  text-align: center;
+} */
+
+.two img {
+  margin-right: 190px;
+}
+
+.three img {
+  margin-left: 80px;
+}
+
+.four img {
+  margin-right: 200px;
+}
+
+.pant img {
+  width: 250px;
+  height: 200px;
+}
+
+.arrow img {
+  width: 50px;
+  margin-top: 70px;
+  /* margin-left: 10px; */
+
+}
+
+.pantline{
+  padding-left: 250px;
+}
+
+.pant span {
+  font-size: 10px;
+}
+
+.pant p{
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.panty {
+  text-align: center;
+  margin-left: 200px;
+}
+
+/* .card-deck{
+  width: 1000px;
+  padding-left: 230px;
+  gap: 10px;
+  
+
+} */
+ 
+
+/* .card p {
+  font-size: 10px;
+}
+
+.card small {
+  font-size: 8px;
+}
+
+.card img{
+ width: 220px;
+}
+
+.card-body img {
+  width: 170px;
+} */
+
+/* .card-footer img {
+  width: 10px;
+}
+
+.card-footer button {
+  font-size: 10px;
+}
+
+.card-text {
+  font-size: 10px;
+}
+.card-title {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.card-deck br {
+  display: none;
+} */
+
+.footer {
+  background-color: #212121;
+}
+
+.text-uppercase {
+  font-size: 12px;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.list-unstyled li {
+  font-size: 10px;
+  color: #FFFFFF;
+  margin-bottom: 10px;
+
+}
+
+.text-body {
+  color: #FFFFFF;
+}
+
+.award img {
+  width: 70px;
+  height: auto;
+  margin-left: 20px;
+  margin-top: 10px
+}
+
+.award h4 {
+  font-size: 15px;
+  color: red;
+  font-weight: 700;
+  margin-top: 20px;
+  margin-left: 20px;
+  padding-bottom: 20px;
+
+}
+
+.award p {
+  font-size: 10px;
+  margin-top: 20px;
+  margin-left: 20px;
+
+}
+
+.award {
+ padding-left: 250px;
+}
+
+ .row {
+  margin: 0 !important
+ }
+
+
+ .singlet  {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+ }
+
+ .singlet:hover {
+    transform: scale(1.05);
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+    
+ }
+
+ .singlet:hover .bot {
+    display: flex !important
+     
+}
+ 
+  
+
+ @media screen {
+  
+ }
