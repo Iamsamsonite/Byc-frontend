@@ -1,7 +1,51 @@
-import React from 'react'
+import React, {useContext} from 'react'
+// import { useState } from 'react';
 import { Pay, Smallblue } from '../asset'
+import { CartContext } from '../component/CartContext';
+
 
 const Checkout = () => {
+
+     const {quantity, totalPrice} = useContext(CartContext);
+
+     console.log('Checkout Context:', { quantity, totalPrice }); // Debugging
+            //  const [isInWishlist, setIsInWishlist] = useState(false);
+        // const deliveryFee = 2000; // Assuming no delivery fee for simplicity
+        // const 
+              // Product details
+    //     const product = {
+    //     id: 'BYC 1166',
+    //     name: '100% Cotton 12 Pieces Of Mens Boxer',
+    //     price: 2800.00,
+    //   }
+    
+//        // Handlers
+//   const increaseQuantity = () => {
+//     setQuantity(prev => prev + 1);
+//   };
+  
+//   const decreaseQuantity = () => {
+//     if (quantity > 0) {
+//       setQuantity(prev => prev - 1);
+//     }
+//   };
+  
+//   const toggleWishlist = () => {
+//     setIsInWishlist(prev => !prev);
+//   };
+//   const removeItem = () => {
+//     setQuantity(0);
+//   };
+
+
+    
+      // Calculate total price based on quantity
+//   const totalPrice = (product.price * quantity).toFixed(2);
+  const deliveryFee = 2000; // Assuming no delivery fee for simplicity
+    // const totalAmount = (totalPrice + deliveryFee).toFixed(2); // Total amount including delivery fee
+
+    const totalAmount = (totalPrice + deliveryFee).toFixed(2); // Total amount including delivery fee
+
   return (
     <>
             <div className="container border rounded mt-5 ">
@@ -14,14 +58,15 @@ const Checkout = () => {
                         <img style={{width:'150px'}} src={Smallblue} alt="" className='img-fluid' />
                     </div>
 
-                    <div className='col-sm-4 border-end'>
+                    <div className='col-sm-4 border-end'> 
                         <h5 className='fw-bold'>MEN BOXERS</h5>
                         <h6 className='fw-bold'>BYC 1166</h6> 
                         <small className='display-7'>100% Cotton 12 Pieces Of Mens Boxer </small> 
-                        <h6 className='mt-3 fw-bold'>
-                        #2,800.00
+                        <h6 className='mt-3 fw-bold'> 2,800.00
+                        {/* {totalPrice.toFixed(2)}  */}
+
                         </h6>
-                        <h6 className='mt-3'>Quatity: <span className='ms-2'>1</span></h6>
+                        <h6 className='mt-3'>Quatity: <span className='ms-2'>1 </span></h6>
                         <button 
                         className="btn btn-sm btn-danger border-danger mt-3 text-white" style={{width:'100px', height:'30px', fontSize:'12px'}}
                         
@@ -38,9 +83,9 @@ const Checkout = () => {
                         <div className='col-sm-4'>
                         
                     <div className='mb-4'>
-                        <p><small className='mb-2'>Subtotal <span style={{marginLeft:'200px'}}>#2,800.00</span></small></p>
-                        <p><small className='mb-2 border-bottom pb-3'>Delivery fee <span style={{marginLeft:'178px'}}>#2,800.00</span></small></p>
-                        <h6 className='pt-4'><b>Total <span style={{marginLeft:'210px'}}>#2,800.00</span></b></h6>
+                        <p><small className='mb-2'>Subtotal <span style={{marginLeft:'200px'}}>₦2,800.00</span></small></p>
+                        <p><small className='mb-2 border-bottom pb-3'>Delivery fee <span style={{marginLeft:'178px'}}>₦{deliveryFee.toFixed(2)}</span></small></p>
+                        <h6 className='pt-4'><b>Total <span style={{marginLeft:'210px'}}>#{totalAmount}</span></b></h6>
 
 
                     </div>

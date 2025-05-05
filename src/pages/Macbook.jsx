@@ -1,6 +1,7 @@
 import React from 'react'
 import { Arrowright, Filter, Singlet, Sort } from '../asset'
 import SortDropdown from '../component/SortDropdown'
+import ToggleButton from '../component/ToggleButton'
 
 
 
@@ -33,7 +34,7 @@ const Macbook = () => {
                                 <p style={{fontSize:'8px'}}>6 products found</p></div> 
                                 <div className="col-md-10"></div> 
                                 <div className="col md 1">
-                                <p className='text-danger' style={{fontSize:'10px', width:'60px'}}>  <b><img style={{height:'20px'}} src={Filter} className='img-fluid'  alt="" /></b>  </p>
+                                <p className='text-danger' style={{fontSize:'10px', width:'60px'}}> <ToggleButton/>  </p>
                                 
                                     </div>        
                             </div>

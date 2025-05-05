@@ -1,8 +1,31 @@
-import React from 'react'
-import { Arrowright, Mail, Map, Fone, Address } from '../asset'
+import React, {useRef} from 'react'
+import { Mail, Map, Fone, Address } from '../asset'
 import Sing from '../component/Sing'
+import emailjs from 'emailjs-com';
 
+    
+  
 const Contact = () => {
+    const formRef = useRef();
+  
+    const handleSubmit = (e) => {
+      e.preventDefault();
+  
+      emailjs.sendForm(
+        'YOUR_SERVICE_ID',     // 🔁 Replace with your EmailJS service ID
+        'YOUR_TEMPLATE_ID',    // 🔁 Replace with your template ID
+        formRef.current,
+        'YOUR_USER_ID'         // 🔁 Replace with your public user ID
+      )
+      .then(() => {
+        alert('Message sent successfully!');
+        formRef.current.reset();
+      })
+      .catch((error) => {
+        alert('Failed to send message: ' + error.text);
+      });
+    };
+    
   return (
     <>
         <div>
@@ -70,7 +93,58 @@ const Contact = () => {
                     <h4 className='fw-bolder'>Drop a message</h4>
                 </div>
 
-                <div className="form ms-3">
+                <form ref={formRef} onSubmit={handleSubmit} className="form ms-3">
+      <div className="col-md-4">
+        <div className="mb-3 mt-5">
+          <label htmlFor="exampleInputPhone1" className="form-label" style={{ fontSize: '12px' }}>
+            Phone
+          </label>
+          <input
+            type="text"
+            name="phone"
+            className="form-control border-danger"
+            placeholder="0123456789"
+            id="exampleInputPhone1"
+          />
+        </div>
+
+        <div className="mb-3 mt-3">
+          <label htmlFor="exampleInputEmail1" className="form-label" style={{ fontSize: '12px' }}>
+            Email address
+          </label>
+          <input
+            type="email"
+            name="email"
+            className="form-control border-danger"
+            placeholder="Samson@gmail.com"
+            id="exampleInputEmail1"
+            required
+          />
+        </div>
+
+        <div className="mb-3 mt-3">
+          <label htmlFor="Textarea" className="form-label" style={{ fontSize: '12px' }}>
+            Note
+          </label>
+          <textarea
+            className="form-control border-danger"
+            style={{ height: '90px' }}
+            placeholder="Leave a comment here"
+            id="Textarea"
+            name="message"
+            required
+          />
+        </div>
+
+        <div className="d-grid mt-5">
+          <button className="btn btn-danger" type="submit">
+            Submit
+          </button>
+        </div>
+      </div>
+    </form>
+
+                {/* <div className="form ms-3">
                     <div className="col-md-4">
                         <div class="mb-3 mt-5">
                             <label for="exampleInputPhone1" class="form-label"  style={{fontSize:'12px'}}>Phone</label>
@@ -88,7 +162,8 @@ const Contact = () => {
                         </div>
                         
                         <div class="d-grid mt-5">
-                            <button class="btn btn-danger" type="button">Submit</button>
+                            <button class="btn btn-danger" type="button"
+                            onClick={handleSubmit}>Submit</button>
                             
                         </div>
                         
@@ -96,7 +171,7 @@ const Contact = () => {
                     </div>
                      
   
-                </div>
+                </div> */}
             
                 <Sing />
             

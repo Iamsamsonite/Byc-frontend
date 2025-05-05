@@ -1,63 +1,149 @@
-import React from 'react'
-import { Arrowright, Boxer, Boxer1, Boxer2, Boxer3, Filter, Singlet, Sort } from '../asset'
-import Sing from '../component/Sing'
+import React, { useState, useEffect } from 'react';
+import ToggleButton from '../component/ToggleButton';
+import SortByDrop from '../component/SortByDrop';
+import { allProducts } from '../asset';
+import Sing from '../component/Sing';
 
 const Product = () => {
+  // State to manage the cart
+  const [cart, setCart] = useState([]);
+
+  // Handle "Buy Now" button click
+  const handleBuyNow = (product) => {
+    setCart((prevCart) => {
+      const updatedCart = [...prevCart, product];
+      // Optionally save cart to localStorage
+      localStorage.setItem('cart', JSON.stringify(updatedCart));
+      return updatedCart;
+    });
+    console.log(`${product.productName} added to cart!`);
+    alert(`${product.productName} has been added to your cart.`);
+  };
+
+  // Load cart from localStorage on component mount (if any)
+  useEffect(() => {
+    const savedCart = JSON.parse(localStorage.getItem('cart')) || [];
+    setCart(savedCart);
+  }, []);
+
   return (
     <>
-            <div>
+      <nav aria-label="breadcrumb" className="container ms-2">
+        <ol className="breadcrumb">
+          <li className="breadcrumb-item">
+            <a style={{ textDecoration: 'none' }} href="#">Home</a>
+          </li>
+          <li className="breadcrumb-item active" aria-current="page">All products</li>
+        </ol>
+      </nav>
 
-            <nav aria-label="breadcrumb " className='container ms-2'>
-  <ol className="breadcrumb">
-    <li className="breadcrumb-item">  <a style={{textDecoration:'none'}} href="#">Home</a></li>
-    <li className="breadcrumb-item active" aria-current="page">All products</li>
-  </ol>
-              </nav>
+      <div className="container mt-5 pt-3 mb-2 border">
+        <div className="row pt-3 border-bottom">
+          <div className="col-md-2">
+            <p style={{ fontSize: '10px' }}><b>All Products</b></p>
+          </div>
+          <div className="col-md-8"></div>
+          <div className="col-md-2">
+            <p className="text-danger" style={{ fontSize: '10px' }}><SortByDrop /></p>
+          </div>
+        </div>
 
-                    <div className="container mt-5 pt-3 mb-5  border">
-                        <div className=" row pt-3 border-bottom">
-                                <div className=" col-md-2">
-                                <p style={{fontSize:'10px'}}> <b>All Products</b></p>
-                            </div>   
-                            <div className="col-md-9"></div> 
-                            <div className="col md 1">
-                            <p className='text-danger' style={{fontSize:'10px'}}>  <b><img style={{height:'20px'}} src={Sort} className='img-fluid' alt="" /></b>  </p>
+        <div className="row my-3 border-bottom">
+          <div className="col-md-10"></div>
+          <div className="col-md-2">
+            <p className="text-danger" style={{ fontSize: '10px' }}><ToggleButton /></p>
+          </div>
+        </div>
+
+        <div className="row">
+          {allProducts.map((product, index) => (
+            <div key={index} className="col-md-3 my-3 shadow-sm d-flex flex-column singlet">
+              <img src={product.productImage} className="img-fluid" alt={product.productName} />
+              <h5 style={{ fontWeight: 'bold', fontSize: '16px', marginTop: '10px' }}>{product.productName}</h5>
+              <p style={{ fontSize: '12px' }}>{product.productCode}</p>
+              <p style={{ color: '#787885', fontSize: '12px' }}>{product.productDescription}</p>
+              <p><b>{product.productPrice}</b></p>
+
+              <div>
+                {[...Array(4)].map((_, i) => (
+                  <i key={i} className="bi bi-star-fill" style={{ color: '#FB8200' }}></i>
+                ))}
+                <i className="bi bi-star-half" style={{ color: '#FB8200' }}></i>
+                <span className="fw-bold pl-2">{product.ratings}</span>
+              </div>
+
+              <div className="d-flex pb-3">
+                <button className="btn btn-sm border-danger mt-3  bot">
+                  <a className="text-decoration-none" href="Wishlist">
+                    <i className="bi bi-heart me-1 text-danger" style={{ fontSize: '10px' }}></i>
+                    <span className="text-danger" style={{ fontSize: '10px' }}>Wishlist</span>
+                  </a>
+                </button>
+
+                <button
+                  className="btn btn-sm border-danger btn-danger ms-1 mt-3  bot"
+                  onClick={() => handleBuyNow(product)}
+                >
+                  <i className="bi bi-cart3 text-white"></i>
+                  <span className="text-white" style={{ fontSize: '10px' }}>Buy Now</span>
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className='text-center'>
+       <div className="btn-group rounded-0 shadow-sm gap-2 my-5 " role="group">
+            <button type="button" className="btn shadow-sm "><i className="bi bi-arrow-left-short"></i></button>
+            <button type="button" className="btn shadow-sm">1</button>
+            <button type="button" className="btn shadow-sm ">2</button>
+            <button type="button" className="btn shadow-sm " style={{borderColor:'#FB8200'}}>3</button>
+            <button type="button" className="btn shadow-sm"><i className="bi bi-arrow-right-short"></i></button>
+
+        </div>
+        </div>
+
+      <Sing/>
+
+      {/* Display Cart */}
+      <div>
+        <h3>Your Cart</h3>
+        <ul>
+          {cart.length === 0 ? (
+            <li>No items in cart</li>
+          ) : (
+            cart.map((product, index) => (
+              <li key={index}>{product.productName} - {product.productPrice}</li>
+            ))
+          )}
+        </ul>
+      </div>
+    </>
+  );
+};
+
+export default Product;
+
+                           
+                    
+                    
+                       
+
                             
-                                </div>        
-                            </div>
-
-                            <div className=" row pt-3 border-bottom">
-                                  
-                                <div className="col-md-11"></div> 
-                                <div className="col md 1">
-                                <p className='text-danger' style={{fontSize:'10px'}}>  <b><img style={{height:'20px'}} src={Filter} className='img-fluid'  alt="" /></b>  </p>
                                 
-                                    </div>        
-                            </div>
+                                
 
-                            <div className="row gap-3">
-
-                                <div className="col md-1"></div>   
-                                <div className="col-md-2 my-3 shadow-sm pb-2 singlet">
-
-                                        <img src={Singlet} className='img-fluid' alt="" />
+                                        {/* <img src={Singlet} className='img-fluid' alt="" />
                                         <h5 style={{fontWeight:'bold', fontSize:"12px", marginTop:'10px'}}>CAMISOLE</h5>
                                         <p style={{ fontSize:"8px"}}>BYC-2598ABC</p>
                                         <p style={{color:'#787885', fontSize:'9px'}}>Long Cotton Adjustable Strap Camisole / <br/>Tank Top - whte</p>
-                                        <p><b>₦1,900.00</b></p> 
-                                        <i class="bi bi-star-fill" style={{color:'#FB8200'}}></i>
-                                        <i class="bi bi-star-fill" style={{color:'#FB8200'}}></i>
-                                        <i class="bi bi-star-fill" style={{color:'#FB8200'}}></i>
-                                        <i class="bi bi-star-fill" style={{color:'#FB8200'}}></i>
-                                        <i class="bi bi-star-half" style={{color:'#FB8200'}}></i> <span className='fw-bold pl-2'>4.05</span>
-                                        <div className="d-flex pb-3">
-                            <button className="btn btn-sm border-danger mt-3 d-none bot"> <a className='text-decoration-none' href="Wishlist"><i className="bi bi-heart me-1 text-danger" style={{fontSize:"10px"}} ></i> <span  className='text-danger'  style={{fontSize:"10px"}} >  Wishlist</span></a> </button>
-                            <button className="btn btn-sm border-danger btn-danger ms-1 mt-3 d-none bot"><i className="bi bi-cart3 text-white"></i> <span className='text-white'style={{fontSize:'10px'}} >Buy Now</span></button>
-                            </div>
-                                                                
-                                </div>
+                                        <p><b>₦1,900.00</b></p>  */}
 
-                                 <div className="col-md-2 my-3 shadow-sm singlet">
+
+                                
+
+                                 {/* <div className="col-md-2 my-3 shadow-sm singlet">
                                                             <img src={Singlet} className='img-fluid' alt="" />
                                                             <h5 style={{fontWeight:'bold', fontSize:"12px", marginTop:'10px'}}>CAMISOLE</h5>
                                                             <p style={{ fontSize:"8px"}}>BYC-501LMS</p>
@@ -72,9 +158,9 @@ const Product = () => {
                             <button className="btn btn-sm border-danger mt-3 d-none bot"> <a className='text-decoration-none' href="Wishlist"><i className="bi bi-heart me-1 text-danger" style={{fontSize:"10px"}} ></i> <span  className='text-danger'  style={{fontSize:"10px"}} >  Wishlist</span></a> </button>
                             <button className="btn btn-sm border-danger btn-danger ms-1 mt-3 d-none bot"><i className="bi bi-cart3 text-white"></i> <span className='text-white'style={{fontSize:'10px'}} >Buy Now</span></button>
                             </div>
-                                </div>
+                                </div> */}
 
-                                <div className="col-md-2 my-3 shadow-sm singlet">
+                                {/* <div className="col-md-2 my-3 shadow-sm singlet">
                                                             <img src={Singlet} className='img-fluid' alt="" />
                                                             <h5 style={{fontWeight:'bold', fontSize:"12px", marginTop:'10px'}}>CAMISOLE</h5>
                                                             <p style={{ fontSize:"8px"}}>BYC-501LMS</p>
@@ -89,9 +175,9 @@ const Product = () => {
                             <button className="btn btn-sm border-danger mt-3 d-none bot"> <a className='text-decoration-none' href="Wishlist"><i className="bi bi-heart me-1 text-danger" style={{fontSize:"10px"}} ></i> <span  className='text-danger'  style={{fontSize:"10px"}} >  Wishlist</span></a> </button>
                             <button className="btn btn-sm border-danger btn-danger ms-1 mt-3 d-none bot"><i className="bi bi-cart3 text-white"></i> <span className='text-white'style={{fontSize:'10px'}} >Buy Now</span></button>
                             </div>
-                                </div>
+                                </div> */}
 
-                                <div className="col-md-2 my-3 shadow-sm singlet">
+                                {/* <div className="col-md-2 my-3 shadow-sm singlet">
                                                             <img src={Singlet} className='img-fluid' alt="" />
                                                             <h5 style={{fontWeight:'bold', fontSize:"12px", marginTop:'10px'}}>CAMISOLE</h5>
                                                             <p style={{ fontSize:"8px"}}>BYC-501LMS</p>
@@ -106,9 +192,9 @@ const Product = () => {
                             <button className="btn btn-sm border-danger mt-3 d-none bot"> <a className='text-decoration-none' href="Wishlist"><i className="bi bi-heart me-1 text-danger" style={{fontSize:"10px"}} ></i> <span  className='text-danger'  style={{fontSize:"10px"}} >  Wishlist</span></a> </button>
                             <button className="btn btn-sm border-danger btn-danger ms-1 mt-3 d-none bot"><i className="bi bi-cart3 text-white"></i> <span className='text-white'style={{fontSize:'10px'}} >Buy Now</span></button>
                             </div>
-                                </div>
+                                </div> */}
 
-                                <div className="col-md-2 my-3 shadow-sm singlet">
+                                {/* <div className="col-md-2 my-3 shadow-sm singlet">
                                                             <img src={Singlet} className='img-fluid' alt="" />
                                                             <h5 style={{fontWeight:'bold', fontSize:"12px", marginTop:'10px'}}>CAMISOLE</h5>
                                                             <p style={{ fontSize:"8px"}}>BYC-501LMS</p>
@@ -123,12 +209,12 @@ const Product = () => {
                             <button className="btn btn-sm border-danger mt-3 d-none bot"> <a className='text-decoration-none' href="Wishlist"><i className="bi bi-heart me-1 text-danger" style={{fontSize:"10px"}} ></i> <span  className='text-danger'  style={{fontSize:"10px"}} >  Wishlist</span></a> </button>
                             <button className="btn btn-sm border-danger btn-danger ms-1 mt-3 d-none bot"><i className="bi bi-cart3 text-white"></i> <span className='text-white'style={{fontSize:'10px'}} >Buy Now</span></button>
                             </div>
-                                </div>
-                                <div className="col md-1"></div>   
+                                </div> */}
+                                    
                                 
-                            </div>
+                            
 
-                            <div className="row gap-3">
+                            {/* <div className="row gap-3">
 
                                 <div className="col md-1"></div>   
                                 <div className="col-md-2 my-3 shadow-sm pb-2 singlet">
@@ -217,9 +303,9 @@ const Product = () => {
                                 </div>
                                 <div className="col md-1"></div>   
 
-                            </div>
+                            </div> */}
 
-                            <div className="row gap-3">
+                            {/* <div className="row gap-3">
 
                                 <div className="col md-1"></div>   
                                 <div className="col-md-2 my-3 shadow-sm pb-2 singlet">
@@ -310,14 +396,14 @@ const Product = () => {
                                 </div>
                                 <div className="col md-1"></div>   
                                 
-                            </div>
+                            </div> */}
                          
-                    </div>
+                
 
 
 
                     
-                    <div className='text-center mb-5 pb-5'>
+                    {/* <div className='text-center mb-5 pb-5'>
                         <div className="btn-group rounded-0 shadow-sm gap-2 my-5 " role="group">
                         <button type="button" className="btn shadow-sm "><i className="bi bi-arrow-left-short"></i></button>
                         <button type="button" className="btn shadow-sm">1</button>
@@ -326,22 +412,20 @@ const Product = () => {
                         <button type="button" className="btn shadow-sm"><i className="bi bi-arrow-right-short"></i></button>
 
                         </div>
-                    </div>
+                    </div> */}
                     
-                    
-
-
+                     
                    
 
                   
-            <Sing />  
+            {/* <Sing />   */}
 
-            </div>
+            
 
             
       
-    </>
-  )
-}
+//     </>
+//   )
+// }
 
-export default Product
+// export default Product

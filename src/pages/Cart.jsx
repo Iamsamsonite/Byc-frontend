@@ -1,15 +1,64 @@
 import React, {useState} from 'react'
 import { Bigblue, Smallblue, Smallbox, Arrowright } from '../asset'; 
 import Sing from '../component/Sing';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+
  
 
 
   const Cart = () => {
 
      
-     
- 
+    
+      
+  //     const [cart, setCart] = useState([]);
+  //     const [isCartOpen, setIsCartOpen] = useState(false);
+      
+  //     // Add product to cart
+  //     const addToCart = (product) => {
+  //       setCart(prevCart => {
+  //         // Check if product already exists in cart
+  //         const existingProduct = prevCart.find(item => item.id === product.id);
+          
+  //         if (existingProduct) {
+  //           // Increase quantity if product already in cart
+  //           return prevCart.map(item => 
+  //             item.id === product.id 
+  //               ? { ...item, quantity: item.quantity + 1 } 
+  //               : item
+  //           );
+  //         } else {
+  //           // Add new product with quantity 1
+  //           return [...prevCart, { ...product, quantity: 1 }];
+  //         }
+  //       });
+    
+  //       // Show cart after adding
+  //   setIsCartOpen(true);
+  // };
+  
+  // // Remove product from cart
+  // const removeFromCart = (productId) => {
+  //   setCart(prevCart => prevCart.filter(item => item.id !== productId));
+  // };
+  
+  // // Update product quantity
+  // const updateQuantity = (productId, change) => {
+  //   setCart(prevCart => 
+  //     prevCart.map(item => {
+  //       if (item.id === productId) {
+  //         const newQuantity = Math.max(1, item.quantity + change);
+  //         return { ...item, quantity: newQuantity };
+  //       }
+  //       return item;
+  //     })
+  //   );
+  // };
+  // // Calculate total items in cart
+  // const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0);
+  
+  // // Calculate cart total
+  // const cartTotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+
    
 
 

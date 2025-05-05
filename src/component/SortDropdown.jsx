@@ -38,7 +38,7 @@ const SortDropdown = () => {
   
   return (
     <div className="w-full max-w-md mx-auto">
-      <div className="relative" ref={dropdownRef}>
+      <div className="dropdown" ref={dropdownRef}>
         <div className="text-center text-black uppercase" style={{fontSize:'8px'}} >
           
           SORT BY

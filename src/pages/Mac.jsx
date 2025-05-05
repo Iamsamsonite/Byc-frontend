@@ -1,6 +1,7 @@
 import React from 'react'
 import { Blue, Oneboxer, Threeinone, Arrowright, Sort, Filter } from '../asset'
 import SortDropdown from '../component/SortDropdown'
+import ToggleButton from '../component/ToggleButton'
 
 
 const Mac = () => {
@@ -30,7 +31,7 @@ const Mac = () => {
                             </div> 
                                 <div className="col-md-9"></div> 
                                 <div className="col md 1">
-                                <p className='text-danger' style={{fontSize:'10px', width:'60px'}}>  <b><img className='img-fluid' style={{height:'20px'}} src={Filter}   alt="" /></b>  </p>
+                                <p className='text-danger' style={{fontSize:'10px', width:'60px'}}>  <ToggleButton/>  </p>
                                 
                                     </div>        
                             </div>

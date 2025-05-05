@@ -1,10 +1,11 @@
-import React, {useState} from 'react'
+import React, {useState, useContext} from 'react'
 import { Smallblue } from '../asset'
 import Sing from '../component/Sing';
+import { CartContext } from '../component/CartContext';
 
 const Carttwo = () => {
 
-     const [quantity, setQuantity] = useState(0);
+     const {quantity, setQuantity, totalPrice, setTotalPrice} = useContext(CartContext);
          const [isInWishlist, setIsInWishlist] = useState(false);
 
           // Product details
@@ -17,16 +18,18 @@ const Carttwo = () => {
      
 
       // Calculate total price based on quantity
-  const totalPrice = (product.price * quantity).toFixed(2);
+  // const totalPrice = (product.price * quantity).toFixed(2);
   
   // Handlers
   const increaseQuantity = () => {
     setQuantity(prev => prev + 1);
+    setTotalPrice(prev => prev + product.price);
   };
   
   const decreaseQuantity = () => {
     if (quantity > 0) {
       setQuantity(prev => prev - 1);
+      setTotalPrice(prev => prev - product.price);
     }
   };
   
@@ -116,8 +119,8 @@ const Carttwo = () => {
                 <div className='col-sm-6 mt-4'>
                     <h6 className='display-7 fw-bold'>CART TOTALS</h6>
                     <div className='mb-4'>
-                        <p><small className='mb-2'>Subtotal <span style={{marginLeft:'200px'}}>#2,800.00</span></small></p>
-                        <p><small>Total <span style={{marginLeft:'220px'}}>#2,800.00</span></small></p>
+                        <p><small className='mb-2'>Subtotal <span style={{marginLeft:'200px'}}>₦{totalPrice.toFixed(2)}</span></small></p>
+                        <p><small>Total <span style={{marginLeft:'220px'}}>₦{totalPrice.toFixed(2)}</span></small></p>
 
                     </div>
                     <div className='row mb-4'>

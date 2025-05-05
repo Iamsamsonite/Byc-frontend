@@ -15,6 +15,7 @@ import Cart from './pages/Cart'
 import Carttwo from './pages/Carttwo'
 import Checkout from './pages/Checkout'
 import Account from './pages/Account'
+import {Toaster} from 'react-hot-toast'
 
 
 
@@ -25,9 +26,12 @@ const Display = () => {
   return (
     <>
     <BrowserRouter>
+    
      <Navbar />
-      
+     
+     <Toaster position="top-right" toastOptions={{ duration: 3000 }}/>
      <Routes>
+    
       <Route index element={<Home />} />
       <Route path="Blog" element={<Blog />} />
       <Route path="Blogtwo" element={<Blogtwo />} />

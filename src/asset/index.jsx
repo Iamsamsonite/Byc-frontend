@@ -56,3 +56,252 @@ import Filter from './filter.png'
 
 
 export {BYC, Frame26, Group84, Sort, Filter, Group41, Pay, Smallblue, Bigblue, Smallbox, Group42, Group34, Blue, Oneboxer, Threeinone,  Boxer, Boxer1, Boxer2, Boxer3, Frame167, Frame170, Frame168, Frame170a, Frame166, Arrowleft, Pant1, Pant2, Pant3, Arrowright, Frame169, Frame169a, Frame169b, Arrow, Authorview, Payment, HR, Social, Email, Phone, Numberarrow, Frame171, Frame178, Award, Angleright, Singlet, Stars, Mail, Map, Fone, Address, Arthur}
+
+
+export const allProducts = [
+    {
+         productImage: Singlet,
+         productName: "CAMSOLE",
+         productCode: "BYC-2598ABC",
+         productDescription: "Long Cotton Adjustable Strap Camisole Tank Top - white",
+         productPrice: "₦1,900.00",
+         ratings: "4.05"
+    },
+    {
+         productImage: Singlet,
+         productName: "CAMSOLE",
+         productCode: "BYC-501LMS",
+         productDescription: "Long Cotton Adjustable Strap Camisole Tank Top - Black",
+         productPrice: "₦2,800.00",
+         ratings: "4.05"
+    },
+    {
+         productImage: Singlet,
+         productName: "CAMSOLE",
+         productCode: "BYC-501LMS",
+         productDescription: "Long Cotton Adjustable Strap Camisole Tank Top - Black",
+         productPrice: "₦1,900.00",
+         ratings: "4.05"
+    },
+    {
+         productImage: Singlet,
+         productName: "CAMSOLE",
+         productCode: "BYC-501LMS",
+         productDescription: "Long Cotton Adjustable Strap Camisole Tank Top - Black",
+         productPrice: "₦1,900.00",
+         ratings: "4.05"
+    },
+    {
+         productImage: Singlet,
+         productName: "CAMSOLE",
+         productCode: "BYC-501LMS",
+         productDescription: "Long Cotton Adjustable Strap Camisole Tank Top - Black",
+         productPrice: "₦1,900.00",
+         ratings: "4.05"
+    },
+    {
+         productImage: Singlet,
+         productName: "CAMSOLE",
+         productCode: "BYC-501LMS",
+         productDescription: "Long Cotton Adjustable Strap Camisole Tank Top - Black",
+         productPrice: "₦1,900.00",
+         ratings: "4.05"
+    },
+    {
+         productImage: Singlet,
+         productName: "CAMSOLE",
+         productCode: "BYC-501LMS",
+         productDescription: "Long Cotton Adjustable Strap Camisole Tank Top - Black",
+         productPrice: "₦1,900.00",
+         ratings: "4.05"
+    },
+    {
+         productImage: Singlet,
+         productName: "CAMSOLE",
+         productCode: "BYC-501LMS",
+         productDescription: "Long Cotton Adjustable Strap Camisole Tank Top - Black",
+         productPrice: "₦1,900.00",
+         ratings: "4.05"
+    },
+    {
+         productImage: Singlet,
+         productName: "CAMSOLE",
+         productCode: "BYC-501LMS",
+         productDescription: "Long Cotton Adjustable Strap Camisole Tank Top - Black",
+         productPrice: "₦1,900.00",
+         ratings: "4.05"
+    },
+    {
+         productImage: Singlet,
+         productName: "CAMSOLE",
+         productCode: "BYC-501LMS",
+         productDescription: "Long Cotton Adjustable Strap Camisole Tank Top - Black",
+         productPrice: "₦1,900.00",
+         ratings: "4.05"
+    },
+    
+    {
+         productImage: Boxer,
+         productName: "BOXER",
+         productCode: "BYC 1161",
+         productDescription: "Fashionable Men's Underwear Boxer Cotton Underwear 3 In 1",
+         productPrice: "₦1,800.00",
+         ratings: "4.05"
+    },
+    {
+         productImage: Boxer1,
+         productName: "BOXER",
+         productCode: "BYC 1201",
+         productDescription: "Fashionable Men's Underwear Boxer Cotton Underwear 3 In 1",
+         productPrice: "₦1,800.00",
+         ratings: "4.05"
+    },
+    {
+         productImage: Boxer2,
+         productName: "BOXER",
+         productCode: "KBY-3204",
+         productDescription: "Fashionable Men's Underwear Boxer Cotton Underwear 3 In 1",
+         productPrice: "₦10,000.00",
+         ratings: "4.05"
+    },
+    {
+         productImage: Boxer3,
+         productName: "BOXER",
+         productCode: "BYL-6709",
+         productDescription: "Fashionable Men's Underwear Boxer Cotton Underwear 3 In 1",
+         productPrice: "₦12,000.00",
+         ratings: "4.05"
+    },
+    {
+         productImage: Boxer3,
+         productName: "BOXER",
+         productCode: "KBY-3204",
+         productDescription: "Fashionable Men's Underwear Boxer Cotton Underwear 3 In 1",
+         productPrice: "₦10,000.00",
+         ratings: "4.05"
+    },
+    {
+        productImage: Boxer2,
+        productName: "BOXER",
+        productCode: "KBY-3204",
+        productDescription: "Fashionable Men's Underwear Boxer Cotton Underwear 3 In 1",
+        productPrice: "₦10,000.00",
+        ratings: "4.05"
+   },
+    ];
+
+export const recentViewed = [
+    {
+        productImage: Singlet,
+        productName: "MEN BOXERS",
+        productCode: "BYC-2598ABC",
+        productDescription: "Long Cotton Adjustable Strap Camisole Tank Top - white",
+        productPrice: "₦1,900.00",
+        ratings: "4.05"
+    },
+    {
+        productImage: Singlet,
+        productName: "MEN BOXERS",
+        productCode: "BYC-501LMS",
+        productDescription: "Long Cotton Adjustable Strap Camisole Tank Top - Black",
+        productPrice: "₦2,800.00",
+        ratings: "4.05"
+    },
+    {
+        productImage: Boxer1,
+        productName: "MEN BOXERS",
+        productCode: "BYC-2598ABC",
+        productDescription: "Long Cotton Adjustable Strap Camisole Tank Top - white",
+        productPrice: "₦3,900.00",
+        ratings: "4.05"
+    },
+    {
+        productImage: Singlet,
+        productName: "MEN BOXERS",
+        productCode: "BYC-2598ABC",
+        productDescription: "Long Cotton Adjustable Strap Camisole Tank Top - white",
+        productPrice: "₦1,900.00",
+        ratings: "4.05"
+    },
+    {
+        productImage: Singlet,
+        productName: "MEN BOXERS",
+        productCode: "BYC-501LMS",
+        productDescription: "Long Cotton Adjustable Strap Camisole Tank Top - Black",
+        productPrice: "₦2,800.00",
+        ratings: "4.05"
+    },
+]
+
+export const newArrivals = [
+    {
+        productImage: Group34 ,
+        productName: "Mens Underwears",
+        productDescription: "Parturient Venenatis Etiam",
+    },
+
+    {
+        productImage: Group41 ,
+        productName: "Womens Underwears",
+        productDescription: "Parturient Venenatis Etiam",
+    },
+
+    {
+        productImage: Group42 ,
+        productName: "Underwears",
+        productDescription: "Parturient Venenatis Etiam",
+    },
+
+    {
+        productImage: Frame166 ,
+        productName: "Childern Underwears",
+        productDescription: "Parturient Venenatis Etiam",
+    },
+
+    {
+        productImage: Frame167 ,
+        productName: "Underwears",
+        productDescription: "Parturient Venenatis Etiam",
+    },
+
+    {
+        productImage: Frame168 ,
+        productName: "Men Black Underwears",
+        productDescription: "Parturient Venenatis Etiam",
+    }
+
+]
+
+export const bycCollection = [
+     
+
+    {
+        productImage: Frame166 ,
+         
+    },
+
+    {
+        productImage: Frame167 ,
+        
+    },
+
+    {
+        productImage: Frame168 ,
+        
+    },
+
+    {
+        productImage: Frame178 ,
+        
+    },
+
+    {
+        productImage: Group41 ,
+        
+    }, 
+    {
+        productImage: Group42 ,
+        
+    }
+
+]
