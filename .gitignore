@@ -17,7 +17,10 @@
 .env.development.local
 .env.test.local
 .env.production.local
-
+.env.REACT_APP_PAYSTACK_TEST_PUBLIC_KEY=pk_test_your_test_public_key
+.env
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+

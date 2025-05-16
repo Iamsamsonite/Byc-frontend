@@ -1,48 +1,146 @@
-import React, {useState} from 'react'
+// import React, { useState } from 'react';
 
-const SortByDrop = () => {
-        const [sortOption, setSortOption] = useState('');
-    
-        const handleSort = (option ) => {
-            setSortOption(option);
-            console.log('selected sort option:', option);
-            // Implement sorting logic here based on the selected option
-        };
-    
-        const sortOptions = [
-            { value: 'Most Sold', label: 'Most Sold' },
-            { value: 'price LowToHigh', label: 'Price: Low to High' },
-            { value: 'price HighToLow', label: 'Price: High to Low' },
-            { value: 'newest', label: 'Newest' },
-            { value: 'oldest', label: 'Oldest' },
-            { value: 'best rated', label: 'Best Rated' },
-            { value: 'most popular', label: 'Most Popular' },
-          
-        ];
-      return (
-        <>
-          <div className="container">
-             <div className="position-relative sort-by-wrapper ">
-                <span className='sort-by-text'>Sort By</span>
-                
-                <div className="dropdown">
-                <button className="btn btn-white dropdown-btn-ds dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                    <span className='me-4'>{sortOption || 'most sold'}</span>
-                </button>
-                <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    {sortOptions.map((option) => (
-                    <li key={option.value}>
-                        <button className="dropdown-item" onClick={() => handleSort(option.value)}>
-                        {option.label}
-                        </button>
-                    </li>
-                    ))}
-                </ul>     
-                </div>
-             </div>
-          </div>
-        </>
-      )
-}
+// const SortByDrop = ({ onSortChange }) => {
+//   const [sortOption, setSortOption] = useState('Most Sold');
 
-export default SortByDrop
+//   const handleSort = (option) => {
+//     setSortOption(option);
+//     onSortChange(option); // 🔁 Pass selected sort option back to parent
+//   };
+
+//   const sortOptions = [
+//     { value: 'Most Sold', label: 'Most Sold' },
+//     { value: 'price LowToHigh', label: 'Price: Low to High' },
+//     { value: 'price HighToLow', label: 'Price: High to Low' },
+//     { value: 'Newest', label: 'Newest' },
+//     { value: 'Oldest', label: 'Oldest' },
+//     { value: 'Best Rated', label: 'Best Rated' },
+//     { value: 'Most Popular', label: 'Most Popular' },
+//   ];
+
+//   return (
+//     <div style={{ width: '100%', margin: '30px 0' }}>
+//       <div style={{ display: 'flex', alignItems: 'center', paddingRight: '10px', position: 'relative' }}>
+//         <div className="dropdown sort" style={{ position: 'relative' }}>
+//           <span
+//             style={{
+//               position: 'absolute',
+//               top: '-10px',
+//               left: '20px',
+//               fontSize: '10px',
+//               fontWeight: '500',
+//               color: 'grey',
+//               zIndex: 1,
+//               backgroundColor: '#fff',
+//               padding: '0 5px',
+//             }}
+//           >
+//             SORT BY:
+//           </span>
+
+//           <button
+//             className="btn sortby dropdown-toggle"
+//             type="button"
+//             data-bs-toggle="dropdown"
+//             aria-expanded="false"
+//             style={{
+//               backgroundColor: '#fff',
+//               border: '1px solid #000',
+//               padding: '6px 12px',
+//             //   left: '10px',
+//               fontSize: '12px',
+//               minWidth: '120px',
+//               textAlign: 'left',
+//               cursor: 'pointer',
+//               color: '#000',
+//               position: 'relative',
+//             }}
+//           >
+//             {sortOption}
+//           </button>
+
+//           <ul className="dropdown-menu">
+//             {sortOptions.map((option) => (
+//               <li key={option.value}>
+//                 <button
+//                   className="dropdown-item"
+//                   onClick={() => handleSort(option.value)}
+//                   style={{
+//                     fontSize: '14px',
+//                     padding: '8px 12px',
+//                     cursor: 'pointer',
+//                     backgroundColor: sortOption === option.value ? '#f8f9fa' : '#fff',
+//                     color: sortOption === option.value ? '#d32f2f' : '#000',
+//                     fontWeight: sortOption === option.value ? '500' : '400',
+//                   }}
+//                 >
+//                   {option.label}
+//                 </button>
+//               </li>
+//             ))}
+//           </ul>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default SortByDrop;
+
+import React from 'react';
+
+const SortByDrop = ({ onSortChange }) => {
+  const handleChange = (event) => {
+    onSortChange(event.target.value); // Pass the selected value to the parent component
+  };
+
+  return (
+    <div style={{ width: '100%', margin: '30px 0' }}>
+      <div style={{ display: 'flex', alignItems: 'center', paddingRight: '10px', position: 'relative' }}>
+        <div className="dropdown sort" style={{ position: 'relative' }}>
+          <span
+            style={{
+              position: 'absolute',
+              top: '-10px',
+              left: '20px',
+              fontSize: '10px',
+              fontWeight: '500',
+              color: 'grey',
+              zIndex: 1,
+              backgroundColor: '#fff',
+              padding: '0 5px',
+            }}
+          >
+            SORT BY:
+          </span>
+
+          <select
+            className="form-select"
+            onChange={handleChange}
+            defaultValue=""
+            style={{
+              backgroundColor: '#fff',
+              border: '1px solid #000',
+              padding: '6px 12px',
+              fontSize: '12px',
+              minWidth: '120px',
+              textAlign: 'left',
+              cursor: 'pointer',
+              color: '#000',
+            }}
+          >
+            <option value="" disabled>
+              Sort By
+            </option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="name-asc">Name: A to Z</option>
+            <option value="name-desc">Name: Z to A</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default SortByDrop;

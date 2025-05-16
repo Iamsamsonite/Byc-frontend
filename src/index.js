@@ -6,18 +6,22 @@ import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.js'
 import 'bootstrap-icons/font/bootstrap-icons.css'
-import { CartProvider } from './component/CartContext';
+import { CartProvider } from './context/CartContext';
+import { RecentViewsProvider } from './context/RecentViewsContext';
 
  
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   
-    <React.StrictMode>
-      <CartProvider>
+  <React.StrictMode>
+  <CartProvider>
+    <RecentViewsProvider>
       <App />
-      </CartProvider>
-    </React.StrictMode>
+    </RecentViewsProvider>
+  </CartProvider>
+</React.StrictMode>
+    
   
 );
 

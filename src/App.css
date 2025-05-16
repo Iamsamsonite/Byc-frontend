@@ -36,3 +36,21 @@
     transform: rotate(360deg);
   }
 }
+
+.hover-text-white:hover {
+  color: white !important;
+}
+
+.shop {
+  border-radius: 0 !important;
+}
+
+@media screen and (max-width: 700px) {
+   .sortby {
+     left: 13px;
+   }
+
+   .sort {
+     left: 10px;
+   }
+}

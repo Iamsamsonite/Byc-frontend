@@ -10,8 +10,8 @@ const Footer = () => {
     
     <div className="row">
       
-      <div className="col-lg-3 col-md-6 mb-4 mb-md-0 ps-5">
-        <h5 className="text-uppercase " style={{fontSize:'12x'}}>Company Info</h5>
+      <div className="col-lg-3 col-md-6 mb-4 mb-md-0">
+        <h5 className="text-uppercase " style={{fontSize:'12px'}}>Company Info</h5>
 
         <ul className="list-unstyled mb-0"style={{fontSize:'10px'}} >
           <li className="mb-2">

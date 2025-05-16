@@ -116,7 +116,7 @@ const Contact = () => {
             type="email"
             name="email"
             className="form-control border-danger"
-            placeholder="Samson@gmail.com"
+            placeholder="joe@gmail.com"
             id="exampleInputEmail1"
             required
           />
