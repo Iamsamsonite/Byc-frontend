@@ -42,7 +42,7 @@ const Orders = () => {
       if (!token) throw new Error('No token found');
       console.log('Updating order:', { orderId, newStatus });
       const res = await axios.patch(
-        `http://localhost:4000/api/byc/admin/orders/${orderId}`,
+        `http://localhost:4000/api/byc/admin/orders/${orderId}/status`, // <-- Corrected PATCH URL with /status
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -75,7 +75,7 @@ const Orders = () => {
       <style>
         {`
           .custom-modal .modal-dialog {
-            max-width: 750px; /* Adjusted width */
+            max-width: 750px;
           }
           .cart-items-table th, .cart-items-table td {
             vertical-align: middle;
@@ -91,6 +91,7 @@ const Orders = () => {
           }
         `}
       </style>
+
       <h3>Manage Orders</h3>
       <Table striped bordered hover>
         <thead>
@@ -232,6 +233,7 @@ const Orders = () => {
           ) : (
             <p>Loading order details...</p>
           )}
+            
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowDetailsModal(false)}>

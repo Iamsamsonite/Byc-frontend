@@ -1,4 +1,3 @@
- // C:/Users/HP/Desktop/desktop/bycfrontend/src/pages/Carttwo.jsx
 import React, { useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
@@ -17,39 +16,6 @@ const Carttwo = () => {
     console.log('Carttwo mounted, auth state:', { isAuthenticated, user, token: localStorage.getItem('token') });
   }, [isAuthenticated, user]);
 
-  // const handleCheckout = () => {
-  //   console.log('handleCheckout triggered', {
-  //     isAuthenticated,
-  //     user,
-  //     token: localStorage.getItem('token'),
-  //     localStorageUser: localStorage.getItem('user'),
-  //   });
-  //   if (!isAuthenticated || !user) {
-  //     console.log('Not authenticated, redirecting to /account');
-  //     navigate('/account');
-  //   } else {
-  //     console.log('Authenticated, redirecting to /checkout');
-  //     navigate('/checkout');
-  //   }
-  // };
-
-
-  // const handleCheckout = () => {
-  //   console.log('handleCheckout triggered', {
-  //     isAuthenticated,
-  //     user,
-  //     token: localStorage.getItem('token'),
-  //     localStorageUser: localStorage.getItem('user'),
-  //   });
-  
-  //   if (!isAuthenticated || !user) {
-  //     console.log('Not authenticated, redirecting to /account');
-  //     navigate('/account');
-  //   } else {
-  //     console.log('Authenticated, redirecting to /checkout');
-  //     navigate('/checkout');
-  //   }
-  // };
   const handleCheckout = () => {
     console.log('handleCheckout triggered', {
       isAuthenticated,
@@ -57,7 +23,7 @@ const Carttwo = () => {
       token: localStorage.getItem('token'),
       localStorageUser: localStorage.getItem('user'),
     });
-  
+
     if (!isAuthenticated || !user) {
       console.log('Not authenticated, redirecting to /account');
       navigate('/account');
@@ -66,6 +32,7 @@ const Carttwo = () => {
       navigate('/checkout');
     }
   };
+
   const testAuth = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -103,11 +70,12 @@ const Carttwo = () => {
   };
 
   const toggleWishlist = (item) => {
-    if (isInWishlist(item.id)) {
-      removeFromWishlist(item.id);
+    const productId = item.id;
+    if (isInWishlist(productId)) {
+      removeFromWishlist(productId);
       console.log(`Removed ${item.name} from wishlist`);
     } else {
-      addToWishlist(item);
+      addToWishlist({ id: productId, productName: item.name });
       console.log(`Added ${item.name} to wishlist`);
     }
   };

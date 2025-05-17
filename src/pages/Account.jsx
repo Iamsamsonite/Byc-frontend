@@ -1,7 +1,6 @@
- // C:/Users/HP/Desktop/desktop/bycfrontend/src/pages/Account.jsx
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import { toast } from 'react-hot-toast';
+import { toast } from 'react-toastify'; // Changed from react-hot-toast
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
 
@@ -22,13 +21,13 @@ const Account = () => {
     console.log('handleSubmit triggered', { isSignUp, email, password, name });
 
     if (isSignUp) {
-      if (!name.trim()) return toast.error('Name is required');
-      if (name.trim().length < 3) return toast.error('Name must be at least 3 characters');
+      if (!name.trim()) return toast.error('Name is required', { autoClose: 4000 });
+      if (name.trim().length < 3) return toast.error('Name must be at least 3 characters', { autoClose: 4000 });
     }
-    if (!email.trim()) return toast.error('Email is required');
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return toast.error('Invalid email format');
-    if (!password.trim()) return toast.error('Password is required');
-    if (password.trim().length < 6) return toast.error('Password must be at least 6 characters');
+    if (!email.trim()) return toast.error('Email is required', { autoClose: 4000 });
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return toast.error('Invalid email format', { autoClose: 4000 });
+    if (!password.trim()) return toast.error('Password is required', { autoClose: 4000 });
+    if (password.trim().length < 6) return toast.error('Password must be at least 6 characters', { autoClose: 4000 });
 
     const endpoint = isSignUp
       ? 'http://localhost:4000/api/byc/auth/register'
@@ -47,25 +46,43 @@ const Account = () => {
       });
       console.log('Response:', response.data);
 
-      const { token, user: userData } = response.data;
-      if (token) {
+      const { token } = response.data;
+      let userData;
+
+      if (isSignUp) {
+        userData = {
+          _id: response.data._id,
+          email: response.data.emailAddress,
+          name: response.data.name,
+          role: 'user',
+        };
+      } else {
+        userData = response.data.user;
+      }
+
+      if (token && userData && userData._id) {
         localStorage.setItem('token', token);
-        const userInfo = { id: userData.id, email: userData.email, name: userData.name, role: userData.role || 'user' };
+        const userInfo = {
+          _id: userData._id,
+          email: userData.email,
+          name: userData.name,
+          role: userData.role || 'user',
+        };
         setUser(userInfo);
         localStorage.setItem('user', JSON.stringify(userInfo));
-        toast.success(isSignUp ? 'Account created successfully!' : 'Login successful!');
+        toast.success(isSignUp ? 'Account created successfully!' : 'Login successful!', { autoClose: 4000 });
         setTimeout(() => {
           navigate(userInfo.role === 'admin' ? '/admin/dashboard' : '/');
         }, 2000);
       } else {
-        console.error('No token in response:', response.data);
-        toast.error(isSignUp ? 'Signup failed: No token received' : 'Login failed: No token received');
+        console.error('Invalid response:', response.data);
+        toast.error(isSignUp ? 'Signup failed: Invalid response' : 'Login failed: Invalid response', { autoClose: 4000 });
       }
     } catch (error) {
       console.error('Submit error:', error.response?.data || error.message);
       const message = error.response?.data?.message || 'An error occurred. Please try again.';
-      console.log('Toast error triggered:', message);
-      toast.error(message, { duration: 4000 });
+      console.log('Attempting to show toast with message:', message);
+      toast.error(message, { autoClose: 4000 }); // Changed duration to autoClose
     }
   };
 
@@ -75,14 +92,15 @@ const Account = () => {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       setUser(null);
-      toast.success('Logged out successfully');
+      toast.success('Logged out successfully', { autoClose: 4000 });
       navigate('/account');
     } catch (error) {
       console.error('Logout error:', error);
-      toast.error('Failed to log out');
+      toast.error('Failed to log out', { autoClose: 4000 });
     }
   };
 
+  // Rest of the component (return statement) remains unchanged
   return (
     <div className="container border rounded mt-5" style={{ maxWidth: '800px' }}>
       <div className="row">

@@ -3,9 +3,11 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { Arrowright } from '../asset';
 import Sing from '../component/Sing';
 import { CartContext } from '../context/CartContext';
+import { UserContext } from '../context/UserContext'; // Add UserContext
 import { WishlistContext } from '../context/WishlistContext';
 import { RecentViewsContext } from '../context/RecentViewsContext';
 import axios from 'axios';
+import { toast } from 'react-toastify'; // Use react-toastify
 import ProductReviews from '../component/ProductReviews';
 
 // Error Boundary Component
@@ -44,104 +46,67 @@ const ProductDetails = () => {
   const { addToCart } = useContext(CartContext);
   const { isInWishlist, addToWishlist, removeFromWishlist } = useContext(WishlistContext);
   const { addToRecentViews } = useContext(RecentViewsContext);
+  const { user, isAuthenticated, loading: authLoading } = useContext(UserContext); // Add UserContext
 
-  // Fetch current product
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       if (!id) {
-  //         console.warn('No product ID provided');
-  //         throw new Error('Invalid product ID');
-  //       }
+  useEffect(() => {
+    console.log('ProductDetails auth state:', { isAuthenticated, user, authLoading });
+    const fetchData = async () => {
+      try {
+        if (!id) {
+          throw new Error('Invalid product ID');
+        }
 
-  //       const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
-  //       console.log('Fetching product with ID:', id);
-  //       console.log('Product API URL:', `${API_URL}/api/byc/products/${id}`);
+        const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
+        const url = `${API_URL}/api/byc/products/${id}`;
+        console.log('Fetching product with ID:', id, 'URL:', url);
 
-  //       const productResponse = await axios.get(`${API_URL}/api/byc/products/${id}`);
-  //       console.log('Product API Response:', productResponse.data);
+        const productResponse = await axios.get(url, {
+          headers: { 'Content-Type': 'application/json' },
+          timeout: 5000,
+        });
+        console.log('Product API Response:', JSON.stringify(productResponse.data, null, 2));
+        console.log('Raw colors:', productResponse.data.colors);
+        console.log('Colors type:', Array.isArray(productResponse.data.colors) ? 'Array' : typeof productResponse.data.colors);
 
-  //       if (!productResponse.data) {
-  //         console.warn('Empty product response:', productResponse.data);
-  //         throw new Error('No product data returned');
-  //       }
+        if (!productResponse.data) {
+          throw new Error('No product data returned');
+        }
 
-  //       const normalizedProduct = {
-  //         ...productResponse.data,
-  //         productImages: (productResponse.data.productImage || []).map(url => url.trim()),
-  //       };
-  //       setProduct(normalizedProduct);
-  //       addToRecentViews(normalizedProduct);
-  //       console.log('Product:', normalizedProduct);
-  //     } catch (err) {
-  //       console.error('Error fetching data:', err.response || err.message);
-  //       setError(`Failed to fetch data: ${err.message}`);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchData();
-  // }, [id, addToRecentViews]);
-
-  // src/pages/ProductDetails.js (update fetchData)
-useEffect(() => {
-  const fetchData = async () => {
-    try {
-      if (!id) {
-        throw new Error('Invalid product ID');
+        const normalizedProduct = {
+          ...productResponse.data,
+          productImages: (productResponse.data.productImage || []).map(url => url.trim()),
+          _id: productResponse.data._id || id,
+          colors: Array.isArray(productResponse.data.colors)
+            ? productResponse.data.colors.map(color => ({
+                name: color.name,
+                code: color.code,
+              }))
+            : [],
+        };
+        console.log('Normalized product:', JSON.stringify(normalizedProduct, null, 2));
+        console.log('Normalized colors:', normalizedProduct.colors);
+        setProduct(normalizedProduct);
+        addToRecentViews(normalizedProduct);
+      } catch (err) {
+        console.error('Error fetching product:', err.response?.data || err.message);
+        let errorMessage = 'Failed to load product details. Please try again later.';
+        if (err.response?.status === 404) {
+          errorMessage = 'Product not found. It may have been removed or the ID is invalid.';
+        } else if (err.code === 'ECONNREFUSED') {
+          errorMessage = 'Backend server is not running. Please start the server.';
+        } else if (err.code === 'ERR_NETWORK') {
+          errorMessage = 'Network error. Please check your connection.';
+        }
+        setError(errorMessage);
+        toast.error(errorMessage, { autoClose: 4000 });
+      } finally {
+        setLoading(false);
       }
+    };
 
-      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
-      const url = `${API_URL}/api/byc/products/${id}`;
-      console.log('Fetching product with ID:', id, 'URL:', url);
+    fetchData();
+  }, [id, addToRecentViews]);
 
-      const productResponse = await axios.get(url, {
-        headers: { 'Content-Type': 'application/json' },
-        timeout: 5000
-      });
-      console.log('Product API Response:', JSON.stringify(productResponse.data, null, 2));
-      console.log('Raw colors:', productResponse.data.colors);
-      console.log('Colors type:', Array.isArray(productResponse.data.colors) ? 'Array' : typeof productResponse.data.colors);
-
-      if (!productResponse.data) {
-        throw new Error('No product data returned');
-      }
-
-      const normalizedProduct = {
-        ...productResponse.data,
-        productImages: (productResponse.data.productImage || []).map(url => url.trim()),
-        _id: productResponse.data._id || id,
-        colors: Array.isArray(productResponse.data.colors)
-          ? productResponse.data.colors.map(color => ({
-              name: color.name,
-              code: color.code
-            }))
-          : []
-      };
-      console.log('Normalized product:', JSON.stringify(normalizedProduct, null, 2));
-      console.log('Normalized colors:', normalizedProduct.colors);
-      setProduct(normalizedProduct);
-      addToRecentViews(normalizedProduct);
-    } catch (err) {
-      console.error('Error fetching product:', err.response?.data || err.message);
-      let errorMessage = 'Failed to load product details. Please try again later.';
-      if (err.response?.status === 404) {
-        errorMessage = 'Product not found. It may have been removed or the ID is invalid.';
-      } else if (err.code === 'ECONNREFUSED') {
-        errorMessage = 'Backend server is not running. Please start the server.';
-      } else if (err.code === 'ERR_NETWORK') {
-        errorMessage = 'Network error. Please check your connection.';
-      }
-      setError(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  fetchData();
-}, [id, addToRecentViews]);
-  // Build breadcrumb items
   const getBreadcrumbItems = () => {
     const items = [
       { label: 'Home', path: '/' },
@@ -149,12 +114,11 @@ useEffect(() => {
         label: product?.category?.name || 'Category',
         path: `/products?category=${encodeURIComponent(product?.category?.name || 'All Products')}`,
       },
-      { label: product?.productName || 'Product', path: null }, // Active item, no path
+      { label: product?.productName || 'Product', path: null },
     ];
     return items;
   };
 
-  // Build carousel images for current product
   const getCarouselImages = () => {
     if (!product || !product.productImages?.length) {
       return [{
@@ -174,7 +138,6 @@ useEffect(() => {
 
   const carouselImages = getCarouselImages();
 
-  // Handle carousel navigation
   const handlePrevImage = () => {
     if (carouselImages.length > 1) {
       setCurrentImageIndex((prevIndex) =>
@@ -207,14 +170,27 @@ useEffect(() => {
   };
 
   const handleAddToCart = () => {
-    console.log('handleAddToCart triggered');
-    let hasError = false;
+    console.log('handleAddToCart triggered', { isAuthenticated, authLoading });
+    if (authLoading) {
+      console.log('Auth still loading, cannot add to cart yet');
+      setValidationError('Please wait, verifying your session...');
+      toast.warn('Verifying session, please wait...', { autoClose: 4000 });
+      return;
+    }
+    if (!isAuthenticated) {
+      console.log('User not authenticated, redirecting to login');
+      setValidationError('Please log in to add items to cart');
+      toast.error('Please log in to add to cart', { autoClose: 4000 });
+      navigate('/account');
+      return;
+    }
 
+    let hasError = false;
     if (!selectedSize || !selectedColor) {
       console.warn('Validation failed: Size or color missing');
-      console.log('selectedSize:', selectedSize);
-      console.log('selectedColor:', selectedColor);
-      setValidationError('Color and size is required');
+      console.log('selectedSize:', selectedSize, 'selectedColor:', selectedColor);
+      setValidationError('Color and size are required');
+      toast.error('Please select a color and size', { autoClose: 4000 });
       hasError = true;
     } else {
       setValidationError('');
@@ -228,6 +204,7 @@ useEffect(() => {
     if (!product) {
       console.error('Cannot add to cart: product is null');
       setValidationError('Product data is not available');
+      toast.error('Product data is not available', { autoClose: 4000 });
       return;
     }
 
@@ -246,23 +223,42 @@ useEffect(() => {
     try {
       addToCart(cartItem);
       console.log('Cart item added successfully');
+      toast.success('Added to cart successfully!', { autoClose: 4000 });
       navigate('/carttwo');
       console.log('Navigated to /carttwo');
     } catch (err) {
       console.error('Error adding to cart or navigating:', err);
       setValidationError('Failed to add to cart. Please try again.');
+      toast.error('Failed to add to cart. Please try again.', { autoClose: 4000 });
     }
   };
-  const handleWishlistToggle = (product) => {
-    const productId = product.productId || product._id; // Use productId or fallback to _id
+
+  const handleWishlistToggle = () => {
+    if (!product) {
+      console.error('Cannot toggle wishlist: product is null');
+      toast.error('Product data is not available', { autoClose: 4000 });
+      return;
+    }
+    const productId = product._id;
     if (isInWishlist(productId)) {
       removeFromWishlist(productId);
+      toast.success('Removed from wishlist', { autoClose: 4000 });
     } else {
-      addToWishlist({ ...product, productId }); // Pass productId
+      addToWishlist({ id: productId, productName: product.productName });
+      toast.success('Added to wishlist', { autoClose: 4000 });
     }
   };
-  
-  
+
+  if (authLoading) {
+    return (
+      <div className="container mt-5 text-center">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+        <h5>Verifying session...</h5>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -286,7 +282,6 @@ useEffect(() => {
 
   const totalPrice = product?.productPrice * quantity || 0;
 
-  // DecreasingBars Component
   const DecreasingBars = ({
     width = 181,
     height = 115,
@@ -530,14 +525,13 @@ useEffect(() => {
                 <div className="ms-4">
                   <button
                     className="btn btn-sm border-danger text-danger"
-                    onClick={() => handleWishlistToggle(product)} // Use handleWishlistToggle here
+                    onClick={handleWishlistToggle}
                   >
                     <i
-                        className={`bi ${isInWishlist(product.productId || product._id) ? 'bi-heart-fill' : 'bi-heart'} me-1 text-danger`} 
-
+                      className={`bi ${isInWishlist(product?._id) ? 'bi-heart-fill' : 'bi-heart'} me-1 text-danger`}
                       style={{ fontSize: '16px' }}
-                    ></i>{' '}
-                    {isInWishlist(product.productId || product._id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                    ></i>
+                    {isInWishlist(product?._id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
                   </button>
                 </div>
               </div>

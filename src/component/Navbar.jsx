@@ -131,17 +131,17 @@ const Navbar = () => {
               )}
             </ul>
             <ul className="navbar-nav d-flex align-items-center">
-              <li className="nav-item me-3">
+              <li className="nav-item me-1">
                 <Link className={`nav-link ${isDarkBg ? 'text-white' : 'text-dark'}`} to="/about">
                   About Us
                 </Link>
               </li>
-              <li className="nav-item me-3">
+              <li className="nav-item ">
                 <Link className={`nav-link ${isDarkBg ? 'text-white' : 'text-dark'}`} to="/contact">
                   Contact
                 </Link>
               </li>
-              <li className="nav-item me-3">
+              <li className="nav-item ">
                 {!showSearch ? (
                   <span className="nav-link" onClick={toggleSearch}>
                     <i className="bi bi-search"></i>
@@ -165,7 +165,7 @@ const Navbar = () => {
                   </form>
                 )}
               </li>
-              <li className="nav-item me-3 dropdown">
+              <li className="nav-item me-1 dropdown">
                 {isAuthenticated ? (
                   <>
                     <span

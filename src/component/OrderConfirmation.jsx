@@ -7,14 +7,14 @@ const OrderConfirmation = () => {
   const navigate = useNavigate();
   const order = state?.order || JSON.parse(localStorage.getItem('order'));
 
-  console.log('Order in OrderConfirmation:', order); // Debug log
+  console.log('Order in OrderConfirmation:', order);
 
   if (!order || !order.cartItems || !order.shippingAddress) {
     return (
       <Container className="mt-5 text-center">
         <h2>Order Confirmation</h2>
-        <p>No order details available.</p>
-        <Button variant="danger" onClick={() => navigate('/')}>
+        <p>No order details available. Please contact support if this is an error.</p>
+        <Button variant="danger" onClick={() => navigate('/products')}>
           Continue Shopping
         </Button>
       </Container>
@@ -29,7 +29,8 @@ const OrderConfirmation = () => {
       <h5>Shipping Address</h5>
       <p>
         {order.shippingAddress.fullName || 'N/A'}<br />
-        {order.shippingAddress.townCity || ''}, {order.shippingAddress.state || ''}<br />
+        {order.shippingAddress.companyName ? `${order.shippingAddress.companyName}, ` : ''}
+        {order.shippingAddress.townCity || ''}, {order.shippingAddress.state || ''}, {order.shippingAddress.country || 'N/A'}<br />
         {order.shippingAddress.phone || 'N/A'}<br />
         {order.shippingAddress.email || 'N/A'}
       </p>
@@ -49,7 +50,12 @@ const OrderConfirmation = () => {
             const itemPrice = typeof item.price === 'number' ? item.price : (item.product && typeof item.product.price === 'number' ? item.product.price : 0);
             return (
               <tr key={index}>
-                <td>{itemName}</td>
+                <td>
+                  {itemName}
+                  {item.selectedSize && item.selectedColor && (
+                    <small> ({item.selectedSize}, {item.selectedColor})</small>
+                  )}
+                </td>
                 <td>{item.quantity || 0}</td>
                 <td>₦{itemPrice.toFixed(2)}</td>
                 <td>₦{(itemPrice * (item.quantity || 0)).toFixed(2)}</td>
@@ -62,8 +68,8 @@ const OrderConfirmation = () => {
       <p>Delivery Fee: ₦{typeof order.deliveryFee === 'number' ? order.deliveryFee.toFixed(2) : 'N/A'}</p>
       <p>Total: ₦{typeof order.totalAmount === 'number' ? order.totalAmount.toFixed(2) : 'N/A'}</p>
       <p>Payment Method: {order.paymentMethod || 'N/A'}</p>
-      <p>Status: {order.status || 'N/A'}</p>
-      <Button variant="danger" onClick={() => navigate('/')}>
+      <p>Status: {order.status || 'Pending'}</p>
+      <Button variant="danger" onClick={() => navigate('/products')}>
         Continue Shopping
       </Button>
     </Container>

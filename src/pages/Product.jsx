@@ -13,7 +13,6 @@ const Products = () => {
   const navigate = useNavigate();
   const { addToRecentViews } = useContext(RecentViewsContext);
   const { addToWishlist, removeFromWishlist, isInWishlist } = useContext(WishlistContext);
-  // const { addToCart } = useContext(CartContext); // Kept for context integrity
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -88,15 +87,13 @@ const Products = () => {
   };
 
   const handleWishlistToggle = (product) => {
-    const productId = product.productId || product._id; // Use productId or fallback to _id
+    const productId = product.id; // Use product.id consistently
     if (isInWishlist(productId)) {
       removeFromWishlist(productId);
     } else {
-      addToWishlist({ ...product, productId }); // Pass productId
+      addToWishlist({ id: productId, productName: product.productName });
     }
   };
-  
-  
 
   // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -169,14 +166,13 @@ const Products = () => {
                 className="btn btn-sm border-danger mt-3"
                 onClick={() => handleWishlistToggle(product)}
               >
-                 <i className={`bi ${isInWishlist(product.productId || product._id) ? 'bi-heart-fill' : 'bi-heart'} me-1 text-danger`} 
-
+                <i
+                  className={`bi ${isInWishlist(product.id) ? 'bi-heart-fill' : 'bi-heart'} me-1 text-danger`}
                   style={{ fontSize: '10px' }}
                 ></i>
-                 <span className="text-danger" style={{ fontSize: '10px' }}>
-  {isInWishlist(product.productId || product._id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
-</span>
-
+                <span className="text-danger" style={{ fontSize: '10px' }}>
+                  {isInWishlist(product.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                </span>
               </button>
               <button
                 className="btn btn-sm border-danger btn-danger ms-1 mt-3"
@@ -212,7 +208,6 @@ const Products = () => {
           >
             <img
               src={product.productImage}
-              
               alt={product.productName}
               style={{
                 width: '200px',
@@ -240,14 +235,13 @@ const Products = () => {
                   className="btn btn-sm border-danger mt-3"
                   onClick={() => handleWishlistToggle(product)}
                 >
-                  <i className={`bi ${isInWishlist(product.productId || product._id) ? 'bi-heart-fill' : 'bi-heart'} me-1 text-danger`} 
-
+                  <i
+                    className={`bi ${isInWishlist(product.id) ? 'bi-heart-fill' : 'bi-heart'} me-1 text-danger`}
                     style={{ fontSize: '10px' }}
                   ></i>
-                   <span className="text-danger" style={{ fontSize: '10px' }}>
-  {isInWishlist(product.productId || product._id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
-</span>
-
+                  <span className="text-danger" style={{ fontSize: '10px' }}>
+                    {isInWishlist(product.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                  </span>
                 </button>
                 <button
                   className="btn btn-sm border-danger btn-danger ms-1 mt-3"
@@ -312,7 +306,6 @@ const Products = () => {
 
         {viewMode === 'grid' ? renderGridView() : renderListView()}
 
-        {/* Pagination */}
         {totalPages > 1 && (
           <div className="text-center">
             <div className="btn-group rounded-0 shadow-sm gap-2 my-5" role="group">

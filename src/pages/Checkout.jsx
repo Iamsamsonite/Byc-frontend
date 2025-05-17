@@ -1,4 +1,3 @@
- // C:/Users/HP/Desktop/desktop/bycfrontend/src/pages/Checkout.jsx
 import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Pay } from '../asset'; // Verify this import
@@ -6,12 +5,12 @@ import { CartContext } from '../context/CartContext';
 import { UserContext } from '../context/UserContext';
 import axios from 'axios';
 import { PaystackButton } from 'react-paystack';
-import { toast } from 'react-hot-toast';
+import { toast } from 'react-toastify'; // Use react-toastify
 import { v4 as uuidv4 } from 'uuid';
 
 const Checkout = () => {
   const { cartItems, totalPrice, cartCount, clearCart } = useContext(CartContext);
-  const { user } = useContext(UserContext);
+  const { user, isAuthenticated, authLoading } = useContext(UserContext);
   const navigate = useNavigate();
 
   // Form state
@@ -31,7 +30,7 @@ const Checkout = () => {
   const [addressSuccess, setAddressSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
-  console.log('Checkout Context:', { cartItems, totalPrice, cartCount, user });
+  console.log('Checkout Context:', { cartItems, totalPrice, cartCount, user, isAuthenticated, authLoading });
 
   // Default placeholder images
   const defaultCartImage = 'https://via.placeholder.com/150?text=No+Image';
@@ -46,6 +45,7 @@ const Checkout = () => {
   console.log('Paystack publicKey:', publicKey);
   if (!publicKey) {
     console.error('Paystack public key is missing. Please set REACT_APP_PAYSTACK_TEST_PUBLIC_KEY in .env');
+    toast.error('Payment configuration error. Please contact support.', { autoClose: 4000 });
   }
   const paystackConfig = {
     reference: `BYC_${new Date().getTime().toString()}`,
@@ -110,207 +110,137 @@ const Checkout = () => {
   };
 
   // Save order
-  // const saveOrder = async (paymentReference = null) => {
-  //   setLoading(true);
-  //   setOrderError('');
-  //   setOrderSuccess('');
+  const saveOrder = async (paymentReference = null) => {
+    setLoading(true);
+    setOrderError('');
+    setOrderSuccess('');
 
-  //   const order = {
-  //     cartItems,
-  //     shippingAddress: {
-  //       fullName: formData.fullName,
-  //       companyName: formData.companyName,
-  //       country: formData.country,
-  //       townCity: formData.townCity,
-  //       state: formData.state,
-  //       phone: formData.phone,
-  //       email: formData.email,
-  //     },
-  //     paymentMethod: formData.paymentMethod,
-  //     paymentReference,
-  //     subtotal: totalPrice,
-  //     deliveryFee,
-  //     totalAmount: parseFloat(totalAmount),
-  //     orderDate: new Date().toISOString(),
-  //   };
-
-  //   console.log('Placing order:', order);
-
-  //   try {
-  //     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
-  //     const response = await axios.post(`${API_URL}/api/byc/orders`, order, {
-  //       headers: {
-  //         Authorization: `Bearer ${localStorage.getItem('token')}`,
-  //       },
-  //     });
-  //     console.log('Order response:', response.data);
-  //     clearCart();
-  //     setOrderSuccess('Order placed successfully!');
-  //     toast.success('Order placed successfully!');
-  //     navigate('/order-confirmation', { state: { order: response.data.order } });
-  //   } catch (err) {
-  //     console.error('Error placing order:', err.response?.data || err.message);
-  //     const errorMsg = err.response?.data?.message || 'Failed to place order. Please try again.';
-  //     setOrderError(errorMsg);
-  //     toast.error(errorMsg);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-//   const saveOrder = async (paymentReference = null) => {
-//     setLoading(true);
-//     setOrderError('');
-//     setOrderSuccess('');
-  
-//     const user = JSON.parse(localStorage.getItem('user')); // Retrieve user from localStorage
-  
-//     if (!user || !user.id) {
-//       console.error('User is not logged in or user ID is missing.');
-//       setOrderError('User is required to place an order.');
-//       setLoading(false);
-//       return;
-//     }
-  
-//     const order = {
-//       orderId: `BYC_${new Date().getTime()}`, // Generate a unique order ID
-//       user: user.id, // Ensure user ID is included
-//       cartItems: cartItems.map((item) => ({
-//         product: item.id, // Ensure product ID is included
-//         quantity: item.quantity,
-//       })),
-//       shippingAddress: {
-//         fullName: formData.fullName,
-//         companyName: formData.companyName,
-//         country: formData.country,
-//         townCity: formData.townCity,
-//         state: formData.state,
-//         phone: formData.phone,
-//         email: formData.email,
-//       },
-//       paymentMethod: formData.paymentMethod,
-//       paymentReference,
-//       subtotal: totalPrice,
-//       deliveryFee,
-//       totalAmount: parseFloat(totalAmount),
-//       orderDate: new Date().toISOString(),
-//     };
-  
-//     console.log('Placing order:', order);
-//     console.log('Order payload being sent:', order);
-  
-//     try {
-//       const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
-//       const response = await axios.post(`${API_URL}/api/byc/orders`, order, {
-//         headers: {
-//           Authorization: `Bearer ${localStorage.getItem('token')}`,
-//         },
-//       });
-//       console.log('Order response:', response.data);
-//       clearCart();
-//       setOrderSuccess('Order placed successfully!');
-//       toast.success('Order placed successfully!');
-//       navigate('/order-confirmation', { state: { order: response.data.order } });
-//       console.log('Order response:', response.data);
-// console.log('Navigating to order confirmation with order:', response.data.order);
-//     } catch (err) {
-//       console.error('Error placing order:', err.response?.data || err.message);
-//       const errorMsg = err.response?.data?.message || 'Failed to place order. Please try again.';
-//       setOrderError(errorMsg);
-//       toast.error(errorMsg);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-const saveOrder = async (paymentReference = null) => {
-  setLoading(true);
-  setOrderError('');
-  setOrderSuccess('');
-
-  const user = JSON.parse(localStorage.getItem('user'));
-
-  if (!user || !user.id) {
-    console.error('User is not logged in or user ID is missing.');
-    setOrderError('User is required to place an order.');
-    setLoading(false);
-    return;
-  }
-
-  const generatedOrderId = `BYC_${new Date().getTime()}`;
-  console.log('Generated orderId:', generatedOrderId);
-
-  if (!generatedOrderId || generatedOrderId === 'BYC_undefined' || generatedOrderId === 'BYC_null') {
-    console.error('Invalid orderId generated:', generatedOrderId);
-    setOrderError('Failed to generate a valid order ID. Please try again.');
-    setLoading(false);
-    return;
-  }
-
-  // Validate cartItems
-  const validatedCartItems = cartItems.map((item) => {
-    if (!item.id || !item.name || typeof item.price !== 'number' || !item.quantity) {
-      console.warn('Invalid cart item:', item);
-      return {
-        product: item.id || 'unknown',
-        quantity: item.quantity || 1,
-        name: item.name || 'Unknown Product',
-        price: item.price || 0,
-      };
+    if (authLoading) {
+      console.log('saveOrder: Auth still loading');
+      toast.warn('Verifying session, please wait...', { autoClose: 4000 });
+      setLoading(false);
+      return;
     }
-    return {
-      product: item.id,
-      quantity: item.quantity,
-      name: item.name,
-      price: item.price,
-    };
-  });
 
-  const order = {
-    orderId: generatedOrderId,
-    user: user.id,
-    cartItems: validatedCartItems,
-    shippingAddress: {
-      fullName: formData.fullName,
-      companyName: formData.companyName,
-      country: formData.country,
-      townCity: formData.townCity,
-      state: formData.state,
-      phone: formData.phone,
-      email: formData.email,
-    },
-    paymentMethod: formData.paymentMethod,
-    paymentReference,
-    subtotal: totalPrice || 0,
-    deliveryFee: deliveryFee || 0,
-    totalAmount: parseFloat(totalAmount) || 0,
-    orderDate: new Date().toISOString(),
+    if (!isAuthenticated) {
+      console.log('saveOrder: User not authenticated');
+      setOrderError('Please log in to place an order.');
+      toast.error('Please log in to place an order.', { autoClose: 4000 });
+      navigate('/account');
+      setLoading(false);
+      return;
+    }
+
+    const user = JSON.parse(localStorage.getItem('user'));
+    const token = localStorage.getItem('token');
+    console.log('Frontend user:', user);
+    console.log('Frontend token:', token);
+
+    if (!user || !user._id) { // Changed from user.id to user._id
+      console.error('User is not logged in or user _id is missing.');
+      setOrderError('Please log in to place an order.');
+      toast.error('Please log in to place an order.', { autoClose: 4000 });
+      navigate('/account');
+      setLoading(false);
+      return;
+    }
+
+    if (!token) {
+      console.error('No token found in localStorage.');
+      setOrderError('Authentication token is missing. Please log in again.');
+      toast.error('Authentication token is missing. Please log in again.', { autoClose: 4000 });
+      navigate('/account');
+      setLoading(false);
+      return;
+    }
+
+    const generatedOrderId = `BYC_${Date.now()}_${uuidv4().slice(0, 8)}`;
+    console.log('Generated orderId:', generatedOrderId);
+
+    if (!generatedOrderId || generatedOrderId === 'BYC_undefined' || generatedOrderId === 'BYC_null') {
+      console.error('Invalid orderId generated:', generatedOrderId);
+      setOrderError('Failed to generate a valid order ID. Please try again.');
+      toast.error('Failed to generate a valid order ID. Please try again.', { autoClose: 4000 });
+      setLoading(false);
+      return;
+    }
+
+    // Validate cartItems
+    const validatedCartItems = cartItems.map((item) => {
+      if (!item.id || !item.name || typeof item.price !== 'number' || !item.quantity) {
+        console.warn('Invalid cart item:', item);
+        return {
+          product: item.id || 'unknown',
+          quantity: item.quantity || 1,
+          name: item.name || 'Unknown Product',
+          price: item.price || 0,
+          selectedColor: item.selectedColor || 'N/A',
+          selectedSize: item.selectedSize || 'N/A',
+        };
+      }
+      return {
+        product: item.id,
+        quantity: item.quantity,
+        name: item.name,
+        price: item.price,
+        selectedColor: item.selectedColor || 'N/A',
+        selectedSize: item.selectedSize || 'N/A',
+      };
+    });
+
+    const order = {
+      orderId: generatedOrderId,
+      user: user._id, // Changed from user.id to user._id
+      cartItems: validatedCartItems,
+      shippingAddress: {
+        fullName: formData.fullName,
+        companyName: formData.companyName || '',
+        country: formData.country || 'Nigeria',
+        townCity: formData.townCity,
+        state: formData.state,
+        phone: formData.phone,
+        email: formData.email,
+      },
+      paymentMethod: formData.paymentMethod,
+      paymentReference,
+      subtotal: totalPrice || 0,
+      deliveryFee: deliveryFee || 0,
+      totalAmount: parseFloat(totalAmount) || 0,
+      orderDate: new Date().toISOString(),
+    };
+
+    console.log('Placing order:', order);
+
+    try {
+      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
+      const response = await axios.post(`${API_URL}/api/byc/orders`, order, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      console.log('Order response:', response.data);
+      clearCart();
+      setOrderSuccess('Order placed successfully!');
+      toast.success('Order placed successfully!', { autoClose: 4000 });
+      localStorage.setItem('order', JSON.stringify(response.data.order));
+      navigate('/order-confirmation', { state: { order: response.data.order } });
+    } catch (err) {
+      console.error('Error placing order:', err.response?.data || err.message);
+      const errorMsg = err.response?.data?.message || 'Failed to place order. Please try again.';
+      setOrderError(errorMsg);
+      toast.error(errorMsg, { autoClose: 4000 });
+      if (err.response?.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        toast.error('Session expired, please log in again.', { autoClose: 4000 });
+        navigate('/account');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
-  console.log('Placing order:', order);
-
-  try {
-    const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
-    const response = await axios.post(`${API_URL}/api/byc/orders`, order, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
-    console.log('Order response:', response.data);
-    clearCart();
-    setOrderSuccess('Order placed successfully!');
-    toast.success('Order placed successfully!');
-    localStorage.setItem('order', JSON.stringify(response.data.order));
-    navigate('/order-confirmation', { state: { order: response.data.order } });
-  } catch (err) {
-    console.error('Error placing order:', err.response?.data || err.message);
-    const errorMsg = err.response?.data?.message || 'Failed to place order. Please try again.';
-    setOrderError(errorMsg);
-    toast.error(errorMsg);
-  } finally {
-    setLoading(false);
-  }
-};
   // Handle Paystack success
   const handlePaystackSuccess = (response) => {
     console.log('Payment successful:', response);
@@ -321,7 +251,7 @@ const saveOrder = async (paymentReference = null) => {
   const handlePaystackClose = () => {
     console.log('Payment closed');
     setOrderError('Payment was cancelled. Please try again.');
-    toast.error('Payment cancelled');
+    toast.error('Payment cancelled', { autoClose: 4000 });
   };
 
   // Handle Place Order
@@ -348,8 +278,20 @@ const saveOrder = async (paymentReference = null) => {
     navigate(`/product/${productId}`);
   };
 
+  // Handle authLoading state
+  if (authLoading) {
+    return (
+      <div className="container mt-5 text-center">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+        <h5>Verifying session...</h5>
+      </div>
+    );
+  }
+
   // Redirect if not authenticated
-  if (!user) {
+  if (!isAuthenticated) {
     return (
       <div className="container mt-5 text-center">
         <h2>Checkout</h2>
@@ -669,6 +611,3 @@ const saveOrder = async (paymentReference = null) => {
 };
 
 export default Checkout;
-
-
-

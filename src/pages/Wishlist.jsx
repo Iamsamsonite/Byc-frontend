@@ -1,22 +1,27 @@
- // C:/Users/HP/Desktop/desktop/bycfrontend/src/pages/Wishlist.jsx
 import React, { useContext, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; // Add useNavigate
 import { WishlistContext } from '../context/WishlistContext';
 import { CartContext } from '../context/CartContext';
-import { AuthContext } from '../context/AuthContext';
+import { UserContext } from '../context/UserContext';
 import { Arrowright } from '../asset';
-import { toast } from 'react-hot-toast';
+import { toast } from 'react-toastify'; // Switch to react-toastify
 import axios from 'axios';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 
 const Wishlist = () => {
   const { wishlist = { items: [] }, setWishlist, removeFromWishlist, wishlistCount = 0 } = useContext(WishlistContext);
   const { addToCart } = useContext(CartContext);
-  const { isAuthenticated } = useContext(AuthContext);
+  const { isAuthenticated, authLoading } = useContext(UserContext);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const navigate = useNavigate(); // Add navigate
 
   useEffect(() => {
+    console.log('Wishlist.jsx auth state:', { isAuthenticated, authLoading });
+    if (authLoading) {
+      console.log('Wishlist: Auth still loading, waiting');
+      return;
+    }
     if (!isAuthenticated) {
       setLoading(false);
       return;
@@ -28,48 +33,91 @@ const Wishlist = () => {
         if (!token) throw new Error('No token found');
         const res = await axios.get('http://localhost:4000/api/byc/wishlist', {
           headers: { Authorization: `Bearer ${token}` },
+          timeout: 5000,
         });
         const data = res.data || { items: [] };
+        console.log('Wishlist: Fetched wishlist:', data);
         setWishlist(data);
         setError('');
       } catch (err) {
-        console.error('Error fetching wishlist:', err);
+        console.error('Wishlist: Error fetching wishlist:', err.response?.data || err.message);
         const errorMsg = err.response?.data?.message || 'Failed to load wishlist';
         setError(errorMsg);
-        toast.error(errorMsg);
+        if (err.response?.status === 401) {
+          toast.error('Session expired, please log in again', { autoClose: 4000 });
+          navigate('/account');
+        } else {
+          toast.error(errorMsg, { autoClose: 4000 });
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchWishlist();
-  }, [isAuthenticated, setWishlist]);
+  }, [isAuthenticated, authLoading, setWishlist, navigate]);
 
   const handleAddToCart = (product) => {
+    if (authLoading) {
+      console.log('Wishlist: Auth still loading, cannot add to cart');
+      toast.warn('Verifying session, please wait...', { autoClose: 4000 });
+      return;
+    }
+    if (!isAuthenticated) {
+      console.log('Wishlist: User not authenticated, redirecting to login');
+      toast.error('Please log in to add to cart', { autoClose: 4000 });
+      navigate('/account');
+      return;
+    }
+
     try {
       const cartItem = {
         ...product,
-        id: product.id || product._id,
+        id: product.product?._id || product._id,
         quantity: 1,
         selectedSize: product.sizes?.[0] || 'M',
         selectedColor: product.colors?.[0]?.name || 'Blue',
       };
       addToCart(cartItem);
-      toast.success(`Added ${product.productName || 'item'} to cart!`);
+      toast.success(`Added ${product.productName || 'item'} to cart!`, { autoClose: 4000 });
     } catch (err) {
-      console.error('Error adding to cart:', err);
-      toast.error('Failed to add to cart');
+      console.error('Wishlist: Error adding to cart:', err);
+      toast.error('Failed to add to cart', { autoClose: 4000 });
     }
   };
 
   const handleRemove = async (itemId) => {
+    if (authLoading) {
+      console.log('Wishlist: Auth still loading, cannot remove');
+      toast.warn('Verifying session, please wait...', { autoClose: 4000 });
+      return;
+    }
+    if (!isAuthenticated) {
+      console.log('Wishlist: User not authenticated, redirecting to login');
+      toast.error('Please log in to remove from wishlist', { autoClose: 4000 });
+      navigate('/account');
+      return;
+    }
+
     try {
       await removeFromWishlist(itemId);
-      toast.success('Item removed from wishlist');
+      toast.success('Item removed from wishlist', { autoClose: 4000 });
     } catch (err) {
-      toast.error('Failed to remove item from wishlist');
+      console.error('Wishlist: Error removing:', err);
+      toast.error('Failed to remove item from wishlist', { autoClose: 4000 });
     }
   };
+
+  if (authLoading) {
+    return (
+      <Container className="mt-5 text-center">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+        <h5>Verifying session...</h5>
+      </Container>
+    );
+  }
 
   if (loading) {
     return (
@@ -92,7 +140,7 @@ const Wishlist = () => {
       <Container className="mt-5 text-center">
         <h2>Your Wishlist</h2>
         <p>Please log in to view your wishlist.</p>
-        <Link to="/account" className="btn btn-primary">Log In</Link>
+        <Link to="/account" className="btn btn-danger">Log In</Link>
       </Container>
     );
   }
@@ -120,7 +168,7 @@ const Wishlist = () => {
             <p style={{ fontSize: '12px', color: '#787885' }}>
               Add some products to your wishlist!
             </p>
-            <Link to="/products" className="btn btn-primary btn-sm">
+            <Link to="/products" className="btn btn-danger btn-sm">
               Shop Now
             </Link>
           </div>
@@ -129,7 +177,7 @@ const Wishlist = () => {
             <Col md={1}></Col>
             {wishlist.items.map((product) => (
               <Col
-                key={product.id || product._id}
+                key={product.product?._id || product._id}
                 md={2}
                 className="my-3 shadow-sm pb-2 singlet"
                 onMouseEnter={(e) => {
@@ -146,7 +194,7 @@ const Wishlist = () => {
                 }}
                 style={{ transition: 'transform 0.3s ease, box-shadow 0.3s ease' }}
               >
-                <Link to={`/product/${product.id || product._id}`}>
+                <Link to={`/product/${product.product?._id || product._id}`}>
                   <img
                     src={product.productImage || 'https://via.placeholder.com/300?text=No+Image'}
                     className="img-fluid"
@@ -182,7 +230,7 @@ const Wishlist = () => {
                     variant="outline-danger"
                     size="sm"
                     className="mt-3 hover-button d-none"
-                    onClick={() => handleRemove(product.id || product._id)}
+                    onClick={() => handleRemove(product.product?._id || product._id)}
                   >
                     <i className="bi bi-heart-fill me-1 text-danger" style={{ fontSize: '10px' }}></i>
                     <span style={{ fontSize: '10px' }}>Remove</span>
