@@ -47,7 +47,7 @@ const Macbook = () => {
   const renderGridView = () => (
     <div className="row" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-start' }}>
       {productsToDisplay.map((product, index) => (
-        <div key={index} className="col-md-3 my-3 d-flex flex-column" style={{ flex: '0 0 20%', padding: '10px' }}>
+        <div key={index} className="col-md-3 my-3 d-flex flex-column" style={{  padding: '10px' }}>
           <div className="singlet shadow-sm" style={cardStyle}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'scale(1.05)';

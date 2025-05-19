@@ -166,7 +166,7 @@ const Mac = () => {
   const renderGridView = () => (
     <div className="row" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-start' }}>
       {sortedProducts.map((product) => (
-        <div key={product._id} className="col-md-3 my-3 d-flex flex-column" style={{ flex: '0 0 20%', padding: '10px' }}>
+        <div key={product._id} className="col-md-3 my-3 d-flex flex-column" style={{  padding: '10px' }}>
           <div
             className="singlet shadow-sm"
             style={cardStyle}

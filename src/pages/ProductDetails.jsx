@@ -169,7 +169,7 @@ const ProductDetails = () => {
     setQuantity((prevQuantity) => (prevQuantity > 1 ? prevQuantity - 1 : 1));
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     console.log('handleAddToCart triggered', { isAuthenticated, authLoading });
     if (authLoading) {
       console.log('Auth still loading, cannot add to cart yet');
@@ -184,30 +184,29 @@ const ProductDetails = () => {
       navigate('/account');
       return;
     }
-
+  
     let hasError = false;
     if (!selectedSize || !selectedColor) {
       console.warn('Validation failed: Size or color missing');
-      console.log('selectedSize:', selectedSize, 'selectedColor:', selectedColor);
       setValidationError('Color and size are required');
       toast.error('Please select a color and size', { autoClose: 4000 });
       hasError = true;
     } else {
       setValidationError('');
     }
-
+  
     if (hasError) {
       console.log('Validation errors, exiting handleAddToCart');
       return;
     }
-
+  
     if (!product) {
       console.error('Cannot add to cart: product is null');
       setValidationError('Product data is not available');
       toast.error('Product data is not available', { autoClose: 4000 });
       return;
     }
-
+  
     const cartItem = {
       id: product._id,
       name: product.productName,
@@ -218,18 +217,34 @@ const ProductDetails = () => {
       selectedColor,
       productNumber: product.productNumber || 'N/A',
     };
-
+  
     console.log('Adding to cart:', cartItem);
     try {
-      addToCart(cartItem);
+      const token = localStorage.getItem('token');
+      await axios.post(
+        'https://byc-backend-hkgk.onrender.com/api/byc/cart/add',
+        {
+          productId: product._id,
+          quantity,
+          selectedSize,
+          selectedColor,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      addToCart(cartItem); // Update CartContext
       console.log('Cart item added successfully');
       toast.success('Added to cart successfully!', { autoClose: 4000 });
       navigate('/carttwo');
-      console.log('Navigated to /carttwo');
     } catch (err) {
-      console.error('Error adding to cart or navigating:', err);
-      setValidationError('Failed to add to cart. Please try again.');
-      toast.error('Failed to add to cart. Please try again.', { autoClose: 4000 });
+      console.error('Error adding to cart:', err.response?.data || err.message);
+      if (err.response?.status === 401) {
+        console.log('Unauthorized, redirecting to login');
+        toast.error('Session expired. Please log in again.', { autoClose: 4000 });
+        navigate('/account');
+      } else {
+        setValidationError('Failed to add to cart. Please try again.');
+        toast.error('Failed to add to cart. Please try again.', { autoClose: 4000 });
+      }
     }
   };
 
