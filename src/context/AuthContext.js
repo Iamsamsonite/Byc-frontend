@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
       const token = localStorage.getItem('token');
       if (token) {
         try {
-          const response = await axios.get('http://localhost:4000/api/byc/auth/me', {
+          const response = await axios.get('https://byc-backend-hkgk.onrender.com/api/byc/auth/me', {
             headers: { Authorization: `Bearer ${token}` }
           });
           setUser(response.data);
@@ -35,13 +35,13 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (emailAddress, password) => {
     try {
-      const response = await axios.post('http://localhost:4000/api/byc/auth/login', {
+      const response = await axios.post('https://byc-backend-hkgk.onrender.com/api/byc/auth/login', {
         emailAddress,
         password
       });
       const { token, role } = response.data;
       localStorage.setItem('token', token);
-      const userResponse = await axios.get('http://localhost:4000/api/byc/auth/me', {
+      const userResponse = await axios.get('https://byc-backend-hkgk.onrender.com/api/byc/auth/me', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUser(userResponse.data);

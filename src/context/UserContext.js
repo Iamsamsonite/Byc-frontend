@@ -26,7 +26,7 @@ export const UserProvider = ({ children }) => {
           return;
         }
 
-        const res = await axios.get('http://localhost:4000/api/byc/auth/me', {
+        const res = await axios.get('https://byc-backend-hkgk.onrender.com/api/byc/auth/me', {
           headers: { Authorization: `Bearer ${token}` },
           timeout: 5000,
         });
@@ -62,7 +62,7 @@ export const UserProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const res = await axios.post('http://localhost:4000/api/byc/auth/login', {
+      const res = await axios.post('https://byc-backend-hkgk.onrender.com/api/byc/auth/login', {
         emailAddress: email,
         password,
       });

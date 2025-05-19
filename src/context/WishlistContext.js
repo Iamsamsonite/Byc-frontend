@@ -31,7 +31,7 @@ export const WishlistProvider = ({ children }) => {
           setWishlistCount(0);
           return;
         }
-        const res = await axios.get('http://localhost:4000/api/byc/wishlist', {
+        const res = await axios.get('https://byc-backend-hkgk.onrender.com/api/byc/wishlist', {
           headers: { Authorization: `Bearer ${token}` },
           timeout: 5000,
         });
@@ -88,7 +88,7 @@ export const WishlistProvider = ({ children }) => {
 
       console.log('WishlistContext: Adding to wishlist:', { productId });
       const res = await axios.post(
-        'http://localhost:4000/api/byc/wishlist',
+        'https://byc-backend-hkgk.onrender.com/api/byc/wishlist',
         { productId },
         { headers: { Authorization: `Bearer ${token}` }, timeout: 5000 }
       );
@@ -136,7 +136,7 @@ export const WishlistProvider = ({ children }) => {
         return;
       }
       console.log('WishlistContext: Removing from wishlist:', itemId);
-      const res = await axios.delete(`http://localhost:4000/api/byc/wishlist/${itemId}`, {
+      const res = await axios.delete(`https://byc-backend-hkgk.onrender.com/api/byc/wishlist/${itemId}`, {
         headers: { Authorization: `Bearer ${token}` },
         timeout: 5000,
       });
