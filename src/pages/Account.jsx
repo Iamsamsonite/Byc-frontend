@@ -32,7 +32,7 @@ const Account = () => {
     const API_BASE_URL = process.env.REACT_APP_API_URL;
   
     const endpoint = isSignUp
-      ? `${API_BASE_URL}/api/byc/users/register`
+      ? `${API_BASE_URL}/api/byc/auth/register`
       : `${API_BASE_URL}/api/byc/auth/login`;
   
     const payload = isSignUp
