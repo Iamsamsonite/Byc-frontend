@@ -19,7 +19,7 @@ const Account = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     console.log('handleSubmit triggered', { isSignUp, email, password, name });
-
+  
     if (isSignUp) {
       if (!name.trim()) return toast.error('Name is required', { autoClose: 4000 });
       if (name.trim().length < 3) return toast.error('Name must be at least 3 characters', { autoClose: 4000 });
@@ -28,48 +28,34 @@ const Account = () => {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return toast.error('Invalid email format', { autoClose: 4000 });
     if (!password.trim()) return toast.error('Password is required', { autoClose: 4000 });
     if (password.trim().length < 6) return toast.error('Password must be at least 6 characters', { autoClose: 4000 });
-
+  
     const API_BASE_URL = process.env.REACT_APP_API_URL;
-
-const endpoint = isSignUp
-  ? `${API_BASE_URL}/api/byc/users/register`
-  : `${API_BASE_URL}/api/byc/auth/login`;
-
-
+  
+    const endpoint = isSignUp
+      ? `${API_BASE_URL}/api/byc/users/register`
+      : `${API_BASE_URL}/api/byc/auth/login`;
+  
     const payload = isSignUp
       ? { emailAddress: email.trim(), password: password.trim(), name: name.trim() }
       : { emailAddress: email.trim(), password: password.trim() };
-
+  
     console.log('API:', endpoint);
     console.log('Payload:', payload);
-
+  
     try {
       const response = await axios.post(endpoint, payload, {
         headers: { 'Content-Type': 'application/json' },
       });
       console.log('Response:', response.data);
-
-      const { token } = response.data;
-      let userData;
-
-      if (isSignUp) {
-        userData = {
-          _id: response.data._id,
-          email: response.data.emailAddress,
-          name: response.data.name,
-          role: 'user',
-        };
-      } else {
-        userData = response.data.user;
-      }
-
-      if (token && userData && userData._id) {
+  
+      const { token, user } = response.data; // Extract token and user from response
+      if (token && user && user._id) {
         localStorage.setItem('token', token);
         const userInfo = {
-          _id: userData._id,
-          email: userData.email,
-          name: userData.name,
-          role: userData.role || 'user',
+          _id: user._id,
+          email: user.emailAddress,
+          name: user.name,
+          role: user.role || 'user',
         };
         setUser(userInfo);
         localStorage.setItem('user', JSON.stringify(userInfo));
@@ -84,8 +70,7 @@ const endpoint = isSignUp
     } catch (error) {
       console.error('Submit error:', error.response?.data || error.message);
       const message = error.response?.data?.message || 'An error occurred. Please try again.';
-      console.log('Attempting to show toast with message:', message);
-      toast.error(message, { autoClose: 4000 }); // Changed duration to autoClose
+      toast.error(message, { autoClose: 4000 });
     }
   };
 
