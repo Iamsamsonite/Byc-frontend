@@ -42,7 +42,7 @@ const Orders = () => {
       if (!token) throw new Error('No token found');
       console.log('Updating order:', { orderId, newStatus });
       const res = await axios.patch(
-        `https://byc-backend-hkgk.onrender.com/api/byc/admin/orders/${orderId}/status`, // <-- Corrected PATCH URL with /status
+        `https://byc-backend-hkgk.onrender.com/api/byc/admin/orders/${orderId}/status`,
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -75,13 +75,15 @@ const Orders = () => {
       <style>
         {`
           .custom-modal .modal-dialog {
-            max-width: 750px;
+            max-width: 90%;
+            width: 750px;
           }
           .cart-items-table th, .cart-items-table td {
             vertical-align: middle;
             text-align: center;
             padding: 8px;
             font-size: 14px;
+            white-space: nowrap;
           }
           .cart-items-table img {
             border-radius: 4px;
@@ -89,71 +91,122 @@ const Orders = () => {
           .cart-items-table th {
             background-color: #f8f9fa;
           }
+          .orders-table th, .orders-table td {
+            vertical-align: middle;
+            padding: 8px;
+            font-size: 14px;
+          }
+          .orders-table .form-select {
+            min-width: 120px;
+          }
+          @media (max-width: 768px) {
+            .orders-table th, .orders-table td {
+              font-size: 12px;
+              padding: 6px;
+            }
+            .orders-table .form-select {
+              font-size: 12px;
+              padding: 4px;
+            }
+            .orders-table th:not(:nth-child(1)):not(:nth-child(3)):not(:nth-child(4)):not(:nth-child(6)),
+            .orders-table td:not(:nth-child(1)):not(:nth-child(3)):not(:nth-child(4)):not(:nth-child(6)) {
+              display: none;
+            }
+            .cart-items-table th, .cart-items-table td {
+              font-size: 12px;
+              padding: 6px;
+            }
+            .cart-items-table th:not(:nth-child(1)):not(:nth-child(2)):not(:nth-child(6)):not(:nth-child(8)),
+            .cart-items-table td:not(:nth-child(1)):not(:nth-child(2)):not(:nth-child(6)):not(:nth-child(8)) {
+              display: none;
+            }
+            .cart-items-table img {
+              width: 40px;
+              height: 40px;
+            }
+          }
+          @media (max-width: 576px) {
+            .custom-modal .modal-dialog {
+              width: 95%;
+              margin: 10px auto;
+            }
+            .orders-table th, .orders-table td {
+              font-size: 10px;
+              padding: 4px;
+            }
+            .cart-items-table th, .cart-items-table td {
+              font-size: 10px;
+              padding: 4px;
+            }
+          }
         `}
       </style>
 
       <h3>Manage Orders</h3>
-      <Table striped bordered hover>
-        <thead>
-          <tr>
-            <th>Order ID</th>
-            <th>User</th>
-            <th>Total</th>
-            <th>Status</th>
-            <th>Date</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {orders.length === 0 ? (
+      <div className="table-responsive">
+        <Table striped bordered hover className="orders-table">
+          <thead>
             <tr>
-              <td colSpan="6" className="text-center">No orders found</td>
+              <th>Order ID</th>
+              <th>User</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th>Actions</th>
             </tr>
-          ) : (
-            orders.map((order) => (
-              <tr
-                key={order._id}
-                onClick={() => handleRowClick(order)}
-                style={{ cursor: 'pointer' }}
-              >
-                <td>{order.orderId}</td>
-                <td>{order.user?.name || 'Unknown'} ({order.user?.emailAddress || 'N/A'})</td>
-                <td>₦{(order.totalAmount || 0).toLocaleString()}</td>
-                <td>{order.status}</td>
-                <td>{new Date(order.orderDate).toLocaleDateString()}</td>
-                <td onClick={(e) => e.stopPropagation()}>
-                  <Form.Select
-                    value={order.status}
-                    onChange={(e) => handleStatusChange(order._id, e.target.value)}
-                    size="sm"
-                    className="w-auto"
-                  >
-                    <option value="pending">Pending</option>
-                    <option value="processing">Processing</option>
-                    <option value="out for delivery">Out for Delivery</option>
-                    <option value="shipped">Shipped</option>
-                    <option value="delivered">Delivered</option>
-                    <option value="cancelled">Cancelled</option>
-                  </Form.Select>
-                </td>
+          </thead>
+          <tbody>
+            {orders.length === 0 ? (
+              <tr>
+                <td colSpan="6" className="text-center">No orders found</td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </Table>
+            ) : (
+              orders.map((order) => (
+                <tr
+                  key={order._id}
+                  onClick={() => handleRowClick(order)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <td>{order.orderId}</td>
+                  <td className="text-truncate" style={{ maxWidth: '150px' }}>
+                    {order.user?.name || 'Unknown'} ({order.user?.emailAddress || 'N/A'})
+                  </td>
+                  <td>₦{(order.totalAmount || 0).toLocaleString()}</td>
+                  <td>{order.status}</td>
+                  <td>{new Date(order.orderDate).toLocaleDateString()}</td>
+                  <td onClick={(e) => e.stopPropagation()}>
+                    <Form.Select
+                      value={order.status}
+                      onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                      size="sm"
+                      className="w-auto"
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="processing">Processing</option>
+                      <option value="out for delivery">Out for Delivery</option>
+                      <option value="shipped">Shipped</option>
+                      <option value="delivered">Delivered</option>
+                      <option value="cancelled">Cancelled</option>
+                    </Form.Select>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </Table>
+      </div>
 
       {/* Order Details Modal */}
       <Modal
         show={showDetailsModal}
         onHide={() => setShowDetailsModal(false)}
         centered
-        size="lg"
         dialogClassName="custom-modal"
       >
         <Modal.Header closeButton>
           <Modal.Title>Order Details</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
+        <Modal.Body style={{ maxHeight: '70vh', overflowY: 'auto' }}>
           {selectedOrder ? (
             <div>
               <p><strong>Order ID:</strong> {selectedOrder.orderId}</p>
@@ -183,48 +236,52 @@ const Orders = () => {
               <div>
                 <strong>Cart Items:</strong>
                 {selectedOrder.cartItems?.length > 0 ? (
-                  <Table striped bordered hover size="sm" className="mt-2 cart-items-table">
-                    <thead>
-                      <tr>
-                        <th>Image</th>
-                        <th>Product</th>
-                        <th>Category</th>
-                        <th>Color</th>
-                        <th>Size</th>
-                        <th>Quantity</th>
-                        <th>Price</th>
-                        <th>Subtotal</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {selectedOrder.cartItems.map((item, index) => {
-                        console.log('Cart item:', item); // Debug
-                        return (
-                          <tr key={index}>
-                            <td>
-                              {item.product && item.product.productImage?.[0] ? (
-                                <Image
-                                  src={item.product.productImage[0]}
-                                  alt={item.product.productName || item.name}
-                                  style={{ width: '50px', height: '50px', objectFit: 'cover' }}
-                                  onError={(e) => (e.target.src = 'https://via.placeholder.com/50')}
-                                />
-                              ) : (
-                                'N/A'
-                              )}
-                            </td>
-                            <td>{item.product?.productName || item.name || 'Unknown'}</td>
-                            <td>{item.product?.category?.name || 'N/A'}</td>
-                            <td>{item.selectedColor || 'N/A'}</td>
-                            <td>{item.selectedSize || 'N/A'}</td>
-                            <td>{item.quantity}</td>
-                            <td>₦{(item.price || 0).toLocaleString()}</td>
-                            <td>₦{(item.quantity * (item.price || 0)).toLocaleString()}</td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </Table>
+                  <div className="table-responsive">
+                    <Table striped bordered hover size="sm" className="mt-2 cart-items-table">
+                      <thead>
+                        <tr>
+                          <th>Image</th>
+                          <th>Product</th>
+                          <th>Category</th>
+                          <th>Color</th>
+                          <th>Size</th>
+                          <th>Quantity</th>
+                          <th>Price</th>
+                          <th>Subtotal</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {selectedOrder.cartItems.map((item, index) => {
+                          console.log('Cart item:', item); // Debug
+                          return (
+                            <tr key={index}>
+                              <td>
+                                {item.product && item.product.productImage?.[0] ? (
+                                  <Image
+                                    src={item.product.productImage[0]}
+                                    alt={item.product.productName || item.name}
+                                    style={{ width: '50px', height: '50px', objectFit: 'cover' }}
+                                    onError={(e) => (e.target.src = 'https://via.placeholder.com/50')}
+                                  />
+                                ) : (
+                                  'N/A'
+                                )}
+                              </td>
+                              <td className="text-truncate" style={{ maxWidth: '100px' }}>
+                                {item.product?.productName || item.name || 'Unknown'}
+                              </td>
+                              <td>{item.product?.category?.name || 'N/A'}</td>
+                              <td>{item.selectedColor || 'N/A'}</td>
+                              <td>{item.selectedSize || 'N/A'}</td>
+                              <td>{item.quantity}</td>
+                              <td>₦{(item.price || 0).toLocaleString()}</td>
+                              <td>₦{(item.quantity * (item.price || 0)).toLocaleString()}</td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </Table>
+                  </div>
                 ) : (
                   <p>No items</p>
                 )}
@@ -233,7 +290,6 @@ const Orders = () => {
           ) : (
             <p>Loading order details...</p>
           )}
-            
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowDetailsModal(false)}>

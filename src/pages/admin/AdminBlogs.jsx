@@ -33,7 +33,7 @@ const AdminBlogs = () => {
         if (!token) throw new Error('No token found');
         const response = await axios.get('https://byc-backend-hkgk.onrender.com/api/byc/admin/blogs', {
           headers: { Authorization: `Bearer ${token}` },
-          timeout: 5000,
+          timeout: 15000,
         });
         console.log('AdminBlogs: Fetched blogs:', response.data);
         setBlogs(response.data || []);
@@ -69,7 +69,7 @@ const AdminBlogs = () => {
       let res;
       if (editingId) {
         res = await axios.patch(
-          `http://localhost:4000/api/byc/admin/blogs/${editingId}`,
+          `https://byc-backend-hkgk.onrender.com/api/byc/admin/blogs/${editingId}`,
           payload,
           {
             headers: { Authorization: `Bearer ${token}` },
@@ -78,7 +78,7 @@ const AdminBlogs = () => {
         setBlogs(blogs.map((blog) => (blog._id === editingId ? res.data : blog)));
         toast.success('Blog updated');
       } else {
-        res = await axios.post('http://localhost:4000/api/byc/admin/blogs', payload, {
+        res = await axios.post('https://byc-backend-hkgk.onrender.com/api/byc/admin/blogs', payload, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setBlogs([res.data, ...blogs]);
@@ -123,7 +123,7 @@ const AdminBlogs = () => {
     try {
       const token = localStorage.getItem('token');
       console.log('AdminBlogs: Deleting blog:', deleteId);
-      await axios.delete(`http://localhost:4000/api/byc/admin/blogs/${deleteId}`, {
+      await axios.delete(`https://byc-backend-hkgk.onrender.com/api/byc/admin/blogs/${deleteId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setBlogs(blogs.filter((blog) => blog._id !== deleteId));
@@ -154,6 +154,82 @@ const AdminBlogs = () => {
 
   return (
     <div className="container mt-5">
+      <style>
+        {`
+          .blogs-table th, .blogs-table td {
+            vertical-align: middle;
+            padding: 8px;
+            font-size: 14px;
+            white-space: nowrap;
+          }
+          .blogs-table th {
+            background-color: #f8f9fa;
+          }
+          .blogs-table img {
+            border-radius: 4px;
+          }
+          .custom-modal .modal-dialog {
+            max-width: 90%;
+            width: 600px;
+          }
+          .custom-modal .modal-body {
+            max-height: 70vh;
+            overflow-y: auto;
+          }
+          .details-modal .modal-dialog {
+            max-width: 90%;
+            width: 800px;
+          }
+          .details-modal .modal-body {
+            max-height: 80vh;
+            overflow-y: auto;
+          }
+          @media (max-width: 768px) {
+            .blogs-table th, .blogs-table td {
+              font-size: 12px;
+              padding: 6px;
+            }
+            .blogs-table th:not(:nth-child(1)):not(:nth-child(2)):not(:nth-child(7)),
+            .blogs-table td:not(:nth-child(1)):not(:nth-child(2)):not(:nth-child(7)) {
+              display: none;
+            }
+            .blogs-table .btn {
+              font-size: 12px;
+              padding: 4px 8px;
+            }
+            .blogs-table td.text-truncate {
+              max-width: 100px;
+            }
+            .details-modal img {
+              max-height: 200px;
+            }
+          }
+          @media (max-width: 576px) {
+            .blogs-table th, .blogs-table td {
+              font-size: 10px;
+              padding: 4px;
+            }
+            .custom-modal .modal-dialog,
+            .details-modal .modal-dialog {
+              width: 95%;
+              margin: 10px auto;
+            }
+            .custom-modal .form-control,
+            .custom-modal .btn,
+            .details-modal .btn {
+              font-size: 12px;
+            }
+            .details-modal img {
+              max-height: 150px;
+            }
+            .details-modal img[style*="border-radius: 50%"] {
+              width: 80px;
+              height: 80px;
+            }
+          }
+        `}
+      </style>
+
       <h2>Blogs</h2>
       <Button variant="danger" className="mb-3" onClick={() => setShowModal(true)}>
         <FontAwesomeIcon icon={faPlus} /> Add Blog
@@ -161,56 +237,62 @@ const AdminBlogs = () => {
       {blogs.length === 0 ? (
         <p>No blogs found.</p>
       ) : (
-        <Table striped bordered hover>
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Author</th>
-              <th>Profession</th>
-              <th>Likes</th>
-              <th>Views</th>
-              <th>Created At</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {blogs.map((blog) => (
-              <tr
-                key={blog._id}
-                onClick={() => handleRowClick(blog)}
-                style={{ cursor: 'pointer' }}
-              >
-                <td>{blog.blogTitle}</td>
-                <td>{blog.authorName}</td>
-                <td>{blog.authorProfession}</td>
-                <td>{blog.likes}</td>
-                <td>{blog.views}</td>
-                <td>{new Date(blog.createdAt).toLocaleDateString()}</td>
-                <td onClick={(e) => e.stopPropagation()}>
-                  <Button
-                    variant="warning"
-                    size="sm"
-                    className="me-2"
-                    onClick={() => handleEdit(blog)}
-                  >
-                    <FontAwesomeIcon icon={faEdit} />
-                  </Button>
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => handleDeleteClick(blog._id)}
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
-                  </Button>
-                </td>
+        <div className="table-responsive">
+          <Table striped bordered hover className="blogs-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Profession</th>
+                <th>Likes</th>
+                <th>Views</th>
+                <th>Created At</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </Table>
+            </thead>
+            <tbody>
+              {blogs.map((blog) => (
+                <tr
+                  key={blog._id}
+                  onClick={() => handleRowClick(blog)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <td className="text-truncate" style={{ maxWidth: '150px' }}>
+                    {blog.blogTitle}
+                  </td>
+                  <td className="text-truncate" style={{ maxWidth: '100px' }}>
+                    {blog.authorName}
+                  </td>
+                  <td>{blog.authorProfession}</td>
+                  <td>{blog.likes}</td>
+                  <td>{blog.views}</td>
+                  <td>{new Date(blog.createdAt).toLocaleDateString()}</td>
+                  <td onClick={(e) => e.stopPropagation()}>
+                    <Button
+                      variant="warning"
+                      size="sm"
+                      className="me-2"
+                      onClick={() => handleEdit(blog)}
+                    >
+                      <FontAwesomeIcon icon={faEdit} />
+                    </Button>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => handleDeleteClick(blog._id)}
+                    >
+                      <FontAwesomeIcon icon={faTrash} />
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </div>
       )}
 
       {/* Add/Edit Modal */}
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
+      <Modal show={showModal} onHide={() => setShowModal(false)} centered dialogClassName="custom-modal">
         <Modal.Header closeButton>
           <Modal.Title>{editingId ? 'Edit Blog' : 'Add Blog'}</Modal.Title>
         </Modal.Header>
@@ -281,7 +363,7 @@ const AdminBlogs = () => {
       </Modal>
 
       {/* Details Modal */}
-      <Modal show={showDetailsModal} onHide={() => setShowDetailsModal(false)} size="lg">
+      <Modal show={showDetailsModal} onHide={() => setShowDetailsModal(false)} centered dialogClassName="details-modal">
         <Modal.Header closeButton>
           <Modal.Title>{selectedBlog?.blogTitle}</Modal.Title>
         </Modal.Header>
@@ -293,6 +375,7 @@ const AdminBlogs = () => {
                   src={selectedBlog.blogImage[0]}
                   alt={selectedBlog.blogTitle}
                   style={{ width: '100%', maxHeight: '300px', objectFit: 'cover', marginBottom: '15px' }}
+                  onError={(e) => (e.target.src = 'https://via.placeholder.com/300')}
                 />
               )}
               <p><strong>Description:</strong> {selectedBlog.blogDescription}</p>
@@ -303,6 +386,7 @@ const AdminBlogs = () => {
                   src={selectedBlog.authorImage[0]}
                   alt={selectedBlog.authorName}
                   style={{ width: '100px', height: '100px', borderRadius: '50%', marginBottom: '10px' }}
+                  onError={(e) => (e.target.src = 'https://via.placeholder.com/100')}
                 />
               )}
               <p><strong>Likes:</strong> {selectedBlog.likes}</p>
@@ -322,7 +406,7 @@ const AdminBlogs = () => {
       </Modal>
 
       {/* Delete Confirmation Modal */}
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered dialogClassName="custom-modal">
         <Modal.Header closeButton>
           <Modal.Title>Confirm Deletion</Modal.Title>
         </Modal.Header>

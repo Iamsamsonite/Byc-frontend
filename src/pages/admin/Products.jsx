@@ -36,7 +36,7 @@ const Products = () => {
     category: '',
     productStock: '',
     productImage: [''],
-    colors: [], // Array of { name, code }
+    colors: [],
     sizes: [],
   });
   const [colorInput, setColorInput] = useState('');
@@ -118,7 +118,6 @@ const Products = () => {
   const handleColorChange = (e) => {
     const value = e.target.value;
     setColorInput(value);
-    // Auto-fill hex code based on color name
     const normalizedColor = value.trim().toLowerCase();
     setColorCodeInput(colorMap[normalizedColor] || '');
   };
@@ -186,7 +185,6 @@ const Products = () => {
         sizes: formData.sizes.map(size => String(size)),
       };
 
-      // Validation
       if (!payload.productName) {
         setFormError('Product name is required');
         return;
@@ -208,7 +206,7 @@ const Products = () => {
         return;
       }
 
-      console.log('Submitting payload:', payload); // Debug payload
+      console.log('Submitting payload:', payload);
 
       if (editingId) {
         await axios.put(`https://byc-backend-hkgk.onrender.com/api/byc/products/${editingId}`, payload, {
@@ -300,97 +298,158 @@ const Products = () => {
 
   return (
     <div className="p-4">
+      <style>
+        {`
+          .products-table th, .products-table td {
+            vertical-align: middle;
+            padding: 8px;
+            font-size: 14px;
+            white-space: nowrap;
+          }
+          .products-table img {
+            border-radius: 4px;
+          }
+          .products-table th {
+            background-color: #f8f9fa;
+          }
+          .products-table .color-swatch {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border: 1px solid #ccc;
+            margin-right: 5px;
+          }
+          .custom-modal .modal-dialog {
+            max-width: 90%;
+            width: 600px;
+          }
+          .custom-modal .modal-body {
+            max-height: 70vh;
+            overflow-y: auto;
+          }
+          @media (max-width: 768px) {
+            .products-table th, .products-table td {
+              font-size: 12px;
+              padding: 6px;
+            }
+            .products-table th:not(:nth-child(1)):not(:nth-child(2)):not(:nth-child(4)):not(:nth-child(8)),
+            .products-table td:not(:nth-child(1)):not(:nth-child(2)):not(:nth-child(4)):not(:nth-child(8)) {
+              display: none;
+            }
+            .products-table img {
+              width: 40px;
+              height: 40px;
+            }
+            .products-table .btn {
+              font-size: 12px;
+              padding: 4px 8px;
+            }
+          }
+          @media (max-width: 576px) {
+            .products-table th, .products-table td {
+              font-size: 10px;
+              padding: 4px;
+            }
+            .custom-modal .modal-dialog {
+              width: 95%;
+              margin: 10px auto;
+            }
+            .custom-modal .form-control,
+            .custom-modal .btn {
+              font-size: 12px;
+            }
+          }
+        `}
+      </style>
+
       <h2>Product Management</h2>
       <Button variant="danger" className="mb-3" onClick={() => setShowModal(true)}>
         <FontAwesomeIcon icon={faPlus} /> Add Product
       </Button>
-      <Table striped bordered hover>
-        <thead>
-          <tr>
-            <th>Image</th>
-            <th>Name</th>
-            <th>Category</th>
-            <th>Price</th>
-            <th>Stock</th>
-            <th>Colors</th>
-            <th>Sizes</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {products.map((product) => (
-            <tr
-              key={product._id}
-              onClick={() => handleRowClick(product._id)}
-              style={{ cursor: 'pointer' }}
-            >
-              <td>
-                {product.productImage?.[0] ? (
-                  <Image
-                    src={product.productImage[0]}
-                    alt={product.productName}
-                    style={{ width: '50px', height: '50px', objectFit: 'cover' }}
-                    onError={(e) => (e.target.src = 'https://via.placeholder.com/50')}
-                  />
-                ) : (
-                  'No Image'
-                )}
-              </td>
-              <td>{product.productName}</td>
-              <td>{product.category?.name || 'N/A'}</td>
-              <td>₦{product.productPrice?.toLocaleString() || '0'}</td>
-              <td>{product.productStock}</td>
-              <td>
-                {Array.isArray(product.colors) && product.colors.length > 0 ? (
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
-                    {product.colors.map((color, index) => (
-                      <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                        <span
-                          style={{
-                            display: 'inline-block',
-                            width: '15px',
-                            height: '15px',
-                            backgroundColor: color.code || '#000000',
-                            border: '1px solid #ccc',
-                          }}
-                        />
-                        <span>{color.name}</span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  'None'
-                )}
-              </td>
-              <td>
-                {Array.isArray(product.sizes) && product.sizes.length > 0
-                  ? product.sizes.join(', ')
-                  : 'None'}
-              </td>
-              <td onClick={(e) => e.stopPropagation()}>
-                <Button
-                  variant="warning"
-                  size="sm"
-                  className="me-2"
-                  onClick={() => handleEdit(product)}
-                >
-                  <FontAwesomeIcon icon={faEdit} />
-                </Button>
-                <Button
-                  variant="danger"
-                  size="sm"
-                  onClick={() => handleDelete(product._id)}
-                >
-                  <FontAwesomeIcon icon={faTrash} />
-                </Button>
-              </td>
+      <div className="table-responsive">
+        <Table striped bordered hover className="products-table">
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Stock</th>
+              <th>Colors</th>
+              <th>Sizes</th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </Table>
+          </thead>
+          <tbody>
+            {products.map((product) => (
+              <tr
+                key={product._id}
+                onClick={() => handleRowClick(product._id)}
+                style={{ cursor: 'pointer' }}
+              >
+                <td>
+                  {product.productImage?.[0] ? (
+                    <Image
+                      src={product.productImage[0]}
+                      alt={product.productName}
+                      style={{ width: '50px', height: '50px', objectFit: 'cover' }}
+                      onError={(e) => (e.target.src = 'https://via.placeholder.com/50')}
+                    />
+                  ) : (
+                    'No Image'
+                  )}
+                </td>
+                <td className="text-truncate" style={{ maxWidth: '150px' }}>
+                  {product.productName}
+                </td>
+                <td>{product.category?.name || 'N/A'}</td>
+                <td>₦{product.productPrice?.toLocaleString() || '0'}</td>
+                <td>{product.productStock}</td>
+                <td>
+                  {Array.isArray(product.colors) && product.colors.length > 0 ? (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+                      {product.colors.map((color, index) => (
+                        <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                          <span
+                            className="color-swatch"
+                            style={{
+                              backgroundColor: color.code || '#000000',
+                            }}
+                          />
+                          <span>{color.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    'None'
+                  )}
+                </td>
+                <td>{Array.isArray(product.sizes) && product.sizes.length > 0 ? product.sizes.join(', ') : 'None'}</td>
+                <td onClick={(e) => e.stopPropagation()}>
+                  <Button
+                    variant="warning"
+                    size="sm"
+                    className="me-2"
+                    onClick={() => handleEdit(product)}
+                  >
+                    <FontAwesomeIcon icon={faEdit} />
+                  </Button>
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={() => handleDelete(product._id)}
+                  >
+                    <FontAwesomeIcon icon={faTrash} />
+                  </Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </div>
 
       {/* Add/Edit Product Modal */}
-      <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+      <Modal show={showModal} onHide={() => setShowModal(false)} centered dialogClassName="custom-modal">
         <Modal.Header closeButton>
           <Modal.Title>{editingId ? 'Edit Product' : 'Add Product'}</Modal.Title>
         </Modal.Header>
@@ -497,12 +556,9 @@ const Products = () => {
                     {formData.colors.map((color, index) => (
                       <li key={index} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <span
+                          className="color-swatch"
                           style={{
-                            display: 'inline-block',
-                            width: '15px',
-                            height: '15px',
                             backgroundColor: color.code || '#000000',
-                            border: '1px solid #ccc',
                           }}
                         />
                         <span>
@@ -544,7 +600,7 @@ const Products = () => {
       </Modal>
 
       {/* Delete Confirmation Modal */}
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered dialogClassName="custom-modal">
         <Modal.Header closeButton>
           <Modal.Title>Confirm Deletion</Modal.Title>
         </Modal.Header>
@@ -562,7 +618,7 @@ const Products = () => {
       </Modal>
 
       {/* Product Details Modal */}
-      <Modal show={showDetailsModal} onHide={() => setShowDetailsModal(false)} centered>
+      <Modal show={showDetailsModal} onHide={() => setShowDetailsModal(false)} centered dialogClassName="custom-modal">
         <Modal.Header closeButton>
           <Modal.Title>Product Details</Modal.Title>
         </Modal.Header>
@@ -582,12 +638,9 @@ const Products = () => {
                     {selectedProduct.colors.map((color, index) => (
                       <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                         <span
+                          className="color-swatch"
                           style={{
-                            display: 'inline-block',
-                            width: '15px',
-                            height: '15px',
                             backgroundColor: color.code || '#000000',
-                            border: '1px solid #ccc',
                           }}
                         />
                         <span>{color.name}</span>

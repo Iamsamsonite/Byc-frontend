@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
-import { Modal, Form, Button, Alert } from 'react-bootstrap';
+import { Modal, Form, Button, Alert, Table } from 'react-bootstrap';
 
 const Users = () => {
   const [users, setUsers] = useState([]);
@@ -125,6 +125,59 @@ const Users = () => {
 
   return (
     <div className="container mt-5">
+      <style>
+        {`
+          .users-table th, .users-table td {
+            vertical-align: middle;
+            padding: 8px;
+            font-size: 14px;
+            white-space: nowrap;
+          }
+          .users-table th {
+            background-color: #f8f9fa;
+          }
+          .custom-modal .modal-dialog {
+            max-width: 90%;
+            width: 500px;
+          }
+          .custom-modal .modal-body {
+            max-height: 70vh;
+            overflow-y: auto;
+          }
+          @media (max-width: 768px) {
+            .users-table th, .users-table td {
+              font-size: 12px;
+              padding: 6px;
+            }
+            .users-table th:not(:nth-child(1)):not(:nth-child(2)):not(:nth-child(5)),
+            .users-table td:not(:nth-child(1)):not(:nth-child(2)):not(:nth-child(5)) {
+              display: none;
+            }
+            .users-table .btn {
+              font-size: 12px;
+              padding: 4px 8px;
+            }
+            .users-table td.text-truncate {
+              max-width: 100px;
+            }
+          }
+          @media (max-width: 576px) {
+            .users-table th, .users-table td {
+              font-size: 10px;
+              padding: 4px;
+            }
+            .custom-modal .modal-dialog {
+              width: 95%;
+              margin: 10px auto;
+            }
+            .custom-modal .form-control,
+            .custom-modal .btn {
+              font-size: 12px;
+            }
+          }
+        `}
+      </style>
+
       <h2>Users</h2>
       <Button variant="danger" className="mb-3" onClick={handleModalOpen}>
         Add User
@@ -132,47 +185,53 @@ const Users = () => {
       {users.length === 0 ? (
         <p>No users found.</p>
       ) : (
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Created At</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((user) => (
-              <tr key={user._id}>
-                <td>{user.name}</td>
-                <td>{user.emailAddress}</td>
-                <td>{user.isAdmin ? 'Admin' : 'User'}</td>
-                <td>{new Date(user.createdAt).toLocaleDateString()}</td>
-                <td>
-                  <Button
-                    variant={user.isAdmin ? 'warning' : 'success'}
-                    size="sm"
-                    className="me-2"
-                    onClick={() => handleToggleAdmin(user._id, user.isAdmin)}
-                  >
-                    {user.isAdmin ? 'Remove Admin' : 'Make Admin'}
-                  </Button>
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => handleDelete(user._id)}
-                  >
-                    Delete
-                  </Button>
-                </td>
+        <div className="table-responsive">
+          <Table striped bordered hover className="users-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Created At</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {users.map((user) => (
+                <tr key={user._id}>
+                  <td className="text-truncate" style={{ maxWidth: '150px' }}>
+                    {user.name}
+                  </td>
+                  <td className="text-truncate" style={{ maxWidth: '150px' }}>
+                    {user.emailAddress}
+                  </td>
+                  <td>{user.isAdmin ? 'Admin' : 'User'}</td>
+                  <td>{new Date(user.createdAt).toLocaleDateString()}</td>
+                  <td>
+                    <Button
+                      variant={user.isAdmin ? 'warning' : 'success'}
+                      size="sm"
+                      className="me-2"
+                      onClick={() => handleToggleAdmin(user._id, user.isAdmin)}
+                    >
+                      {user.isAdmin ? 'Remove Admin' : 'Make Admin'}
+                    </Button>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => handleDelete(user._id)}
+                    >
+                      Delete
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </div>
       )}
 
-      <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+      <Modal show={showModal} onHide={() => setShowModal(false)} centered dialogClassName="custom-modal">
         {modalMode === 'add' ? (
           <>
             <Modal.Header closeButton>
