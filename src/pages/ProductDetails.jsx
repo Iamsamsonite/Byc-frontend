@@ -62,7 +62,7 @@ const ProductDetails = () => {
 
         const productResponse = await axios.get(url, {
           headers: { 'Content-Type': 'application/json' },
-          timeout: 5000,
+          timeout: 15000,
         });
         console.log('Product API Response:', JSON.stringify(productResponse.data, null, 2));
         console.log('Raw colors:', productResponse.data.colors);
