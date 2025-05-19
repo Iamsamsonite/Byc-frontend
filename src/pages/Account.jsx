@@ -29,9 +29,12 @@ const Account = () => {
     if (!password.trim()) return toast.error('Password is required', { autoClose: 4000 });
     if (password.trim().length < 6) return toast.error('Password must be at least 6 characters', { autoClose: 4000 });
 
-    const endpoint = isSignUp
-      ? 'http://localhost:4000/api/byc/auth/register'
-      : 'http://localhost:4000/api/byc/auth/login';
+    const API_BASE_URL = process.env.REACT_APP_API_URL;
+
+const endpoint = isSignUp
+  ? `${API_BASE_URL}/api/byc/users/register`
+  : `${API_BASE_URL}/api/byc/auth/login`;
+
 
     const payload = isSignUp
       ? { emailAddress: email.trim(), password: password.trim(), name: name.trim() }

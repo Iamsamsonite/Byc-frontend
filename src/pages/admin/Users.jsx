@@ -24,7 +24,7 @@ const Users = () => {
       try {
         const token = localStorage.getItem('token');
         if (!token) throw new Error('No token found');
-        const response = await axios.get('http://localhost:4000/api/byc/admin/users', {
+        const response = await axios.get('https://byc-backend-hkgk.onrender.com/api/byc/admin/users', {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUsers(response.data);
@@ -43,7 +43,7 @@ const Users = () => {
     try {
       const token = localStorage.getItem('token');
       const res = await axios.patch(
-        `http://localhost:4000/api/byc/admin/users/${userId}`,
+        `https://byc-backend-hkgk.onrender.com/api/byc/admin/users/${userId}`,
         { isAdmin: !currentIsAdmin },
         { headers: { Authorization: `Bearer ${token}` } },
       );
@@ -64,7 +64,7 @@ const Users = () => {
   const confirmDelete = async () => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:4000/api/byc/admin/users/${deleteUserId}`, {
+      await axios.delete(`https://byc-backend-hkgk.onrender.com/api/byc/admin/users/${deleteUserId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers(users.filter((user) => user._id !== deleteUserId));
@@ -96,9 +96,9 @@ const Users = () => {
         return;
       }
 
-      const response = await axios.post('http://localhost:4000/api/byc/users/register', formData);
+      const response = await axios.post('https://byc-backend-hkgk.onrender.com/api/byc/users/register', formData);
       const token = localStorage.getItem('token');
-      const res = await axios.get('http://localhost:4000/api/byc/admin/users', {
+      const res = await axios.get('https://byc-backend-hkgk.onrender.com/api/byc/admin/users', {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers(res.data);

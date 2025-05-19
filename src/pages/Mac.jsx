@@ -45,7 +45,7 @@ const Mac = () => {
   useEffect(() => {
     setLoading(true);
     axios
-      .get('http://localhost:4000/api/byc/products')
+      .get('https://byc-backend-hkgk.onrender.com/api/byc/products')
       .then((response) => {
         const validProducts = response.data.filter(
           (product) =>

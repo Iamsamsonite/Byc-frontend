@@ -25,7 +25,7 @@ const Categories = () => {
       try {
         const token = localStorage.getItem('token');
         if (!token) throw new Error('No token found');
-        const response = await axios.get('http://localhost:4000/api/byc/admin/categories', {
+        const response = await axios.get('https://byc-backend-hkgk.onrender.com/api/byc/admin/categories', {
           headers: { Authorization: `Bearer ${token}` },
           timeout: 5000,
         });
@@ -57,7 +57,7 @@ const Categories = () => {
       let res;
       if (editingId) {
         res = await axios.patch(
-          `http://localhost:4000/api/byc/admin/categories/${editingId}`,
+          `https://byc-backend-hkgk.onrender.com/api/byc/admin/categories/${editingId}`,
           payload,
           {
             headers: { Authorization: `Bearer ${token}` },
@@ -66,7 +66,7 @@ const Categories = () => {
         setCategories(categories.map((category) => (category._id === editingId ? res.data : category)));
         toast.success('Category updated');
       } else {
-        res = await axios.post('http://localhost:4000/api/byc/admin/categories', payload, {
+        res = await axios.post('https://byc-backend-hkgk.onrender.com/api/byc/admin/categories', payload, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setCategories([res.data, ...categories]);
@@ -99,7 +99,7 @@ const Categories = () => {
     try {
       const token = localStorage.getItem('token');
       console.log('Categories: Deleting category:', deleteId);
-      await axios.delete(`http://localhost:4000/api/byc/admin/categories/${deleteId}`, {
+      await axios.delete(`https://byc-backend-hkgk.onrender.com/api/byc/admin/categories/${deleteId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setCategories(categories.filter((category) => category._id !== deleteId));

@@ -12,26 +12,12 @@ const SearchResults = () => {
   const location = useLocation();
   const query = new URLSearchParams(location.search).get('q') || '';
 
-  // useEffect(() => {
-  //   const fetchResults = async () => {
-  //     try {
-  //       const response = await axios.get(`http://localhost:4000/api/byc/search?q=${encodeURIComponent(query)}`);
-  //       setResults({ products: response.data.products, blogs: response.data.blogs });
-  //       setLoading(false);
-  //     } catch (error) {
-  //       console.error('Error fetching search results:', error.response?.data || error.message);
-  //       toast.error(error.response?.data?.message || 'Failed to fetch search results');
-  //       setLoading(false);
-  //     }
-  //   };
-  //   if (query) fetchResults();
-  //   else setLoading(false);
-  // }, [query]);
+   
 
   useEffect(() => {
     const fetchResults = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/api/byc/search?q=${encodeURIComponent(query)}`);
+        const response = await axios.get(`https://byc-backend-hkgk.onrender.com/api/byc/search?q=${encodeURIComponent(query)}`);
         console.log('Search API response:', response.data); // Debugging
     
         // Check if the response is an array or an object

@@ -18,7 +18,7 @@ const Orders = () => {
       try {
         const token = localStorage.getItem('token');
         if (!token) throw new Error('No token found');
-        const res = await axios.get('http://localhost:4000/api/byc/admin/orders', {
+        const res = await axios.get('https://byc-backend-hkgk.onrender.com/api/byc/admin/orders', {
           headers: { Authorization: `Bearer ${token}` },
         });
         console.log('Fetched orders:', res.data); // Debug
@@ -42,7 +42,7 @@ const Orders = () => {
       if (!token) throw new Error('No token found');
       console.log('Updating order:', { orderId, newStatus });
       const res = await axios.patch(
-        `http://localhost:4000/api/byc/admin/orders/${orderId}/status`, // <-- Corrected PATCH URL with /status
+        `https://byc-backend-hkgk.onrender.com/api/byc/admin/orders/${orderId}/status`, // <-- Corrected PATCH URL with /status
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );

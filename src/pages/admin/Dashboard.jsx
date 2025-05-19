@@ -19,10 +19,10 @@ const Dashboard = () => {
       try {
         const token = localStorage.getItem('token');
         const [statsResponse, salesResponse] = await Promise.all([
-          axios.get('http://localhost:4000/api/byc/admin/stats', {
+          axios.get('https://byc-backend-hkgk.onrender.com/api/byc/admin/stats', {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get('http://localhost:4000/api/byc/admin/sales', {
+          axios.get('https://byc-backend-hkgk.onrender.com/api/byc/admin/sales', {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);

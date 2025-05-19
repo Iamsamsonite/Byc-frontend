@@ -29,7 +29,7 @@ const Products = () => {
       try {
         const query = new URLSearchParams(location.search);
         const category = query.get('category') || '';
-        const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
+        const API_URL = process.env.REACT_APP_API_URL || 'https://byc-backend-hkgk.onrender.com';
         const url = category
           ? `${API_URL}/api/byc/products?category=${encodeURIComponent(category)}`
           : `${API_URL}/api/byc/products`;

@@ -53,7 +53,7 @@ const Products = () => {
 
   const fetchProducts = async () => {
     try {
-      const res = await axios.get('http://localhost:4000/api/byc/products');
+      const res = await axios.get('https://byc-backend-hkgk.onrender.com/api/byc/products');
       const normalizedProducts = res.data.map(product => ({
         ...product,
         colors: Array.isArray(product.colors)
@@ -76,7 +76,7 @@ const Products = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await axios.get('http://localhost:4000/api/byc/categories');
+      const res = await axios.get('https://byc-backend-hkgk.onrender.com/api/byc/categories');
       setCategories(res.data);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -86,7 +86,7 @@ const Products = () => {
 
   const fetchProductById = async (id) => {
     try {
-      const res = await axios.get(`http://localhost:4000/api/byc/products/${id}`);
+      const res = await axios.get(`https://byc-backend-hkgk.onrender.com/api/byc/products/${id}`);
       const product = {
         ...res.data,
         colors: Array.isArray(res.data.colors)
@@ -211,12 +211,12 @@ const Products = () => {
       console.log('Submitting payload:', payload); // Debug payload
 
       if (editingId) {
-        await axios.put(`http://localhost:4000/api/byc/products/${editingId}`, payload, {
+        await axios.put(`https://byc-backend-hkgk.onrender.com/api/byc/products/${editingId}`, payload, {
           headers: { Authorization: `Bearer ${token}` },
         });
         toast.success('Product updated successfully');
       } else {
-        await axios.post(`http://localhost:4000/api/byc/products`, payload, {
+        await axios.post(`https://byc-backend-hkgk.onrender.com/api/byc/products`, payload, {
           headers: { Authorization: `Bearer ${token}` },
         });
         toast.success('Product added successfully');
@@ -255,7 +255,7 @@ const Products = () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) throw new Error('No token found');
-      await axios.delete(`http://localhost:4000/api/byc/products/${deleteProductId}`, {
+      await axios.delete(`https://byc-backend-hkgk.onrender.com/api/byc/products/${deleteProductId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success('Product deleted successfully');

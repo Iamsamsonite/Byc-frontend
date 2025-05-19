@@ -31,7 +31,7 @@ const Wishlist = () => {
       try {
         const token = localStorage.getItem('token');
         if (!token) throw new Error('No token found');
-        const res = await axios.get('http://localhost:4000/api/byc/wishlist', {
+        const res = await axios.get('https://byc-backend-hkgk.onrender.com/api/byc/wishlist', {
           headers: { Authorization: `Bearer ${token}` },
           timeout: 5000,
         });

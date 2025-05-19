@@ -37,7 +37,7 @@ const Carttwo = () => {
     try {
       const token = localStorage.getItem('token');
       console.log('Testing auth, token:', token ? 'Present' : 'Absent');
-      const res = await axios.get('http://localhost:4000/api/byc/auth/me', {
+      const res = await axios.get('https://byc-backend-hkgk.onrender.com/api/byc/auth/me', {
         headers: { Authorization: `Bearer ${token}` },
       });
       console.log('Manual auth check:', res.data);

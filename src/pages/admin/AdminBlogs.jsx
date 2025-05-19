@@ -31,7 +31,7 @@ const AdminBlogs = () => {
       try {
         const token = localStorage.getItem('token');
         if (!token) throw new Error('No token found');
-        const response = await axios.get('http://localhost:4000/api/byc/admin/blogs', {
+        const response = await axios.get('https://byc-backend-hkgk.onrender.com/api/byc/admin/blogs', {
           headers: { Authorization: `Bearer ${token}` },
           timeout: 5000,
         });

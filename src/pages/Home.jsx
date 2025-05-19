@@ -67,7 +67,7 @@ const Home = () => {
   useEffect(() => {
     // Fetch products for carousel
     axios
-      .get('http://localhost:4000/api/byc/products')
+      .get('https://byc-backend-hkgk.onrender.com/api/byc/products')
       .then((response) => {
         console.log('Raw API Response:', response.data);
         const validProducts = response.data.filter(
@@ -105,7 +105,7 @@ const Home = () => {
 
     // Fetch blogs
     axios
-      .get('http://localhost:4000/api/byc/blogs')
+      .get('https://byc-backend-hkgk.onrender.com/api/byc/blogs')
       .then((response) => {
         setBlogs(response.data);
       })
