@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import { toast } from 'react-toastify'; // Changed from react-hot-toast
+import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
 
@@ -10,16 +10,16 @@ const Account = () => {
   const [name, setName] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const navigate = useNavigate();
-  const { user, setUser, isAuthenticated } = useContext(UserContext);
+  const { user, setUser, isAuthenticated, login } = useContext(UserContext);
 
   useEffect(() => {
-    console.log('Account.jsx auth state:', { isAuthenticated, user });
+    console.log('Account.jsx: Auth state updated', { isAuthenticated, user });
   }, [isAuthenticated, user]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     console.log('handleSubmit triggered', { isSignUp, email, password, name });
-  
+
     if (isSignUp) {
       if (!name.trim()) return toast.error('Name is required', { autoClose: 4000 });
       if (name.trim().length < 3) return toast.error('Name must be at least 3 characters', { autoClose: 4000 });
@@ -28,9 +28,9 @@ const Account = () => {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return toast.error('Invalid email format', { autoClose: 4000 });
     if (!password.trim()) return toast.error('Password is required', { autoClose: 4000 });
     if (password.trim().length < 6) return toast.error('Password must be at least 6 characters', { autoClose: 4000 });
-  
+
     const API_BASE_URL = process.env.REACT_APP_API_URL;
-  
+
     try {
       if (isSignUp) {
         const response = await axios.post(`${API_BASE_URL}/api/byc/auth/register`, {
@@ -51,8 +51,9 @@ const Account = () => {
           };
           setUser(userInfo);
           localStorage.setItem('user', JSON.stringify(userInfo));
-          setIsAuthenticated(true); // Explicitly set isAuthenticated
+          setIsAuthenticated(true);
           toast.success('Account created successfully!', { autoClose: 4000 });
+          console.log('Account.jsx: After signup', { isAuthenticated: true, user: userInfo });
           setTimeout(() => {
             navigate(userInfo.role === 'admin' ? '/admin/dashboard' : '/');
           }, 2000);
@@ -61,9 +62,9 @@ const Account = () => {
           toast.error('Signup failed: Invalid response', { autoClose: 4000 });
         }
       } else {
-        // Use the login function from UserContext
         const success = await login(email.trim(), password.trim());
         if (success) {
+          console.log('Account.jsx: After login', { isAuthenticated, user });
           setTimeout(() => {
             navigate(user?.role === 'admin' ? '/admin/dashboard' : '/');
           }, 2000);
@@ -82,6 +83,7 @@ const Account = () => {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       setUser(null);
+      setIsAuthenticated(false);
       toast.success('Logged out successfully', { autoClose: 4000 });
       navigate('/account');
     } catch (error) {
@@ -90,7 +92,6 @@ const Account = () => {
     }
   };
 
-  // Rest of the component (return statement) remains unchanged
   return (
     <div className="container border rounded mt-5" style={{ maxWidth: '800px' }}>
       <div className="row">
