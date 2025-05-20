@@ -1,5 +1,5 @@
  // C:/Users/HP/Desktop/desktop/bycfrontend/src/components/Navbar.js
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Link, useLocation, NavLink, useNavigate } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
 import { WishlistContext } from '../context/WishlistContext';
@@ -18,6 +18,7 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    
     console.log('Navbar rendered:', { isAuthenticated, user });
   }, [isAuthenticated, user]);
 
