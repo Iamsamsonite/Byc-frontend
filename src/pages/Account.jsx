@@ -10,7 +10,7 @@ const Account = () => {
   const [name, setName] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const navigate = useNavigate();
-  const { user, setUser, isAuthenticated, login } = useContext(UserContext);
+  const { user, setUser, isAuthenticated, login, setIsAuthenticated } = useContext(UserContext); // Added setIsAuthenticated
 
   useEffect(() => {
     console.log('Account.jsx: Auth state updated', { isAuthenticated, user });
@@ -51,7 +51,7 @@ const Account = () => {
           };
           setUser(userInfo);
           localStorage.setItem('user', JSON.stringify(userInfo));
-          setIsAuthenticated(true);
+          setIsAuthenticated(true); // Now defined
           toast.success('Account created successfully!', { autoClose: 4000 });
           console.log('Account.jsx: After signup', { isAuthenticated: true, user: userInfo });
           setTimeout(() => {
@@ -83,7 +83,7 @@ const Account = () => {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       setUser(null);
-      setIsAuthenticated(false);
+      setIsAuthenticated(false); // Now defined
       toast.success('Logged out successfully', { autoClose: 4000 });
       navigate('/account');
     } catch (error) {
