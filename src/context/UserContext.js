@@ -60,6 +60,30 @@ export const UserProvider = ({ children }) => {
     checkAuth();
   }, []);
 
+  // Sync state with localStorage changes
+  useEffect(() => {
+    const syncAuthState = () => {
+      const token = localStorage.getItem('token');
+      const userData = localStorage.getItem('user');
+      if (token && userData) {
+        setIsAuthenticated(true);
+        setUser(JSON.parse(userData));
+      } else {
+        setIsAuthenticated(false);
+        setUser(null);
+      }
+    };
+
+    // Listen for changes in localStorage
+    window.addEventListener('storage', syncAuthState);
+
+    // Cleanup the event listener on unmount
+    return () => {
+      window.removeEventListener('storage', syncAuthState);
+    };
+  }, []);
+
+
   const login = async (email, password) => {
     try {
       const res = await axios.post('https://byc-backend-hkgk.onrender.com/api/byc/auth/login', {
