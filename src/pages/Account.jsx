@@ -31,41 +31,43 @@ const Account = () => {
   
     const API_BASE_URL = process.env.REACT_APP_API_URL;
   
-    const endpoint = isSignUp
-      ? `${API_BASE_URL}/api/byc/auth/register`
-      : `${API_BASE_URL}/api/byc/auth/login`;
-  
-    const payload = isSignUp
-      ? { emailAddress: email.trim(), password: password.trim(), name: name.trim() }
-      : { emailAddress: email.trim(), password: password.trim() };
-  
-    console.log('API:', endpoint);
-    console.log('Payload:', payload);
-  
     try {
-      const response = await axios.post(endpoint, payload, {
-        headers: { 'Content-Type': 'application/json' },
-      });
-      console.log('Response:', response.data);
-  
-      const { token, user } = response.data; // Extract token and user from response
-      if (token && user && user._id) {
-        localStorage.setItem('token', token);
-        const userInfo = {
-          _id: user._id,
-          email: user.emailAddress,
-          name: user.name,
-          role: user.role || 'user',
-        };
-        setUser(userInfo);
-        localStorage.setItem('user', JSON.stringify(userInfo));
-        toast.success(isSignUp ? 'Account created successfully!' : 'Login successful!', { autoClose: 4000 });
-        setTimeout(() => {
-          navigate(userInfo.role === 'admin' ? '/admin/dashboard' : '/');
-        }, 2000);
+      if (isSignUp) {
+        const response = await axios.post(`${API_BASE_URL}/api/byc/auth/register`, {
+          emailAddress: email.trim(),
+          password: password.trim(),
+          name: name.trim(),
+        }, {
+          headers: { 'Content-Type': 'application/json' },
+        });
+        const { token, user } = response.data;
+        if (token && user && user._id) {
+          localStorage.setItem('token', token);
+          const userInfo = {
+            _id: user._id,
+            email: user.emailAddress,
+            name: user.name,
+            role: user.role || 'user',
+          };
+          setUser(userInfo);
+          localStorage.setItem('user', JSON.stringify(userInfo));
+          setIsAuthenticated(true); // Explicitly set isAuthenticated
+          toast.success('Account created successfully!', { autoClose: 4000 });
+          setTimeout(() => {
+            navigate(userInfo.role === 'admin' ? '/admin/dashboard' : '/');
+          }, 2000);
+        } else {
+          console.error('Invalid response:', response.data);
+          toast.error('Signup failed: Invalid response', { autoClose: 4000 });
+        }
       } else {
-        console.error('Invalid response:', response.data);
-        toast.error(isSignUp ? 'Signup failed: Invalid response' : 'Login failed: Invalid response', { autoClose: 4000 });
+        // Use the login function from UserContext
+        const success = await login(email.trim(), password.trim());
+        if (success) {
+          setTimeout(() => {
+            navigate(user?.role === 'admin' ? '/admin/dashboard' : '/');
+          }, 2000);
+        }
       }
     } catch (error) {
       console.error('Submit error:', error.response?.data || error.message);

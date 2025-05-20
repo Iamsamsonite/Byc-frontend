@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
-import { toast } from 'react-toastify'; // Switch to react-toastify
+import { toast } from 'react-toastify';
 
 export const UserContext = createContext();
 
@@ -18,17 +18,25 @@ export const UserProvider = ({ children }) => {
     const checkAuth = async () => {
       try {
         const token = localStorage.getItem('token');
-        if (!token) {
-          console.log('UserContext: No token found');
+        const userData = localStorage.getItem('user');
+        if (!token || !userData) {
+          console.log('UserContext: No token or user data found');
           setIsAuthenticated(false);
           setUser(null);
           setLoading(false);
           return;
         }
 
+        // Skip API call if already authenticated
+        if (isAuthenticated && user) {
+          console.log('UserContext: Already authenticated, skipping checkAuth');
+          setLoading(false);
+          return;
+        }
+
         const res = await axios.get('https://byc-backend-hkgk.onrender.com/api/byc/auth/me', {
           headers: { Authorization: `Bearer ${token}` },
-          timeout: 5000,
+          timeout: 15000,
         });
         console.log('UserContext: Fetched user:', res.data);
         const fetchedUser = {
@@ -60,29 +68,25 @@ export const UserProvider = ({ children }) => {
     checkAuth();
   }, []);
 
-  // Sync state with localStorage changes
   useEffect(() => {
     const syncAuthState = () => {
       const token = localStorage.getItem('token');
       const userData = localStorage.getItem('user');
       if (token && userData) {
+        const parsedUser = JSON.parse(userData);
+        setUser(parsedUser);
         setIsAuthenticated(true);
-        setUser(JSON.parse(userData));
       } else {
         setIsAuthenticated(false);
         setUser(null);
       }
     };
 
-    // Listen for changes in localStorage
     window.addEventListener('storage', syncAuthState);
-
-    // Cleanup the event listener on unmount
     return () => {
       window.removeEventListener('storage', syncAuthState);
     };
   }, []);
-
 
   const login = async (email, password) => {
     try {
@@ -105,14 +109,7 @@ export const UserProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(userInfo));
       setUser(userInfo);
       setIsAuthenticated(true);
-      console.log('UserContext: Logged in:', userInfo);
-       // Force state sync
-    const storedToken = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
-    if (storedToken && userData) {
-      setIsAuthenticated(true);
-      setUser(JSON.parse(userData));
-    }
+      console.log('UserContext: Setting user and auth state', { userInfo, isAuthenticated: true });
       toast.success('Logged in successfully', { autoClose: 4000 });
       return true;
     } catch (err) {
