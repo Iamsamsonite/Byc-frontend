@@ -106,6 +106,13 @@ export const UserProvider = ({ children }) => {
       setUser(userInfo);
       setIsAuthenticated(true);
       console.log('UserContext: Logged in:', userInfo);
+       // Force state sync
+    const storedToken = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
+    if (storedToken && userData) {
+      setIsAuthenticated(true);
+      setUser(JSON.parse(userData));
+    }
       toast.success('Logged in successfully', { autoClose: 4000 });
       return true;
     } catch (err) {

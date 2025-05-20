@@ -17,6 +17,10 @@ const Navbar = () => {
   const [openMenus, setOpenMenus] = useState({});
   const navigate = useNavigate();
 
+  useEffect(() => {
+    console.log('Navbar rendered:', { isAuthenticated, user });
+  }, [isAuthenticated, user]);
+
   const toggleSearch = (e) => {
     e.preventDefault();
     setShowSearch(!showSearch);
