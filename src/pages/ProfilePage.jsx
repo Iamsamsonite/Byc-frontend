@@ -1,17 +1,25 @@
-import React, { useContext, useEffect, useState } from 'react';
+ import React, { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import { UserContext } from '../context/UserContext';
-import { Container } from 'react-bootstrap';
+import { Container, Form, Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 
 const ProfilePage = () => {
-  const { user, loading: userLoading } = useContext(UserContext);
+  const { user, loading: userLoading, setUser } = useContext(UserContext);
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 768);
   const [isVerySmallScreen, setIsVerySmallScreen] = useState(window.innerWidth < 576);
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+  });
+  const [formErrors, setFormErrors] = useState({});
 
   const itemsPerPageLarge = 15; // 15 orders per page on large screens
   const itemsPerPageSmall = 8;  // 8 orders per page on small screens
@@ -26,6 +34,18 @@ const ProfilePage = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Initialize form data when user is loaded
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        name: user.name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        address: user.address || '',
+      });
+    }
+  }, [user]);
 
   // Fetch orders
   useEffect(() => {
@@ -56,6 +76,63 @@ const ProfilePage = () => {
     } finally {
       setLoadingOrders(false);
     }
+  };
+
+  // Validate form data
+  const validateForm = () => {
+    const errors = {};
+    if (!formData.name.trim()) errors.name = 'Name is required';
+    if (!formData.email.trim()) {
+      errors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      errors.email = 'Email is invalid';
+    }
+    if (formData.phone && !/^\+?\d{10,15}$/.test(formData.phone)) {
+      errors.phone = 'Phone number is invalid';
+    }
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  // Handle form input changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    // Clear error for the field when user starts typing
+    if (formErrors[name]) {
+      setFormErrors((prev) => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  // Handle form submission
+  const handleUpdateProfile = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) {
+      toast.error('Please fix the errors in the form', { autoClose: 4000 });
+      return;
+    }
+
+    try {
+      const res = await axios.put(
+        'https://byc-backend-hkgk.onrender.com/api/byc/users/me',
+        formData,
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+          timeout: 5000,
+        }
+      );
+      setUser(res.data.user); // Update user context with new data
+      setIsEditing(false);
+      toast.success('Profile updated successfully', { autoClose: 4000 });
+    } catch (err) {
+      console.error('Failed to update profile:', err.response?.data || err.message);
+      toast.error(err.response?.data?.message || 'Failed to update profile', { autoClose: 4000 });
+    }
+  };
+
+  const toggleEditMode = () => {
+    setIsEditing((prev) => !prev);
+    setFormErrors({}); // Clear errors when toggling
   };
 
   const getStatusBadgeClass = (status) => {
@@ -144,65 +221,154 @@ const ProfilePage = () => {
         >
           Profile Details
         </h5>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.5rem',
-          }}
-        >
-          <p
+        {isEditing ? (
+          <Form onSubmit={handleUpdateProfile}>
+            <Form.Group className="mb-3">
+              <Form.Label>Name</Form.Label>
+              <Form.Control
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                isInvalid={!!formErrors.name}
+                style={{ fontSize: isVerySmallScreen ? '0.9rem' : '1rem' }}
+              />
+              <Form.Control.Feedback type="invalid">
+                {formErrors.name}
+              </Form.Control.Feedback>
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                isInvalid={!!formErrors.email}
+                style={{ fontSize: isVerySmallScreen ? '0.9rem' : '1rem' }}
+              />
+              <Form.Control.Feedback type="invalid">
+                {formErrors.email}
+              </Form.Control.Feedback>
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Phone</Form.Label>
+              <Form.Control
+                type="text"
+                name="phone"
+                value={formData.phone}
+                onChange={handleInputChange}
+                isInvalid={!!formErrors.phone}
+                style={{ fontSize: isVerySmallScreen ? '0.9rem' : '1rem' }}
+              />
+              <Form.Control.Feedback type="invalid">
+                {formErrors.phone}
+              </Form.Control.Feedback>
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Address</Form.Label>
+              <Form.Control
+                type="text"
+                name="address"
+                value={formData.address}
+                onChange={handleInputChange}
+                style={{ fontSize: isVerySmallScreen ? '0.9rem' : '1rem' }}
+              />
+            </Form.Group>
+            <div className="d-flex gap-2">
+              <Button
+                variant="danger"
+                size="sm"
+                type="submit"
+                style={{
+                  fontSize: isVerySmallScreen ? '0.8rem' : '0.9rem',
+                  padding: isVerySmallScreen ? '4px 8px' : '6px 12px',
+                }}
+              >
+                Update
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={toggleEditMode}
+                style={{
+                  fontSize: isVerySmallScreen ? '0.8rem' : '0.9rem',
+                  padding: isVerySmallScreen ? '4px 8px' : '6px 12px',
+                }}
+              >
+                Cancel
+              </Button>
+            </div>
+          </Form>
+        ) : (
+          <div
             style={{
-              fontSize: isVerySmallScreen ? '0.9rem' : '1rem',
-              margin: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.5rem',
             }}
           >
-            <strong>Email:</strong> {user.email}
-          </p>
-          {user.phone && (
             <p
               style={{
                 fontSize: isVerySmallScreen ? '0.9rem' : '1rem',
                 margin: 0,
               }}
             >
-              <strong>Phone:</strong> {user.phone}
+              <strong>Name:</strong> {user.name}
             </p>
-          )}
-          {user.address && (
             <p
               style={{
                 fontSize: isVerySmallScreen ? '0.9rem' : '1rem',
                 margin: 0,
               }}
             >
-              <strong>Address:</strong> {user.address}
+              <strong>Email:</strong> {user.email}
             </p>
-          )}
-          <p
-            style={{
-              fontSize: isVerySmallScreen ? '0.9rem' : '1rem',
-              margin: 0,
-            }}
-          >
-            <strong>Member Since:</strong>{' '}
-            {new Date(user.createdAt || Date.now()).toLocaleDateString('en-US', {
-              month: 'short',
-              day: 'numeric',
-              year: 'numeric',
-            })}
-          </p>
-        </div>
-        <button
-          className="btn btn-danger btn-sm mt-3"
-          style={{
-            fontSize: isVerySmallScreen ? '0.8rem' : '0.9rem',
-            padding: isVerySmallScreen ? '4px 8px' : '6px 12px',
-          }}
-          onClick={() => toast.info('Edit profile functionality coming soon!')}
-        >
-          Edit Profile
-        </button>
+            {user.phone && (
+              <p
+                style={{
+                  fontSize: isVerySmallScreen ? '0.9rem' : '1rem',
+                  margin: 0,
+                }}
+              >
+                <strong>Phone:</strong> {user.phone}
+              </p>
+            )}
+            {user.address && (
+              <p
+                style={{
+                  fontSize: isVerySmallScreen ? '0.9rem' : '1rem',
+                  margin: 0,
+                }}
+              >
+                <strong>Address:</strong> {user.address}
+              </p>
+            )}
+            <p
+              style={{
+                fontSize: isVerySmallScreen ? '0.9rem' : '1rem',
+                margin: 0,
+              }}
+            >
+              <strong>Member Since:</strong>{' '}
+              {new Date(user.createdAt || Date.now()).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+              })}
+            </p>
+            <button
+              className="btn btn-danger btn-sm mt-3"
+              style={{
+                fontSize: isVerySmallScreen ? '0.8rem' : '0.9rem',
+                padding: isVerySmallScreen ? '4px 8px' : '6px 12px',
+              }}
+              onClick={toggleEditMode}
+            >
+              Edit Profile
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Orders Section */}

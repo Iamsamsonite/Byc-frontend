@@ -339,14 +339,18 @@ const Mac = () => {
           </div>
           <div className="col-6 col-md-4 d-flex justify-content-end align-items-center gap-2">
             <SortByDrop onSortChange={setSortOption} />
-            <ToggleButton activeView={viewMode} onToggle={setViewMode} />
+            
           </div>
         </div>
 
         <div className="row my-3 border-bottom">
-          <div className="col-12">
+          <div className="col-6 col-md-8">
             <p style={{ fontSize: '14px' }}>{sortedProducts.length} Products Found</p>
           </div>
+          <div className="col-6 col-md-4 d-flex justify-content-end align-items-center gap-2">
+                       
+                      <ToggleButton activeView={viewMode} onToggle={setViewMode} />
+                    </div>
         </div>
 
         {loading ? (

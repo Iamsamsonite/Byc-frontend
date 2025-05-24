@@ -1,4 +1,4 @@
- import React, { useState, useEffect, useContext } from 'react';
+ import React, { useState, useEffect } from 'react';
 import {
   Group41,
   Group42,
@@ -20,34 +20,27 @@ import {
 } from '../asset';
 import { newArrivals, bycCollection } from '../asset';
 import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom';
-import { RecentViewsContext } from '../context/RecentViewsContext';
-import { WishlistContext } from '../context/WishlistContext';
+import { Link } from 'react-router-dom';
 
 // Inline CSS for category images
 const styles = {
   categoryImage: {
     width: '100%',
-    height: '150px', // Smaller for very small screens
+    height: '200px', // Fixed height for small screens
     objectFit: 'cover',
     display: 'block',
-    borderTopLeftRadius: '8px',
-    borderTopRightRadius: '8px',
+    borderRadius: '8px',
   },
   categoryImageLarge: {
     width: '100%',
-    height: '200px', // Larger for small and large screens
+    height: '250px', // Slightly larger for large screens
     objectFit: 'cover',
     display: 'block',
-    borderTopLeftRadius: '8px',
-    borderTopRightRadius: '8px',
+    borderRadius: '8px',
   },
 };
 
 const Home = () => {
-  const navigate = useNavigate();
-  const { addToRecentViews } = useContext(RecentViewsContext);
-  const { addToWishlist, removeFromWishlist, isInWishlist } = useContext(WishlistContext);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [fadeState, setFadeState] = useState('fade-in');
   const [showAll, setShowAll] = useState(false);
@@ -64,7 +57,7 @@ const Home = () => {
 
   const categories = ['Men', 'Women', 'Children'];
   const sentences = ['yourself', 'Men', 'Women', 'Kids'];
-  const itemsPerView = isSmallScreen ? 2 : 3; // 2 cards on small screens, 3 on large
+  const itemsPerView = isSmallScreen ? 2 : 3; // 2 products on small screens, 3 on large
 
   // Handle window resize
   useEffect(() => {
@@ -110,18 +103,18 @@ const Home = () => {
           )
           .map((product) => ({
             ...product,
-            id: product.id || product._id,
+            _id: product._id || product.id,
             productName: product.productName || 'Unknown Product',
             productNumber: product.productNumber || 'N/A',
             productDescription: product.productDescription || 'No description',
             productPrice: product.productPrice || 0,
             ratings: typeof product.ratings === 'number' ? product.ratings : 4.0,
+            subCategory: product.subCategory || product.category.name,
           }));
         console.log('Valid Products:', validProducts);
         validProducts.forEach((p) =>
           console.log(
-            `Product: ${p.productName}, Category: "${p.category.name}", Original Category:`,
-            p.category
+            `Product: ${p.productName}, Category: "${p.category.name}", SubCategory: "${p.subCategory}"`
           )
         );
         const uniqueCategories = [
@@ -179,27 +172,10 @@ const Home = () => {
     );
   };
 
-  const handleBuyNow = (product) => {
-    if (!product || !product.id) return;
-    navigate(`/product/${product.id}`);
-    addToRecentViews(product);
-  };
-
-  const handleWishlistToggle = (product) => {
-    if (!product || !product.id) return;
-    const productId = product.id;
-    if (isInWishlist(productId)) {
-      removeFromWishlist(productId);
-    } else {
-      addToWishlist({ id: productId, productName: product.productName });
-    }
-  };
-
   // Filter products case-insensitively using category.name
   const filteredProducts = products.filter(
     (p) => p.category.name.toLowerCase() === activeCategory.toLowerCase()
   );
-  console.log(`Filtered Products for ${activeCategory}:`, filteredProducts);
   const displayedProducts = showAll
     ? filteredProducts
     : filteredProducts.slice(carouselIndex, carouselIndex + itemsPerView);
@@ -346,8 +322,6 @@ const Home = () => {
                 className={`btn ${
                   activeCategory === category
                     ? 'btn-danger'
-                    : category === 'Men'
-                    ? ' border-2 border-start-0 border-end-0 border-top-0 rounded-0 fw-light'
                     : 'border-light text-dark'
                 } mx-2`}
                 onClick={() => handleCategorySelect(category)}
@@ -387,7 +361,7 @@ const Home = () => {
               ) : filteredProducts.length > 0 ? (
                 filteredProducts.map((product) => (
                   <div
-                    key={product.id}
+                    key={product._id}
                     style={{
                       flex: `0 0 ${100 / itemsPerView}%`,
                       maxWidth: `${100 / itemsPerView}%`,
@@ -396,30 +370,26 @@ const Home = () => {
                     }}
                   >
                     <div
-                      className="singlet shadow-sm"
+                      className="shadow-sm"
                       style={{
-                        transition: 'transform 0.3s ease, box-shadow 0.3s ease',
                         backgroundColor: '#fff',
                         borderRadius: '8px',
                         height: '100%',
                         display: 'flex',
                         flexDirection: 'column',
                         border: '1px solid #dee2e6',
+                        transition: 'transform 0.3s ease, box-shadow 0.3s ease',
                       }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.transform = 'scale(1.05)';
                         e.currentTarget.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.15)';
-                        const bot = e.currentTarget.querySelector('.bot');
-                        if (bot) bot.classList.remove('d-none');
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.transform = 'scale(1)';
                         e.currentTarget.style.boxShadow = 'none';
-                        const bot = e.currentTarget.querySelector('.bot');
-                        if (bot) bot.classList.add('d-none');
                       }}
                     >
-                      <Link to={`/products?category=${encodeURIComponent(product.category.name)}`}>
+                      <Link to={`/products?category=${encodeURIComponent(product.subCategory || product.category.name)}`}>
                         <img
                           src={
                             Array.isArray(product.productImage) &&
@@ -432,7 +402,7 @@ const Home = () => {
                           loading="lazy"
                         />
                       </Link>
-                      <div style={{ padding: '10px', flexGrow: '1' }}>
+                      <div style={{ padding: '10px', flexGrow: 1, textAlign: 'center' }}>
                         <h5
                           style={{
                             fontWeight: 'bold',
@@ -449,15 +419,7 @@ const Home = () => {
                             margin: '0 0 5px',
                           }}
                         >
-                          {product.productNumber}
-                        </p>
-                        <p
-                          style={{
-                            fontSize: isSmallScreen ? '10px' : '12px',
-                            margin: '0 0 5px',
-                          }}
-                        >
-                          {product.productDescription.substring(0, 50)}...
+                          <b>{product.category.name}</b> {product.productNumber}
                         </p>
                         <p
                           style={{
@@ -466,73 +428,8 @@ const Home = () => {
                             margin: '0 0 5px',
                           }}
                         >
-                          ₦{product.productPrice.toFixed(2)}
+                          ₦{product.productPrice.toLocaleString()}
                         </p>
-                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                          {[...Array(Math.floor(product.ratings))].map((_, i) => (
-                            <i
-                              key={i}
-                              className="bi bi-star-fill"
-                              style={{
-                                color: '#FB8200',
-                                fontSize: isSmallScreen ? '10px' : '12px',
-                              }}
-                            ></i>
-                          ))}
-                          {product.ratings % 1 !== 0 && (
-                            <i
-                              className="bi bi-star-half"
-                              style={{
-                                color: '#FB8200',
-                                fontSize: isSmallScreen ? '10px' : '12px',
-                              }}
-                            ></i>
-                          )}
-                          <span
-                            style={{
-                              fontSize: isSmallScreen ? '10px' : '12px',
-                              fontWeight: 'bold',
-                              marginLeft: '4px',
-                            }}
-                          >
-                            {product.ratings.toFixed(1)}
-                          </span>
-                        </div>
-                        <div
-                          style={{ display: 'flex', gap: '8px' }}
-                          className="bot d-none"
-                        >
-                          <button
-                            className="btn btn-sm border-danger"
-                            style={{
-                              fontSize: isSmallScreen ? '8px' : '10px',
-                              padding: isSmallScreen ? '4px 6px' : '4px 8px',
-                              borderRadius: '4px',
-                            }}
-                            onClick={() => handleWishlistToggle(product)}
-                          >
-                            <i
-                              className={`bi ${isInWishlist(product.id) ? 'bi-heart-fill' : 'bi-heart'} me-1 text-danger`}
-                              style={{ fontSize: isSmallScreen ? '8px' : '10px' }}
-                            ></i>
-                            {isInWishlist(product.id) ? 'Remove' : 'Wishlist'}
-                          </button>
-                          <button
-                            className="btn btn-sm border-danger btn-danger"
-                            style={{
-                              fontSize: isSmallScreen ? '8px' : '10px',
-                              padding: isSmallScreen ? '4px 6px' : '4px 8px',
-                              borderRadius: '4px',
-                            }}
-                            onClick={() => handleBuyNow(product)}
-                          >
-                            <i
-                              className="bi bi-cart3 me-1"
-                              style={{ fontSize: isSmallScreen ? '8px' : '10px' }}
-                            ></i>
-                            Buy Now
-                          </button>
-                        </div>
                       </div>
                     </div>
                   </div>
