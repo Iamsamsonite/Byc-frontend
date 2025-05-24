@@ -60,19 +60,19 @@ const ProfilePage = () => {
   };
 
   const getStatusBadgeClass = (status) => {
-    switch (status) {
+    switch (status?.toLowerCase()) {
       case 'pending':
-        return 'bg-warning';
+        return 'bg-warning text-dark';
       case 'processing':
-        return 'bg-info';
+        return 'bg-info text-white';
       case 'shipped':
-        return 'bg-primary';
+        return 'bg-primary text-white';
       case 'delivered':
-        return 'bg-success';
+        return 'bg-success text-white';
       case 'cancelled':
-        return 'bg-danger';
+        return 'bg-danger text-white';
       default:
-        return 'bg-secondary';
+        return 'bg-secondary text-white';
     }
   };
 
@@ -115,15 +115,33 @@ const ProfilePage = () => {
   }
 
   return (
-    <Container style={{ maxWidth: '1200px', margin: '2rem auto', padding: '0 15px', boxSizing: 'border-box', border: '1px solid #dee2e6' }}>
-      <h3 className="fw-bold mb-3" style={{ fontSize: isVerySmallScreen ? '1.5rem' : '2rem' }}>
+    <Container
+      style={{
+        maxWidth: '1200px',
+        margin: '2rem auto',
+        padding: '0 15px',
+        boxSizing: 'border-box',
+        border: '1px solid #dee2e6',
+        borderRadius: '8px',
+      }}
+    >
+      <h3
+        className="fw-bold mb-3"
+        style={{ fontSize: isVerySmallScreen ? '1.5rem' : '2rem' }}
+      >
         Hello, {user.name}
       </h3>
-      <p className="text-muted mb-4" style={{ fontSize: isVerySmallScreen ? '0.9rem' : '1rem' }}>
+      <p
+        className="text-muted mb-4"
+        style={{ fontSize: isVerySmallScreen ? '0.9rem' : '1rem' }}
+      >
         {user.email}
       </p>
       <hr className="my-4" />
-      <h5 className="mb-4" style={{ fontSize: isVerySmallScreen ? '1.2rem' : '1.5rem' }}>
+      <h5
+        className="mb-4"
+        style={{ fontSize: isVerySmallScreen ? '1.2rem' : '1.5rem' }}
+      >
         Your Orders
       </h5>
 
@@ -136,7 +154,9 @@ const ProfilePage = () => {
         </div>
       ) : orders.length === 0 ? (
         <div className="text-center">
-          <p style={{ fontSize: isVerySmallScreen ? '0.9rem' : '1rem' }}>No orders found.</p>
+          <p style={{ fontSize: isVerySmallScreen ? '0.9rem' : '1rem' }}>
+            No orders found.
+          </p>
           <a href="/products" className="btn btn-danger btn-sm">
             Shop Now
           </a>
@@ -147,7 +167,7 @@ const ProfilePage = () => {
             style={{
               display: 'flex',
               flexWrap: 'wrap',
-              justifyContent: 'flex-start',
+              justifyContent: 'space-between',
               gap: isVerySmallScreen ? '0.5rem' : '1rem',
               padding: '1rem 0',
             }}
@@ -156,89 +176,153 @@ const ProfilePage = () => {
               <div
                 key={order._id}
                 style={{
-                  flex: isVerySmallScreen ? '1 1 100%' : isSmallScreen ? '1 1 47%' : '1 1 23%',
-                  maxWidth: isVerySmallScreen ? '100%' : isSmallScreen ? '47%' : '23%',
-                  padding: isVerySmallScreen ? '5px' : '10px',
+                  flex: isVerySmallScreen
+                    ? '1 1 100%'
+                    : isSmallScreen
+                    ? '1 1 48%'
+                    : '1 1 24%',
+                  maxWidth: isVerySmallScreen
+                    ? '100%'
+                    : isSmallScreen
+                    ? '48%'
+                    : '24%',
+                  padding: isVerySmallScreen ? '5px' : '8px',
                   boxSizing: 'border-box',
                 }}
               >
                 <div
                   className="shadow-sm"
                   style={{
-                    transition: 'transform 0.3s ease, box-shadow 0.3s ease',
                     backgroundColor: '#fff',
                     borderRadius: '8px',
+                    border: '1px solid #dee2e6',
                     height: '100%',
                     display: 'flex',
                     flexDirection: 'column',
-                    border: '1px solid #dee2e6',
+                    transition: 'transform 0.3s ease, box-shadow 0.3s ease',
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.05)';
-                    e.currentTarget.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.15)';
+                    if (!isSmallScreen) {
+                      // Disable hover on small screens
+                      e.currentTarget.style.transform = 'scale(1.05)';
+                      e.currentTarget.style.boxShadow =
+                        '0 8px 16px rgba(0, 0, 0, 0.15)';
+                    }
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
-                    e.currentTarget.style.boxShadow = 'none';
+                    if (!isSmallScreen) {
+                      e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }
                   }}
                 >
-                  <div style={{ padding: isVerySmallScreen ? '10px' : '15px', flexGrow: 1 }}>
-                    <div className="d-flex justify-content-between align-items-center mb-2">
+                  <div
+                    style={{
+                      padding: isVerySmallScreen ? '10px' : '15px',
+                      flexGrow: 1,
+                    }}
+                  >
+                    <div
+                      className="d-flex justify-content-between align-items-center mb-2"
+                      style={{ flexWrap: 'wrap', gap: '0.5rem' }}
+                    >
                       <h6
-                        className="mb-0"
+                        className="mb-0 text-truncate"
                         style={{
                           fontSize: isVerySmallScreen ? '14px' : '16px',
                           fontWeight: 'bold',
+                          maxWidth: '60%',
                         }}
+                        title={`Order #${order.orderId || order._id.slice(-6).toUpperCase()}`}
                       >
                         Order #{order.orderId || order._id.slice(-6).toUpperCase()}
                       </h6>
                       <span
-                        className={`badge ${getStatusBadgeClass(order.status.toLowerCase())}`}
-                        style={{ fontSize: isVerySmallScreen ? '10px' : '12px' }}
+                        className={`badge ${getStatusBadgeClass(order.status)}`}
+                        style={{
+                          fontSize: isVerySmallScreen ? '10px' : '12px',
+                          padding: '4px 8px',
+                          borderRadius: '4px',
+                        }}
                       >
                         {order.status}
                       </span>
                     </div>
                     <small
-                      className="text-muted"
+                      className="text-muted d-block mb-2"
                       style={{ fontSize: isVerySmallScreen ? '10px' : '12px' }}
                     >
-                      Placed on: {new Date(order.orderDate).toLocaleDateString()}
+                      Placed on:{' '}
+                      {new Date(order.orderDate).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
                     </small>
-                    <ul
-                      className="mt-2"
+                    <div
                       style={{
-                        paddingLeft: '20px',
-                        fontSize: isVerySmallScreen ? '12px' : '14px',
+                        maxHeight: '150px',
+                        overflowY: 'auto',
+                        paddingRight: '5px',
+                        marginBottom: '10px',
                       }}
                     >
                       {order.cartItems.map((item, idx) => (
-                        <li key={idx} className="d-flex align-items-center mb-2">
+                        <div
+                          key={idx}
+                          className="d-flex align-items-center mb-2"
+                          style={{ gap: '10px' }}
+                        >
                           <img
-                            src={item.productImage || 'https://via.placeholder.com/50?text=No+Image'}
+                            src={
+                              item.productImage ||
+                              'https://via.placeholder.com/50?text=No+Image'
+                            }
                             alt={item.name}
                             style={{
                               width: isVerySmallScreen ? '40px' : '50px',
                               height: isVerySmallScreen ? '40px' : '50px',
                               objectFit: 'cover',
-                              marginRight: isVerySmallScreen ? '8px' : '10px',
                               borderRadius: '4px',
+                              flexShrink: 0,
                             }}
                             loading="lazy"
-                            onError={(e) => (e.target.src = 'https://via.placeholder.com/50?text=Image+Error')}
+                            onError={(e) =>
+                              (e.target.src =
+                                'https://via.placeholder.com/50?text=Image+Error')
+                            }
                           />
-                          <div>
-                            <span>{item.name}</span> — {item.quantity} × ₦{item.price.toFixed(2)}
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <span
+                              className="text-truncate d-block"
+                              style={{
+                                fontSize: isVerySmallScreen ? '12px' : '14px',
+                                maxWidth: '100%',
+                              }}
+                              title={item.name}
+                            >
+                              {item.name}
+                            </span>
+                            <small
+                              style={{
+                                fontSize: isVerySmallScreen ? '10px' : '12px',
+                                color: '#787885',
+                              }}
+                            >
+                              {item.quantity} × ₦{item.price.toLocaleString()}
+                            </small>
                           </div>
-                        </li>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                     <p
-                      className="fw-bold mt-2"
-                      style={{ fontSize: isVerySmallScreen ? '12px' : '14px' }}
+                      className="fw-bold mb-0"
+                      style={{
+                        fontSize: isVerySmallScreen ? '12px' : '14px',
+                        color: '#333',
+                      }}
                     >
-                      Total: ₦{order.totalAmount.toFixed(2)}
+                      Total: ₦{order.totalAmount.toLocaleString()}
                     </p>
                   </div>
                 </div>
@@ -256,6 +340,7 @@ const ProfilePage = () => {
                   flexWrap: 'wrap',
                 }}
                 role="group"
+                aria-label="Pagination controls"
               >
                 <button
                   style={{
@@ -265,26 +350,37 @@ const ProfilePage = () => {
                     backgroundColor: currentPage === 1 ? '#f8f9fa' : '#fff',
                     cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
                     fontSize: isVerySmallScreen ? '10px' : isSmallScreen ? '12px' : '14px',
+                    display: 'flex',
+                    alignItems: 'center',
                   }}
                   onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
                   aria-label="Previous page"
                 >
-                  <i className="bi bi-arrow-left-short"></i>
+                  <i className="bi bi-arrow-left-short" style={{ fontSize: '16px' }}></i>
                 </button>
                 {[...Array(totalPages)].map((_, index) => (
                   <button
                     key={index}
                     style={{
                       padding: isVerySmallScreen ? '6px 10px' : '8px 12px',
-                      border: currentPage === index + 1 ? '2px solid #ffc107' : '1px solid #dee2e6',
+                      border:
+                        currentPage === index + 1
+                          ? '2px solid #ffc107'
+                          : '1px solid #dee2e6',
                       borderRadius: '4px',
-                      backgroundColor: currentPage === index + 1 ? '#fff3cd' : '#fff',
+                      backgroundColor:
+                        currentPage === index + 1 ? '#fff3cd' : '#fff',
                       cursor: 'pointer',
-                      fontSize: isVerySmallScreen ? '10px' : isSmallScreen ? '12px' : '14px',
+                      fontSize: isVerySmallScreen
+                        ? '10px'
+                        : isSmallScreen
+                        ? '12px'
+                        : '14px',
                     }}
                     onClick={() => setCurrentPage(index + 1)}
                     aria-label={`Page ${index + 1}`}
+                    aria-current={currentPage === index + 1 ? 'page' : undefined}
                   >
                     {index + 1}
                   </button>
@@ -297,12 +393,19 @@ const ProfilePage = () => {
                     backgroundColor: currentPage === totalPages ? '#f8f9fa' : '#fff',
                     cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
                     fontSize: isVerySmallScreen ? '10px' : isSmallScreen ? '12px' : '14px',
+                    display: 'flex',
+                    alignItems: 'center',
                   }}
-                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                  }
                   disabled={currentPage === totalPages}
                   aria-label="Next page"
                 >
-                  <i className="bi bi-arrow-right-short"></i>
+                  <i
+                    className="bi bi-arrow-right-short"
+                    style={{ fontSize: '16px' }}
+                  ></i>
                 </button>
               </div>
             </div>

@@ -1,48 +1,38 @@
  import React from 'react';
 
-const SortByDrop = ({ onSortChange, isSmallScreen = false }) => {
+const SortByDrop = ({ onSortChange, isSmallScreen }) => {
   const handleChange = (event) => {
     const value = event.target.value;
-    console.log('SortByDrop selected:', value); // Debug
-    if (value) {
-      onSortChange(value); // Pass the selected value to the parent
+    console.log('SortByDrop: Selected value:', value);
+    onSortChange(value);
+    // Close dropdown on mobile
+    if (isSmallScreen) {
+      event.target.blur();
     }
   };
 
   return (
-    <div
-      style={{
-        width: 'auto',
-        margin: '10px 0',
-        minWidth: isSmallScreen ? '160px' : '180px',
-      }}
-    >
+    <div style={{ width: '100%', margin: '10px 0', maxWidth: '180px' }}>
       <div
         style={{
           display: 'flex',
           alignItems: 'center',
+          paddingRight: '8px',
           position: 'relative',
-          paddingRight: '10px',
         }}
       >
-        <div
-          style={{
-            position: 'relative',
-            width: '100%',
-          }}
-        >
+        <div className="dropdown sort" style={{ position: 'relative', width: '100%' }}>
           <span
             style={{
               position: 'absolute',
               top: '-8px',
-              left: '15px',
-              fontSize: isSmallScreen ? '10px' : '12px',
+              left: '8px',
+              fontSize: '10px',
               fontWeight: '500',
               color: '#6c757d',
-              zIndex: 2,
+              zIndex: 10,
               backgroundColor: '#fff',
-              padding: '0 5px',
-              transform: 'translateY(-50%)',
+              padding: '0 4px',
             }}
           >
             SORT BY:
@@ -50,28 +40,27 @@ const SortByDrop = ({ onSortChange, isSmallScreen = false }) => {
           <select
             className="form-select"
             onChange={handleChange}
+            onTouchStart={() => console.log('SortByDrop: Touch started')}
             defaultValue=""
             style={{
               backgroundColor: '#fff',
-              border: '1px solid #dee2e6',
-              padding: isSmallScreen ? '12px' : '10px 14px',
-              fontSize: isSmallScreen ? '12px' : '14px',
+              border: '1px solid #ced4da',
+              padding: '10px 12px',
+              fontSize: isSmallScreen ? '15px' : '16px',
               width: '100%',
-              minWidth: isSmallScreen ? '140px' : '160px',
-              maxWidth: '220px',
               textAlign: 'left',
               cursor: 'pointer',
-              color: '#000',
-              appearance: 'auto',
+              color: '#333',
               borderRadius: '4px',
-              zIndex: 1,
-              touchAction: 'manipulation',
-              height: isSmallScreen ? '44px' : '48px', // Larger touch target
+              appearance: 'auto',
+              height: '44px',
               boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+              zIndex: 5,
             }}
+            aria-label="Sort products by"
           >
             <option value="" disabled>
-              Select Sort Option
+              Sort By
             </option>
             <option value="price-asc">Price: Low to High</option>
             <option value="price-desc">Price: High to Low</option>
