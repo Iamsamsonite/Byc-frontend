@@ -324,7 +324,7 @@ const Checkout = () => {
 
       {cartItems.map((item, index) => (
         <div key={index} className="row border-bottom pb-3 mb-3">
-          <div className="col-sm-2 mb-5">
+          <div className="col-12 col-sm-4 col-md-2 mb-3">
             <img
               style={{ width: '150px' }}
               src={item.image || defaultCartImage}
@@ -358,23 +358,25 @@ const Checkout = () => {
             </button>
           </div>
 
-          <div className="col-sm-1"></div>
+          <div className=" col-sm-1"></div>
           {index === 0 && (
             <div className="col-sm-4">
               <div className="mb-4">
-                <p>
-                  <small className="mb-2">
-                    Subtotal <span style={{ marginLeft: '200px' }}>₦{totalPrice.toFixed(2)}</span>
-                  </small>
+                <p className="d-flex justify-content-between">
+                   <small>Subtotal</small>
+                    <small>₦{totalPrice.toFixed(2)}</small>
                 </p>
-                <p>
-                  <small className="mb-2 border-bottom pb-3">
-                    Delivery fee <span style={{ marginLeft: '178px' }}>₦{deliveryFee.toFixed(2)}</span>
-                  </small>
-                </p>
-                <h6 className="pt-4">
-                  <b>Total <span style={{ marginLeft: '210px' }}>₦{totalAmount}</span></b>
-                </h6>
+
+                 <p className="d-flex justify-content-between border-bottom pb-2 mb-2">
+  <small>Delivery fee</small>
+  <small>₦{deliveryFee.toFixed(2)}</small>
+</p>
+
+<h6 className="d-flex justify-content-between pt-4">
+  <b>Total</b>
+  <b>₦{totalAmount}</b>
+</h6>
+
               </div>
             </div>
           )}

@@ -1,38 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Group41,
-  Group42,
-  Group34,
-  Group84,
-  Frame167,
-  Frame168,
-  Frame166,
-  Arrowleft,
-  Pant1,
-  Pant2,
-  Pant3,
-  Arrowright,
-  Frame169,
-  Frame169a,
-  Frame169b,
-  Authorview,
-  Arrow,
-} from '../asset';
+ import React, { useState, useEffect } from 'react';
+import { Group84, Frame166 } from '../asset';
 import { newArrivals, bycCollection } from '../asset';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-
-// Inline CSS for category images
-const styles = {
-  categoryImage: {
-    width: '100%',
-    maxWidth: '200px', // Consistent width
-    height: '200px', // Fixed height for uniformity
-    objectFit: 'cover', // Maintain aspect ratio
-    display: 'block',
-    margin: '0 auto', // Center image
-  },
-};
 
 const Home = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -83,15 +53,7 @@ const Home = () => {
             product.category.name.trim() !== ''
         );
         console.log('Valid Products:', validProducts);
-        validProducts.forEach((p) =>
-          console.log(
-            `Product: ${p.productName}, Category: "${p.category.name}", Original Category:`,
-            p.category
-          )
-        );
-        const uniqueCategories = [
-          ...new Set(validProducts.map((p) => p.category.name)),
-        ];
+        const uniqueCategories = [...new Set(validProducts.map((p) => p.category.name))];
         console.log('Available Categories:', uniqueCategories);
         setAvailableCategories(uniqueCategories);
         setProducts(validProducts);
@@ -135,174 +97,286 @@ const Home = () => {
   };
 
   const handlePrev = () => {
-    setCarouselIndex((prev) => Math.max(prev - 3, 0));
+    setCarouselIndex((prev) => Math.max(prev - 2, 0));
   };
 
   const handleNext = () => {
     const filteredProducts = products.filter(
       (p) => p.category.name.toLowerCase() === activeCategory.toLowerCase()
     );
-    setCarouselIndex((prev) => Math.min(prev + 3, filteredProducts.length - 3));
+    setCarouselIndex((prev) => Math.min(prev + 2, Math.max(filteredProducts.length - 2, 0)));
   };
 
   // Filter products case-insensitively using category.name
   const filteredProducts = products.filter(
     (p) => p.category.name.toLowerCase() === activeCategory.toLowerCase()
   );
-  console.log(`Filtered Products for ${activeCategory}:`, filteredProducts);
   const displayedProducts = showAll
     ? filteredProducts
-    : filteredProducts.slice(carouselIndex, carouselIndex + 3);
+    : filteredProducts.slice(carouselIndex, carouselIndex + 2);
 
   return (
     <>
-      <div>
-        <nav aria-label="breadcrumb">
-          <ol className="breadcrumb">
-            <li className="breadcrumb-item active ms-5" aria-current="page">
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 15px', boxSizing: 'border-box' }}>
+        {/* Breadcrumb */}
+        <nav aria-label="breadcrumb" style={{ marginTop: '1rem' }}>
+          <ol style={{ display: 'flex', listStyle: 'none', padding: 0, margin: 0 }}>
+            <li style={{ fontSize: '14px', '@media (max-width: 576px)': { fontSize: '12px' } }}>
               Home
             </li>
           </ol>
         </nav>
 
         {/* Hero Section */}
-        <div className="body mt-5 text-center">
-          <p>Your body deserves comfort</p>
-          <div
-            className="my-4 flex items-center justify-center"
-            style={{ fontWeight: 'bolder' }}
-          >
-            <h2 className={`text-4xl font-bold transition-opacity duration-500`}>
+        <div style={{ textAlign: 'center', marginTop: '2rem', padding: '2rem 0' }}>
+          <p style={{ fontSize: '18px', margin: '0 0 1rem', '@media (max-width: 576px)': { fontSize: '16px' } }}>
+            Your body deserves comfort
+          </p>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '1rem 0' }}>
+            <h2
+              style={{
+                fontSize: '2.25rem',
+                fontWeight: 'bold',
+                transition: 'opacity 0.5s',
+                '@media (max-width: 768px)': { fontSize: '1.75rem' },
+                '@media (max-width: 576px)': { fontSize: '1.5rem' }
+              }}
+            >
               Get the best for <span>{sentences[currentIndex]}</span>
             </h2>
           </div>
-
-          <div>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
             {sentences.map((_, index) => (
               <div
                 key={index}
-                className={` ${
-                  index === currentIndex ? 'bg-blue-600' : 'bg-gray-300'
-                }`}
+                style={{
+                  width: '10px',
+                  height: '10px',
+                  borderRadius: '50%',
+                  backgroundColor: index === currentIndex ? '#2563eb' : '#d1d5db'
+                }}
               />
             ))}
           </div>
-
-          <button className="shop btn btn-outline-dark border-2 border-dark me-2">
-            <Link to="/product" className="text-decoration-none text-black hover-text-white">
-              Shop now
-            </Link>
-          </button>
-          <button className="shop btn btn-outline-dark border border-2 border-dark">
-            <Link to="/about" className="text-decoration-none text-black hover-text-white">
-              Learn more
-            </Link>
-          </button>
-          <div className="mt-5">
-            <img style={{ width: '70%' }} src={Group84} alt="" />
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+            <button
+              style={{
+                padding: '8px 16px',
+                border: '2px solid #000',
+                borderRadius: '4px',
+                backgroundColor: 'transparent',
+                fontSize: '14px',
+                cursor: 'pointer',
+                '@media (max-width: 576px)': { fontSize: '12px' }
+              }}
+            >
+              <Link to="/products" style={{ textDecoration: 'none', color: '#000' }}>
+                Shop now
+              </Link>
+            </button>
+            <button
+              style={{
+                padding: '8px 16px',
+                border: '2px solid #000',
+                borderRadius: '4px',
+                backgroundColor: 'transparent',
+                fontSize: '14px',
+                cursor: 'pointer',
+                '@media (max-width: 576px)': { fontSize: '12px' }
+              }}
+            >
+              <Link to="/about" style={{ textDecoration: 'none', color: '#000' }}>
+                Learn more
+              </Link>
+            </button>
+          </div>
+          <div style={{ marginTop: '2rem' }}>
+            <img
+              src={Group84}
+              style={{
+                width: '70%',
+                maxWidth: '800px',
+                height: 'auto',
+                '@media (max-width: 768px)': { width: '90%' },
+                '@media (max-width: 576px)': { width: '100%' }
+              }}
+              alt="Hero banner"
+              loading="lazy"
+            />
           </div>
         </div>
 
         {/* New Arrivals */}
-        <div className="home2 my-5 text-center">
-          <h4>Checkout BYC new arrival</h4>
+        <div style={{ textAlign: 'center', margin: '2rem 0' }}>
+          <h4 style={{ fontSize: '1.5rem', '@media (max-width: 576px)': { fontSize: '1.25rem' } }}>
+            Checkout BYC new arrival
+          </h4>
         </div>
-        <div className="container">
-          <div className="container mt-5">
-            <div className="row">
-              {(showAll ? newArrivals : newArrivals.slice(0, 3)).map((product, index) => (
-                <div key={index} className="col-lg-4 my-3">
-                  <div className="card shadow-sm">
-                    <img
-                      src={product.productImage}
-                      className="card-img-top"
-                      style={{ width: '100%', height: 'auto' }}
-                      alt={product.productName}
-                    />
-                    <div className="card-body">
-                      <h5 className="card-title">{product.productName}</h5>
-                      <p className="card-text">{product.productDescription}</p>
-                    </div>
+        <div style={{ maxWidth: '1200px', margin: '2rem auto', padding: '0 15px', boxSizing: 'border-box' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center' }}>
+            {(showAll ? newArrivals : newArrivals.slice(0, 3)).map((product, index) => (
+              <div
+                key={index}
+                style={{
+                  flex: '1 1 30%',
+                  maxWidth: '30%',
+                  '@media (max-width: 768px)': { flex: '1 1 45%', maxWidth: '45%' },
+                  '@media (max-width: 576px)': { flex: '1 1 100%', maxWidth: '100%' }
+                }}
+              >
+                <div style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.1)', backgroundColor: '#fff' }}>
+                  <img
+                    src={product.productImage}
+                    style={{
+                      width: '100%',
+                      height: 'auto',
+                      objectFit: 'cover',
+                      '@media (max-width: 576px)': { height: '200px' }
+                    }}
+                    alt={product.productName}
+                    loading="lazy"
+                  />
+                  <div style={{ padding: '1rem', textAlign: 'center' }}>
+                    <h5 style={{ fontSize: '1.25rem', '@media (max-width: 576px)': { fontSize: '1rem' } }}>
+                      {product.productName}
+                    </h5>
+                    <p style={{ fontSize: '14px', '@media (max-width: 576px)': { fontSize: '12px' } }}>
+                      {product.productDescription}
+                    </p>
                   </div>
                 </div>
-              ))}
-            </div>
-            <div className="text-center mt-4">
-              <button
-                className="btn btn-outline-secondary btn-md border border-1 border-black"
-                onClick={handleViewAll}
-              >
-                {showAll ? 'View Less' : 'View All'}
-              </button>
-            </div>
+              </div>
+            ))}
+          </div>
+          <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+            <button
+              style={{
+                padding: '8px 16px',
+                border: '1px solid #000',
+                borderRadius: '4px',
+                backgroundColor: 'transparent',
+                fontSize: '14px',
+                cursor: 'pointer',
+                '@media (max-width: 576px)': { fontSize: '12px' }
+              }}
+              onClick={handleViewAll}
+            >
+              {showAll ? 'View Less' : 'View All'}
+            </button>
           </div>
         </div>
 
         {/* BYC Collection */}
-        <div className="container mt-5">
-          <div className="container mt-5">
-            <div className="row col-lg-12 justify-content-center">
-              <div className="col-lg-4 m-3 py-5" style={{ backgroundColor: '#F1F1F1' }}>
-                <div className="ms-4">
-                  <h5 style={{ color: '#616161' }}>BYC Collection 2021</h5>
-                  <h3 className="fw-bold">BYC Collection</h3>
-                  <p style={{ fontSize: '11px' }}>
-                    The best everyday option in a Super Saver range within a
-                    <br />
-                    reasonable price. It is our responsibility to keep you
-                    <br />
-                    100 percent stylish. Be smart & trendy with us.
-                  </p>
-                  <button className="btn my-4 btn-md border border-2 border-black rounded-0">
-                    <a href="product" className="text-decoration-none text-dark">
-                      Explore
-                    </a>
-                  </button>
-                </div>
-              </div>
-              <div className="col-lg-4 m-3">
-                <img src={Frame166} className="img-fluid" alt="BYC Collection" />
-              </div>
-            </div>
-            <div className="row col-lg-12 justify-content-center">
-              {(showAll ? bycCollection : bycCollection.slice(0, 2)).map((product, index) => (
-                <div key={index} className="col-lg-4 m-3">
-                  <img
-                    src={product.productImage}
-                    className="img-fluid"
-                    alt={`BYC Image ${index + 1}`}
-                  />
-                </div>
-              ))}
-            </div>
-            <div className="text-center mt-4">
+        <div style={{ maxWidth: '1200px', margin: '2rem auto', padding: '0 15px', boxSizing: 'border-box' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center' }}>
+            <div
+              style={{
+                flex: '1 1 45%',
+                maxWidth: '45%',
+                backgroundColor: '#F1F1F1',
+                padding: '2rem',
+                '@media (max-width: 768px)': { flex: '1 1 100%', maxWidth: '100%', padding: '1rem' }
+              }}
+            >
+              <h5 style={{ color: '#616161', fontSize: '1.25rem', '@media (max-width: 576px)': { fontSize: '1rem' } }}>
+                BYC Collection 2021
+              </h5>
+              <h3 style={{ fontWeight: 'bold', fontSize: '1.75rem', '@media (max-width: 576px)': { fontSize: '1.5rem' } }}>
+                BYC Collection
+              </h3>
+              <p style={{ fontSize: '12px', lineHeight: '1.5', '@media (max-width: 576px)': { fontSize: '11px' } }}>
+                The best everyday option in a Super Saver range within a reasonable price. It is our responsibility to keep you 100 percent stylish. Be smart & trendy with us.
+              </p>
               <button
-                className="btn btn-outline-secondary btn-md border border-1 border-black"
-                onClick={handleViewAll}
+                style={{
+                  padding: '8px 16px',
+                  border: '2px solid #000',
+                  borderRadius: '0',
+                  backgroundColor: 'transparent',
+                  fontSize: '14px',
+                  marginTop: '1rem',
+                  cursor: 'pointer',
+                  '@media (max-width: 576px)': { fontSize: '12px' }
+                }}
               >
-                {showAll ? 'View Less' : 'View All'}
+                <Link to="/product" style={{ textDecoration: 'none', color: '#000' }}>
+                  Explore
+                </Link>
               </button>
             </div>
+            <div
+              style={{
+                flex: '1 1 45%',
+                maxWidth: '45%',
+                '@media (max-width: 768px)': { flex: '1 1 100%', maxWidth: '100%' }
+              }}
+            >
+              <img
+                src={Frame166}
+                style={{ width: '100%', height: 'auto', objectFit: 'cover' }}
+                alt="BYC Collection"
+                loading="lazy"
+              />
+            </div>
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center', marginTop: '1rem' }}>
+            {(showAll ? bycCollection : bycCollection.slice(0, 2)).map((product, index) => (
+              <div
+                key={index}
+                style={{
+                  flex: '1 1 45%',
+                  maxWidth: '45%',
+                  '@media (max-width: 768px)': { flex: '1 1 100%', maxWidth: '100%' }
+                }}
+              >
+                <img
+                  src={product.productImage}
+                  style={{ width: '100%', height: 'auto', objectFit: 'cover', '@media (max-width: 576px)': { height: '200px' } }}
+                  alt={`BYC Image ${index + 1}`}
+                  loading="lazy"
+                />
+              </div>
+            ))}
+          </div>
+          <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+            <button
+              style={{
+                padding: '8px 16px',
+                border: '1px solid #000',
+                borderRadius: '4px',
+                backgroundColor: 'transparent',
+                fontSize: '14px',
+                cursor: 'pointer',
+                '@media (max-width: 576px)': { fontSize: '12px' }
+              }}
+              onClick={handleViewAll}
+            >
+              {showAll ? 'View Less' : 'View All'}
+            </button>
           </div>
         </div>
 
         {/* Shop by Categories */}
-        <div className="text-center fw-bolder mt-5">
-          <h4>Shop by Categories</h4>
+        <div style={{ textAlign: 'center', fontWeight: 'bold', margin: '2rem 0' }}>
+          <h4 style={{ fontSize: '1.5rem', '@media (max-width: 576px)': { fontSize: '1.25rem' } }}>
+            Shop by Categories
+          </h4>
         </div>
-        <div className="col-md-12 fs-1">
-          <div className="text-center mt-3">
-            {/* <p>Available Categories: {availableCategories.join(', ') || 'None'}</p> */}
+        <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
             {categories.map((category) => (
               <button
                 key={category}
-                className={`btn ${
-                  activeCategory === category
-                    ? 'btn-danger'
-                    : category === 'Men'
-                    ? ' border-2 border-start-0 border-end-0 border-top-0 rounded-0 fw-light'
-                    : 'border-light text-dark'
-                } mx-2`}
+                style={{
+                  padding: '8px 16px',
+                  border: activeCategory === category ? 'none' : '1px solid #000',
+                  borderRadius: '4px',
+                  backgroundColor: activeCategory === category ? '#dc2626' : 'transparent',
+                  color: activeCategory === category ? '#fff' : '#000',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  '@media (max-width: 576px)': { fontSize: '12px' }
+                }}
                 onClick={() => handleCategorySelect(category)}
               >
                 For {category}
@@ -312,58 +386,118 @@ const Home = () => {
         </div>
 
         {/* Product Carousel */}
-        <div className="container my-5">
-          <div className="row col-12 align-items-center">
-            <div className="col-1"></div>
-            <div className="bi col-1 pt-5 mt-5">
+        <div style={{ 
+          maxWidth: '1200px', 
+          margin: '2rem auto', 
+          padding: '0 15px', 
+          boxSizing: 'border-box',
+          '@media (max-width: 576px)': { padding: '0 10px' }
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center' }}>
+            <div style={{ 
+              flex: '0 0 50px', 
+              textAlign: 'center', 
+              '@media (max-width: 576px)': { flex: '0 0 40px' }
+            }}>
               <i
                 className="bi bi-caret-left"
-                style={{ cursor: 'pointer', fontSize: '24px' }}
+                style={{ 
+                  cursor: 'pointer', 
+                  fontSize: '24px', 
+                  '@media (max-width: 576px)': { fontSize: '20px' } 
+                }}
                 onClick={handlePrev}
+                aria-label="Previous products"
               ></i>
             </div>
             {loading ? (
-              <div className="col-9 text-center">Loading products...</div>
+              <div style={{ flex: '1 1 100%', textAlign: 'center', padding: '2rem' }}>
+                Loading products...
+              </div>
             ) : error ? (
-              <div className="col-9 text-center text-danger">{error}</div>
+              <div style={{ flex: '1 1 100%', textAlign: 'center', color: 'red', padding: '2rem' }}>
+                {error}
+              </div>
             ) : displayedProducts.length > 0 ? (
-              displayedProducts.map((product) => (
-                <div key={product._id} className="col-3 text-center">
+              displayedProducts.slice(0, 2).map((product) => (
+                <div
+                  key={product._id}
+                  style={{
+                    flex: '1 1 45%',
+                    maxWidth: '45%',
+                    textAlign: 'center',
+                    padding: '1rem',
+                    '@media (max-width: 768px)': { flex: '1 1 100%', maxWidth: '100%' }
+                  }}
+                >
                   <Link to={`/products?category=${encodeURIComponent(product.subCategory)}`}>
                     <img
                       src={
-                        Array.isArray(product.productImage) &&
-                        product.productImage.length > 0
+                        Array.isArray(product.productImage) && product.productImage.length > 0
                           ? product.productImage[0]
                           : 'https://via.placeholder.com/300?text=No+Image'
                       }
-                      style={styles.categoryImage}
+                      style={{
+                        width: '100%',
+                        maxWidth: '200px',
+                        height: '200px',
+                        objectFit: 'cover',
+                        display: 'block',
+                        margin: '0 auto',
+                        '@media (max-width: 768px)': { maxWidth: '180px', height: '180px' },
+                        '@media (max-width: 576px)': { maxWidth: '160px', height: '160px' }
+                      }}
                       alt={product.productName}
+                      loading="lazy"
                     />
                   </Link>
-                  <div>
-                    <span>
-                      <b>{product.category.name}</b> {product.productNumber}
+                  <div style={{ marginTop: '1rem' }}>
+                    <span style={{ fontWeight: 'bold', fontSize: '16px', '@media (max-width: 576px)': { fontSize: '14px' } }}>
+                      {product.category.name} {product.productNumber}
                     </span>
                   </div>
-                  <p>₦{product.productPrice.toLocaleString()}</p>
+                  <p style={{ 
+                    margin: '0.5rem 0 0', 
+                    fontSize: '16px', 
+                    '@media (max-width: 576px)': { fontSize: '14px' } 
+                  }}>
+                    ₦{product.productPrice.toLocaleString()}
+                  </p>
                 </div>
               ))
             ) : (
-              <div className="col-9 text-center">No products found for {activeCategory}</div>
+              <div style={{ flex: '1 1 100%', textAlign: 'center', padding: '2rem' }}>
+                No products found for {activeCategory}
+              </div>
             )}
-            <div className="bi col-1 pt-5 mt-5">
+            <div style={{ 
+              flex: '0 0 50px', 
+              textAlign: 'center', 
+              '@media (max-width: 576px)': { flex: '0 0 40px' }
+            }}>
               <i
                 className="bi bi-caret-right"
-                style={{ cursor: 'pointer', fontSize: '24px' }}
+                style={{ 
+                  cursor: 'pointer', 
+                  fontSize: '24px', 
+                  '@media (max-width: 576px)': { fontSize: '20px' } 
+                }}
                 onClick={handleNext}
+                aria-label="Next products"
               ></i>
             </div>
-            <div className="col-1"></div>
           </div>
-          <div className="text-center mt-4">
+          <div style={{ textAlign: 'center', marginTop: '1rem' }}>
             <button
-              className="btn btn-outline-secondary btn-md border border-1 border-black"
+              style={{
+                padding: '8px 16px',
+                border: '1px solid #000',
+                borderRadius: '4px',
+                backgroundColor: 'transparent',
+                fontSize: '14px',
+                cursor: 'pointer',
+                '@media (max-width: 576px)': { fontSize: '12px' }
+              }}
               onClick={handleViewAll}
             >
               {showAll ? 'View Less' : 'View All'}
@@ -372,74 +506,164 @@ const Home = () => {
         </div>
 
         {/* Blog News */}
-        <div className="text-center fw-bold">
-          <h4>BYC AFRICA Blog News</h4>
+        <div style={{ textAlign: 'center', fontWeight: 'bold', marginTop: '2rem', marginBottom: '2rem' }}>
+          <h4 style={{ fontSize: '1.5rem', margin: 0, '@media (max-width: 576px)': { fontSize: '1.25rem' } }}>
+            BYC AFRICA Blog News
+          </h4>
         </div>
-        <div className="container m-5">
-          <div className="card-group">
-            <div className="row">
-              {blogs.slice(0, visibleBlogs).map((blog) => (
-                <div key={blog.id} className="col-md-4 my-3">
-                  <div className="card shadow-lg border-0">
-                    <img
-                      src={blog.blogImage[0] || 'default_image.jpg'}
-                      className="card-img-top"
-                      alt="Blog Image"
-                    />
-                    <div className="card-body mt-2">
-                      <div
-                        className="d-flex justify-content-between"
-                        style={{ backgroundColor: '#E0E0E0' }}
-                      >
-                        <img
-                          src={blog.authorImage[0] || 'default_author_image.jpg'}
-                          className="img-fluid"
-                          alt="Author"
-                        />
-                        <div className="d-flex align-items-center">
-                          <i className="bi bi-eye ms-1" style={{ fontSize: '16px' }}></i>
+        <div style={{ 
+          maxWidth: '1200px', 
+          margin: '2rem auto', 
+          padding: '0 15px', 
+          boxSizing: 'border-box',
+          '@media (max-width: 576px)': { padding: '0 10px' }
+        }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+            {blogs.slice(0, visibleBlogs).map((blog) => (
+              <div 
+                key={blog.id} 
+                style={{ 
+                  flex: '1 1 100%', 
+                  maxWidth: '100%', 
+                  '@media (min-width: 768px)': { flex: '1 1 33.333%', maxWidth: '33.333%' }
+                }}
+              >
+                <div style={{ 
+                  boxShadow: '0 4px 8px rgba(0,0,0,0.1)', 
+                  border: 'none', 
+                  height: '100%', 
+                  transition: 'all 0.3s ease',
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  backgroundColor: '#fff'
+                }}>
+                  <img
+                    src={blog.blogImage[0] || 'https://via.placeholder.com/300?text=No+Image'}
+                    alt={blog.blogTitle}
+                    style={{ 
+                      width: '100%', 
+                      height: '200px', 
+                      objectFit: 'cover',
+                      '@media (max-width: 768px)': { height: '150px' },
+                      '@media (max-width: 576px)': { height: '120px' }
+                    }}
+                    loading="lazy"
+                  />
+                  <div style={{ 
+                    padding: '15px', 
+                    flexGrow: 1,
+                    '@media (max-width: 768px)': { padding: '10px' },
+                    '@media (max-width: 576px)': { padding: '8px' }
+                  }}>
+                    <div style={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center', 
+                      padding: '10px', 
+                      backgroundColor: '#E0E0E0'
+                    }}>
+                      <img
+                        src={blog.authorImage[0] || 'https://via.placeholder.com/40?text=Author'}
+                        alt={blog.authorName}
+                        style={{ 
+                          width: '40px', 
+                          height: '40px', 
+                          objectFit: 'cover', 
+                          borderRadius: '50%' 
+                        }}
+                        loading="lazy"
+                      />
+                      <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '1rem',
+                        '@media (max-width: 576px)': { fontSize: '12px' }
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          <i className="bi bi-eye" style={{ fontSize: '16px', marginRight: '4px', '@media (max-width: 576px)': { fontSize: '14px' } }}></i>
                           <span>{blog.views}</span>
                         </div>
-                        <div className="d-flex align-items-center pe-5">
-                          <i
-                            className="bi bi-heart ms-1"
-                            style={{ fontSize: '16px', paddingLeft: '2px' }}
-                          ></i>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          <i className="bi bi-heart" style={{ fontSize: '16px', marginRight: '4px', '@media (max-width: 576px)': { fontSize: '14px' } }}></i>
                           <span>{blog.likes}</span>
                         </div>
                       </div>
-                      <small className="gap-5 d-flex py-2">
-                        <b>{blog.authorName}</b> <span>{blog.authorProfession}</span>
-                      </small>
-                      <h5 className="card-title mt-4">{blog.blogTitle}</h5>
-                      <p className="card-text fs-6 mt-4" style={{ fontSize: '12px' }}>
-                        {blog.blogDescription}
-                      </p>
                     </div>
-                    <div className="card-footer">
-                      <button className="btn border-dark rounded-0">
-                        <a href="blog" className="text-decoration-none text-dark">
-                          Read more <i className="bi bi-arrow-right"></i>
-                        </a>
-                      </button>
+                    <div style={{ 
+                      display: 'flex', 
+                      gap: '1rem', 
+                      padding: '8px 0',
+                      '@media (max-width: 576px)': { fontSize: '10px' }
+                    }}>
+                      <small style={{ fontWeight: 'bold' }}>{blog.authorName}</small>
+                      <small>{blog.authorProfession}</small>
                     </div>
+                    <h5 style={{ 
+                      fontSize: '1.25rem', 
+                      marginTop: '12px',
+                      '@media (max-width: 768px)': { fontSize: '1.1rem' },
+                      '@media (max-width: 576px)': { fontSize: '1rem' }
+                    }}>
+                      {blog.blogTitle}
+                    </h5>
+                    <p style={{ 
+                      fontSize: '14px', 
+                      marginTop: '12px',
+                      '@media (max-width: 768px)': { fontSize: '12px' },
+                      '@media (max-width: 576px)': { fontSize: '11px' }
+                    }}>
+                      {blog.blogDescription}
+                    </p>
+                  </div>
+                  <div style={{ 
+                    padding: '0 15px 15px', 
+                    backgroundColor: '#fff',
+                    '@media (max-width: 768px)': { padding: '0 10px 10px' }
+                  }}>
+                    <Link 
+                      to="/blog" 
+                      style={{ 
+                        display: 'block', 
+                        width: '100%', 
+                        padding: '8px', 
+                        border: '1px solid #000', 
+                        borderRadius: '0', 
+                        textDecoration: 'none', 
+                        color: '#000', 
+                        textAlign: 'center',
+                        fontSize: '14px',
+                        '@media (max-width: 768px)': { fontSize: '12px' },
+                        '@media (max-width: 576px)': { fontSize: '11px' }
+                      }}
+                    >
+                      Read more <i className="bi bi-arrow-right"></i>
+                    </Link>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
+          {blogs.length > 3 && (
+            <div style={{ textAlign: 'center', margin: '2rem 0' }}>
+              <button
+                style={{ 
+                  padding: '8px 16px', 
+                  border: '1px solid #000', 
+                  borderRadius: '4px', 
+                  backgroundColor: 'transparent', 
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  '@media (max-width: 768px)': { fontSize: '12px' },
+                  '@media (max-width: 576px)': { fontSize: '11px' }
+                }}
+                onClick={isViewMore ? handleViewLess : handleViewMore}
+              >
+                {isViewMore ? 'View Less' : 'View More'}
+              </button>
+            </div>
+          )}
         </div>
       </div>
-      {blogs.length > 3 && (
-        <div className="text-center mt-4">
-          <button
-            className="btn btn-outline-secondary btn-md border border-1 border-black"
-            onClick={isViewMore ? handleViewLess : handleViewMore}
-          >
-            {isViewMore ? 'View less' : 'View more'}
-          </button>
-        </div>
-      )}
     </>
   );
 };

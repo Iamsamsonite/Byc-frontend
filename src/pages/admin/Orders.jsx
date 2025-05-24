@@ -1,5 +1,4 @@
- // src/pages/admin/Orders.jsx
-import React, { useState, useEffect } from 'react';
+ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { Container, Table, Form, Button, Modal, Image } from 'react-bootstrap';
@@ -21,8 +20,12 @@ const Orders = () => {
         const res = await axios.get('https://byc-backend-hkgk.onrender.com/api/byc/admin/orders', {
           headers: { Authorization: `Bearer ${token}` },
         });
-        console.log('Fetched orders:', res.data); // Debug
-        setOrders(res.data || []);
+        console.log('Fetched orders:', res.data);
+        // Sort orders by orderDate in descending order (latest first)
+        const sortedOrders = [...(res.data || [])].sort((a, b) => 
+          new Date(b.orderDate) - new Date(a.orderDate)
+        );
+        setOrders(sortedOrders);
         setError('');
       } catch (err) {
         console.error('Error fetching orders:', err);
@@ -56,13 +59,12 @@ const Orders = () => {
     } catch (err) {
       console.error('Error updating order:', err);
       const errorMsg = err.response?.data?.message || 'Failed to update order';
-      console.error('Error details:', err.response?.data);
       toast.error(errorMsg);
     }
   };
 
   const handleRowClick = (order) => {
-    console.log('Selected order:', order); // Debug
+    console.log('Selected order:', order);
     setSelectedOrder(order);
     setShowDetailsModal(true);
   };
@@ -161,7 +163,7 @@ const Orders = () => {
                 <td colSpan="6" className="text-center">No orders found</td>
               </tr>
             ) : (
-              orders.map((order) => (
+              orders.map((order, index) => (
                 <tr
                   key={order._id}
                   onClick={() => handleRowClick(order)}
@@ -252,7 +254,7 @@ const Orders = () => {
                       </thead>
                       <tbody>
                         {selectedOrder.cartItems.map((item, index) => {
-                          console.log('Cart item:', item); // Debug
+                          console.log('Cart item:', item);
                           return (
                             <tr key={index}>
                               <td>

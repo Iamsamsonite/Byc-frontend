@@ -35,6 +35,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import SearchResults from './pages/SearchResult';
 import ProtectedRoute from './component/ProtectRoute';
+import ProfilePage from './pages/ProfilePage';
 
 const AdminRoute = ({ children }) => {
   const { user } = React.useContext(UserContext);
@@ -75,6 +76,7 @@ const Display = () => {
                   <Route path="/carttwo" element={<Carttwo />} />
                   <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
                   <Route path="/account" element={<Account />} />
+                  <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
                   <Route path="/order-confirmation" element={<ProtectedRoute><OrderConfirmation /></ProtectedRoute>} />
                   <Route path="/sing" element={<Sing />} />
                   <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />

@@ -355,7 +355,7 @@ const ProductDetails = () => {
 
         <div className="container border rounded">
           <div className="row m-4">
-            <div className="col-md-5">
+            <div className="col-12 col-md-5">
               {carouselImages.length > 0 ? (
                 <>
                   <img
@@ -418,7 +418,7 @@ const ProductDetails = () => {
               )}
             </div>
 
-            <div className="col-md-7">
+            <div className="col-12 col-md-7">
               <div className="border-bottom pb-3">
                 <h3 style={{ fontWeight: 'bold' }}>{product?.productName || 'N/A'}</h3>
                 <h4>{product?.productNumber || 'N/A'}</h4>

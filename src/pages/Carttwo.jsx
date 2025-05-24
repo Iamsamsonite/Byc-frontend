@@ -114,7 +114,7 @@ const Carttwo = () => {
             />
           </div>
 
-          <div className="col-sm-4 border-end">
+          <div className="col-12 col-sm-4 border-end">
             <h5 className="fw-bold">{item.name}</h5>
             <h6 className="fw-bold">{item.productNumber || 'N/A'}</h6>
             <small className="display-7">
@@ -192,17 +192,16 @@ const Carttwo = () => {
         <div className="col-sm-6 mt-4">
           <h6 className="display-7 fw-bold">CART TOTALS</h6>
           <div className="mb-4">
-            <p>
-              <small className="mb-2">
-                Subtotal <span style={{ marginLeft: '200px' }}>₦{totalPrice.toFixed(2)}</span>
-              </small>
-            </p>
-            <p>
-              <small>
-                Total <span style={{ marginLeft: '220px' }}>₦{totalPrice.toFixed(2)}</span>
-              </small>
-            </p>
-          </div>
+  <p className="d-flex justify-content-between mb-2">
+    <small>Subtotal</small>
+    <small>₦{totalPrice.toFixed(2)}</small>
+  </p>
+  <p className="d-flex justify-content-between">
+    <small>Total</small>
+    <small>₦{totalPrice.toFixed(2)}</small>
+  </p>
+</div>
+
           <div className="d-flex mb-4">
             <Link to="/products">
               <button

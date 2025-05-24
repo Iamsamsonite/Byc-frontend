@@ -61,9 +61,10 @@ const SearchResults = () => {
           <Card.Body>
             <Card.Title>{product.productName}</Card.Title>
             <Card.Text>₦{product.productPrice}</Card.Text>
-            <Link to={`/products/${product._id}`} className="btn btn-danger">
-              View Product
+             <Link to={`/product/${product._id}`} className="btn btn-danger">
+                 View Product
             </Link>
+
           </Card.Body>
         </Card>
       </Col>
