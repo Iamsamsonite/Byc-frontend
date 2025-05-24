@@ -22,7 +22,7 @@ const About = () => {
           .award-card {
             background-color: #FBFBFB;
             border-radius: 8px;
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
           }
           .award-img {
             max-width: 50px;
@@ -39,6 +39,10 @@ const About = () => {
           }
           .card-body p {
             line-height: 1.6;
+          }
+          .bot {
+            font-size: 0.9rem;
+            padding: 4px 8px;
           }
           /* Prevent overflow and shaking */
           body, html {
@@ -71,6 +75,10 @@ const About = () => {
             .award-img {
               max-width: 40px;
             }
+            .bot {
+              font-size: 0.8rem;
+              padding: 3px 6px;
+            }
             .ms-5, .ps-5 {
               margin-left: 0 !important;
               padding-left: 0 !important;
@@ -97,6 +105,10 @@ const About = () => {
             }
             .award-img {
               max-width: 35px;
+            }
+            .bot {
+              font-size: 0.7rem;
+              padding: 2px 5px;
             }
           }
         `}
@@ -143,18 +155,35 @@ const About = () => {
             <div key={award.id} className="col-12 col-sm-6 col-md-4">
               <div
                 className="award-card p-3 h-100"
+                style={{
+                  backgroundColor: '#FBFBFB',
+                  transition: 'transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease',
+                }}
                 onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                  e.currentTarget.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.15)';
                   e.currentTarget.style.backgroundColor = 'rgba(189, 58, 58, 0.04)';
-                  e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
+                  e.currentTarget.querySelectorAll('.bot').forEach((btn) => btn.classList.remove('d-none'));
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#FBFBFB';
+                  e.currentTarget.style.transform = 'scale(1)';
                   e.currentTarget.style.boxShadow = 'none';
+                  e.currentTarget.style.backgroundColor = '#FBFBFB';
+                  e.currentTarget.querySelectorAll('.bot').forEach((btn) => btn.classList.add('d-none'));
                 }}
               >
                 <img src={Award} alt="Award" className="award-img img-fluid mb-3" />
                 <p>{award.title}</p>
-                <h4 className="fw-bolder text-danger mb-0">Year: {award.year}</h4>
+                <h4 className="fw-bolder text-danger mb-3">Year: {award.year}</h4>
+                <button
+                  className="bot btn btn-danger btn-sm d-none"
+                  style={{
+                    fontSize: '0.9rem',
+                    padding: '4px 8px',
+                  }}
+                >
+                  View Details
+                </button>
               </div>
             </div>
           ))}

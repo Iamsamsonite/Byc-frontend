@@ -53,16 +53,16 @@ const Home = () => {
   const [activeCategory, setActiveCategory] = useState('Men');
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [availableCategories, setAvailableCategories] = useState([]);
-  const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 992);
+  const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 768);
 
   const categories = ['Men', 'Women', 'Children'];
   const sentences = ['yourself', 'Men', 'Women', 'Kids'];
-  const itemsPerView = isSmallScreen ? 2 : 3; // 2 products on small screens, 3 on large
+  const itemsPerView = isSmallScreen ? 1 : 2; // 1 product on small screens, 2 on large
 
   // Handle window resize
   useEffect(() => {
     const handleResize = () => {
-      setIsSmallScreen(window.innerWidth < 992);
+      setIsSmallScreen(window.innerWidth < 768);
       setCarouselIndex(0); // Reset carousel index on resize
     };
     window.addEventListener('resize', handleResize);
@@ -359,7 +359,7 @@ const Home = () => {
                   {error}
                 </div>
               ) : filteredProducts.length > 0 ? (
-                filteredProducts.map((product) => (
+                filteredProducts.map((product, index) => (
                   <div
                     key={product._id}
                     style={{
@@ -367,6 +367,8 @@ const Home = () => {
                       maxWidth: `${100 / itemsPerView}%`,
                       padding: '10px',
                       boxSizing: 'border-box',
+                      opacity: index >= carouselIndex && index < carouselIndex + itemsPerView ? 1 : 0,
+                      transition: 'opacity 0.3s ease',
                     }}
                   >
                     <div
@@ -440,7 +442,7 @@ const Home = () => {
                 </div>
               )}
             </div>
-            {!showAll && (
+            {!showAll && filteredProducts.length > itemsPerView && (
               <>
                 <div
                   style={{
