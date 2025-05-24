@@ -43,22 +43,26 @@ const Products = () => {
 
         const validProducts = response.data
           .filter((product) => product && (product.id || product._id) && product.productName)
-          .map((product) => ({
-            id: product.id || product._id,
-            productName: product.productName || 'Unknown Product',
-            productDescription: product.productDescription || 'No description',
-            productPrice: product.productPrice || 0,
-            productImage:
-              Array.isArray(product.productImage) && product.productImage.length > 0
-                ? product.productImage[0]
-                : product.productImage || 'https://via.placeholder.com/300?text=No+Image',
-            ratings: product.ratings ?? 4.02,
-            sizes: product.sizes || ['S', 'M', 'L', 'XL'],
-            colors: product.colors || [],
-            category: product.category || { name: 'Uncategorized' },
-            productStock: product.productStock || 0,
-            productNumber: product.productNumber || 'N/A',
-          }));
+          .map((product) => {
+            const mappedProduct = {
+              id: product.id || product._id,
+              productName: product.productName || 'Unknown Product',
+              productDescription: product.productDescription || 'No description',
+              productPrice: product.productPrice || 0,
+              productImage:
+                Array.isArray(product.productImage) && product.productImage.length > 0
+                  ? product.productImage[0]
+                  : product.productImage || 'https://via.placeholder.com/300?text=No+Image',
+              ratings: product.ratings ?? 4.02,
+              sizes: product.sizes || ['S', 'M', 'L', 'XL'],
+              colors: product.colors || [],
+              category: product.category || { name: 'Uncategorized' },
+              productStock: product.productStock || 0,
+              productNumber: product.productNumber || 'N/A',
+            };
+            console.log('Mapped product:', mappedProduct);
+            return mappedProduct;
+          });
 
         setProducts(validProducts);
       } catch (error) {
@@ -117,11 +121,7 @@ const Products = () => {
   const renderGridView = () => (
     <div className="row" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-start' }}>
       {currentProducts.map((product, index) => (
-        <div 
-          key={index} 
-          className="col-lg-3 col-md-6 my-3 d-flex flex-column" 
-          style={{ padding: '10px' }}
-        >
+        <div key={index} className="col-lg-3 col-md-6 my-3 d-flex flex-column" style={{ padding: '10px' }}>
           <div
             className="singlet shadow-sm"
             style={{ transition: 'transform 0.3s ease, box-shadow 0.3s ease', height: '100%' }}
@@ -163,7 +163,7 @@ const Products = () => {
               </div>
               <div className="d-flex bot d-none" style={{ marginTop: '10px' }}>
                 <button
-                  className="btn btn-sm border-danger"
+                  className="btn btn-sm border-danger mt-3"
                   onClick={() => handleWishlistToggle(product)}
                 >
                   <i
@@ -175,7 +175,7 @@ const Products = () => {
                   </span>
                 </button>
                 <button
-                  className="btn btn-sm border-danger btn-danger ms-1"
+                  className="btn btn-sm border-danger btn-danger ms-1 mt-3"
                   onClick={() => handleBuyNow(product)}
                 >
                   <i className="bi bi-cart3 text-white"></i>
@@ -192,17 +192,12 @@ const Products = () => {
   const renderListView = () => (
     <div className="list-group">
       {currentProducts.map((product, index) => (
-        <div key={index} className="list-group-item mb-3">
+        <div key={index} className="list-group-item">
           <div
-            className="d-flex singlet shadow-sm"
-            style={{ 
-              transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-              padding: '15px',
-              borderRadius: '8px',
-              alignItems: 'center',
-            }}
+            className="d-flex align-items-center singlet shadow-sm"
+            style={{ transition: 'transform 0.3s ease, box-shadow 0.3s ease' }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'scale(1.02)';
+              e.currentTarget.style.transform = 'scale(1.05)';
               e.currentTarget.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.15)';
               e.currentTarget.querySelector('.bot').classList.remove('d-none');
             }}
@@ -219,27 +214,26 @@ const Products = () => {
                 width: '200px',
                 height: '200px',
                 objectFit: 'cover',
-                marginRight: '20px',
-                borderRadius: '8px',
+                marginRight: '50px',
               }}
             />
-            <div style={{ flexGrow: 1, padding: '10px' }}>
-              <h5 style={{ fontWeight: 'bold', fontSize: '18px', marginBottom: '10px' }}>{product.productName}</h5>
+            <div>
+              <h5>{product.productName}</h5>
               <p style={{ fontSize: '14px', color: '#333', margin: '5px 0' }}>
                 {product.productNumber || 'N/A'}
               </p>
-              <p style={{ fontSize: '12px', margin: '5px 0' }}>{product.productDescription}</p>
-              <p style={{ fontWeight: 'bold', margin: '5px 0' }}>₦{product.productPrice.toFixed(2)}</p>
-              <div className="d-flex align-items-center mb-3">
+              <p style={{ fontSize: '12px' }}>{product.productDescription}</p>
+              <p><b>₦{product.productPrice.toFixed(2)}</b></p>
+              <div className="d-flex align-items-center">
                 {[...Array(4)].map((_, i) => (
                   <i key={i} className="bi bi-star-fill" style={{ color: '#FB8200' }}></i>
                 ))}
                 <i className="bi bi-star-half" style={{ color: '#FB8200' }}></i>
                 <span className="ms-2 fw-bold">{product.ratings}</span>
               </div>
-              <div className="d-flex bot d-none">
+              <div className="d-flex pb-3 bot d-none">
                 <button
-                  className="btn btn-sm border-danger"
+                  className="btn btn-sm border-danger mt-3"
                   onClick={() => handleWishlistToggle(product)}
                 >
                   <i
@@ -251,7 +245,7 @@ const Products = () => {
                   </span>
                 </button>
                 <button
-                  className="btn btn-sm border-danger btn-danger ms-1"
+                  className="btn btn-sm border-danger btn-danger ms-1 mt-3"
                   onClick={() => handleBuyNow(product)}
                 >
                   <i className="bi bi-cart3 text-white"></i>
@@ -291,20 +285,22 @@ const Products = () => {
   return (
     <>
       <div className="container mt-5 border">
-        <div className="row border-bottom align-items-center mb-3">
-          <div className="col-6 col-md-8">
+        <div className="row border-bottom align-items-center">
+          <div className="col-md-2">
             <b style={{ fontSize: '14px' }}>All Products</b>
           </div>
-          <div className="col-6 col-md-4 d-flex justify-content-end align-items-center gap-2">
+          <div className="col-md-8"></div>
+          <div className="col-md-2 d-flex justify-content-end">
             <SortByDrop onSortChange={handleSortChange} />
           </div>
         </div>
 
         <div className="row my-3 border-bottom">
-          <div className="col-6">
+          <div className="col-md-2">
             <p style={{ fontSize: '14px' }}>{products.length} Products Found</p>
           </div>
-          <div className="col-6 col-md-4 d-flex justify-content-end align-items-center gap-2">
+          <div className="col-md-8"></div>
+          <div className="col-md-2 d-flex justify-content-end">
             <ToggleButton activeView={viewMode} onToggle={setViewMode} />
           </div>
         </div>
