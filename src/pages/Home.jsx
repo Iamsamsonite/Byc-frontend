@@ -164,33 +164,39 @@ const Home = () => {
   };
 
   const handlePrev = () => {
-    if (carouselIndex <= 0) {
-      const currentCategoryIndex = categories.indexOf(activeCategory);
-      const prevCategoryIndex = (currentCategoryIndex - 1 + categories.length) % categories.length;
-      setActiveCategory(categories[prevCategoryIndex]);
-      setCarouselIndex(0);
-    } else {
-      setCarouselIndex((prev) => Math.max(prev - itemsPerView, 0));
-    }
+    console.log('Prev clicked, current carouselIndex:', carouselIndex, 'filteredProducts length:', filteredProducts.length);
+    setCarouselIndex((prev) => {
+      const newIndex = prev - itemsPerView;
+      if (newIndex < 0) {
+        const currentCategoryIndex = categories.indexOf(activeCategory);
+        const prevCategoryIndex = (currentCategoryIndex - 1 + categories.length) % categories.length;
+        setActiveCategory(categories[prevCategoryIndex]);
+        const newFilteredProducts = products.filter(
+          (p) => p.category.name.toLowerCase() === categories[prevCategoryIndex].toLowerCase()
+        );
+        return Math.max(0, newFilteredProducts.length - itemsPerView);
+      }
+      return newIndex;
+    });
   };
 
   const handleNext = () => {
-    if (carouselIndex + itemsPerView >= filteredProducts.length) {
-      const currentCategoryIndex = categories.indexOf(activeCategory);
-      const nextCategoryIndex = (currentCategoryIndex + 1) % categories.length;
-      setActiveCategory(categories[nextCategoryIndex]);
-      setCarouselIndex(0);
-    } else {
-      setCarouselIndex((prev) => prev + itemsPerView);
-    }
+    console.log('Next clicked, current carouselIndex:', carouselIndex, 'filteredProducts length:', filteredProducts.length);
+    setCarouselIndex((prev) => {
+      const newIndex = prev + itemsPerView;
+      if (newIndex >= filteredProducts.length) {
+        const currentCategoryIndex = categories.indexOf(activeCategory);
+        const nextCategoryIndex = (currentCategoryIndex + 1) % categories.length;
+        setActiveCategory(categories[nextCategoryIndex]);
+        return 0;
+      }
+      return newIndex;
+    });
   };
 
   const filteredProducts = products.filter(
     (p) => p.category.name.toLowerCase() === activeCategory.toLowerCase()
   );
-
-  // Rest of the component remains unchanged until the carousel section
-  // ...
 
   // Product Carousel
   const renderCarousel = () => (
@@ -208,7 +214,6 @@ const Home = () => {
             overflow: 'hidden',
             gap: '1rem',
             transition: 'transform 0.3s ease',
-            transform: `translateX(-${carouselIndex * (100 / itemsPerView)}%)`,
           }}
         >
           {loading ? (
@@ -220,7 +225,7 @@ const Home = () => {
               {error}
             </div>
           ) : filteredProducts.length > 0 ? (
-            filteredProducts.map((product, index) => (
+            filteredProducts.slice(carouselIndex, carouselIndex + itemsPerView).map((product) => (
               <div
                 key={product._id}
                 style={{
@@ -228,8 +233,6 @@ const Home = () => {
                   maxWidth: `${100 / itemsPerView}%`,
                   padding: '10px',
                   boxSizing: 'border-box',
-                  opacity: index >= carouselIndex && index < carouselIndex + itemsPerView ? 1 : 0,
-                  transition: 'opacity 0.3s ease',
                 }}
               >
                 <div
@@ -337,9 +340,9 @@ const Home = () => {
               <i
                 className="bi bi-caret-right"
                 style={{
-                  cursor: 'pointer',
+                  cursor: carouselIndex + itemsPerView < filteredProducts.length || categories.indexOf(activeCategory) < categories.length - 1 ? 'pointer' : 'not-allowed',
                   fontSize: '24px',
-                  color: '#000',
+                  color: carouselIndex + itemsPerView < filteredProducts.length || categories.indexOf(activeCategory) < categories.length - 1 ? '#000' : '#ccc',
                 }}
                 onClick={handleNext}
                 aria-label="Next products"

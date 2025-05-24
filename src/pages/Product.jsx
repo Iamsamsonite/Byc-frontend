@@ -147,7 +147,7 @@ const Products = () => {
                 borderTopRightRadius: '8px',
               }}
             />
-            <div className="px-2" style={{ flexGrow: 1 }}>
+            <div className="px-2" style={{ flexGrow: 1, paddingBottom: '10px' }}>
               <h5 style={{ fontWeight: 'bold', fontSize: '16px', marginTop: '10px' }}>{product.productName}</h5>
               <p style={{ fontSize: '14px', color: '#333', margin: '5px 0' }}>
                 {product.productNumber || 'N/A'}
@@ -161,9 +161,9 @@ const Products = () => {
                 <i className="bi bi-star-half" style={{ color: '#FB8200' }}></i>
                 <span className="ms-2 fw-bold">{product.ratings}</span>
               </div>
-              <div className="d-flex pb-3 bot d-none">
+              <div className="d-flex bot d-none" style={{ marginTop: '10px' }}>
                 <button
-                  className="btn btn-sm border-danger mt-3"
+                  className="btn btn-sm border-danger"
                   onClick={() => handleWishlistToggle(product)}
                 >
                   <i
@@ -175,7 +175,7 @@ const Products = () => {
                   </span>
                 </button>
                 <button
-                  className="btn btn-sm border-danger btn-danger ms-1 mt-3"
+                  className="btn btn-sm border-danger btn-danger ms-1"
                   onClick={() => handleBuyNow(product)}
                 >
                   <i className="bi bi-cart3 text-white"></i>
@@ -192,13 +192,14 @@ const Products = () => {
   const renderListView = () => (
     <div className="list-group">
       {currentProducts.map((product, index) => (
-        <div key={index} className="list-group-item">
+        <div key={index} className="list-group-item mb-3">
           <div
-            className="d-flex align-items-center singlet shadow-sm"
+            className="d-flex singlet shadow-sm"
             style={{ 
               transition: 'transform 0.3s ease, box-shadow 0.3s ease',
               padding: '15px',
               borderRadius: '8px',
+              alignItems: 'center',
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'scale(1.02)';
@@ -222,8 +223,8 @@ const Products = () => {
                 borderRadius: '8px',
               }}
             />
-            <div style={{ flexGrow: 1 }}>
-              <h5 style={{ fontWeight: 'bold', fontSize: '18px' }}>{product.productName}</h5>
+            <div style={{ flexGrow: 1, padding: '10px' }}>
+              <h5 style={{ fontWeight: 'bold', fontSize: '18px', marginBottom: '10px' }}>{product.productName}</h5>
               <p style={{ fontSize: '14px', color: '#333', margin: '5px 0' }}>
                 {product.productNumber || 'N/A'}
               </p>
