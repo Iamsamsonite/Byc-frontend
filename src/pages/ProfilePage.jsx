@@ -11,15 +11,17 @@ const ProfilePage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 768);
+  const [isVerySmallScreen, setIsVerySmallScreen] = useState(window.innerWidth < 576);
 
-  const itemsPerPageLarge = 15; // Show 15 orders per page on large screens
+  const itemsPerPageLarge = 15; // 15 orders per page on large screens
   const itemsPerPageSmall = 2; // 2 orders per page after initial 10 on small screens
-  const smallScreenInitialOrders = 10; // Show 10 orders before paginating on small screens
+  const smallScreenInitialOrders = 10; // 10 orders before paginating on small screens
 
-  // Handle window resize for responsive layout
+  // Handle window resize
   useEffect(() => {
     const handleResize = () => {
       setIsSmallScreen(window.innerWidth < 768);
+      setIsVerySmallScreen(window.innerWidth < 576);
       setCurrentPage(1); // Reset page on resize
     };
     window.addEventListener('resize', handleResize);
@@ -33,7 +35,7 @@ const ProfilePage = () => {
     } else {
       setLoadingOrders(false);
     }
-  }, [user, currentPage]);
+  }, [user, currentPage, isSmallScreen]);
 
   const fetchOrders = async () => {
     setLoadingOrders(true);
@@ -114,10 +116,16 @@ const ProfilePage = () => {
 
   return (
     <Container style={{ maxWidth: '1200px', margin: '2rem auto', padding: '0 15px', boxSizing: 'border-box', border: '1px solid #dee2e6' }}>
-      <h3 className="fw-bold mb-3">Hello, {user.name}</h3>
-      <p className="text-muted mb-4">{user.email}</p>
+      <h3 className="fw-bold mb-3" style={{ fontSize: isVerySmallScreen ? '1.5rem' : '2rem' }}>
+        Hello, {user.name}
+      </h3>
+      <p className="text-muted mb-4" style={{ fontSize: isVerySmallScreen ? '0.9rem' : '1rem' }}>
+        {user.email}
+      </p>
       <hr className="my-4" />
-      <h5 className="mb-4">Your Orders</h5>
+      <h5 className="mb-4" style={{ fontSize: isVerySmallScreen ? '1.2rem' : '1.5rem' }}>
+        Your Orders
+      </h5>
 
       {loadingOrders ? (
         <div className="text-center">
@@ -128,8 +136,10 @@ const ProfilePage = () => {
         </div>
       ) : orders.length === 0 ? (
         <div className="text-center">
-          <p>No orders found.</p>
-          <a href="/products" className="btn btn-danger btn-sm">Shop Now</a>
+          <p style={{ fontSize: isVerySmallScreen ? '0.9rem' : '1rem' }}>No orders found.</p>
+          <a href="/products" className="btn btn-danger btn-sm">
+            Shop Now
+          </a>
         </div>
       ) : (
         <>
@@ -138,7 +148,7 @@ const ProfilePage = () => {
               display: 'flex',
               flexWrap: 'wrap',
               justifyContent: 'flex-start',
-              gap: '1rem',
+              gap: isVerySmallScreen ? '0.5rem' : '1rem',
               padding: '1rem 0',
             }}
           >
@@ -146,9 +156,9 @@ const ProfilePage = () => {
               <div
                 key={order._id}
                 style={{
-                  flex: isSmallScreen ? '1 1 45%' : '1 1 23%',
-                  maxWidth: isSmallScreen ? '45%' : '23%',
-                  padding: '10px',
+                  flex: isVerySmallScreen ? '1 1 100%' : isSmallScreen ? '1 1 47%' : '1 1 23%',
+                  maxWidth: isVerySmallScreen ? '100%' : isSmallScreen ? '47%' : '23%',
+                  padding: isVerySmallScreen ? '5px' : '10px',
                   boxSizing: 'border-box',
                 }}
               >
@@ -172,29 +182,47 @@ const ProfilePage = () => {
                     e.currentTarget.style.boxShadow = 'none';
                   }}
                 >
-                  <div style={{ padding: '15px', flexGrow: 1 }}>
+                  <div style={{ padding: isVerySmallScreen ? '10px' : '15px', flexGrow: 1 }}>
                     <div className="d-flex justify-content-between align-items-center mb-2">
-                      <h6 className="mb-0" style={{ fontSize: '16px', fontWeight: 'bold' }}>
+                      <h6
+                        className="mb-0"
+                        style={{
+                          fontSize: isVerySmallScreen ? '14px' : '16px',
+                          fontWeight: 'bold',
+                        }}
+                      >
                         Order #{order.orderId || order._id.slice(-6).toUpperCase()}
                       </h6>
-                      <span className={`badge ${getStatusBadgeClass(order.status.toLowerCase())}`} style={{ fontSize: '12px' }}>
+                      <span
+                        className={`badge ${getStatusBadgeClass(order.status.toLowerCase())}`}
+                        style={{ fontSize: isVerySmallScreen ? '10px' : '12px' }}
+                      >
                         {order.status}
                       </span>
                     </div>
-                    <small className="text-muted" style={{ fontSize: '12px' }}>
+                    <small
+                      className="text-muted"
+                      style={{ fontSize: isVerySmallScreen ? '10px' : '12px' }}
+                    >
                       Placed on: {new Date(order.orderDate).toLocaleDateString()}
                     </small>
-                    <ul className="mt-2" style={{ paddingLeft: '20px', fontSize: '14px' }}>
+                    <ul
+                      className="mt-2"
+                      style={{
+                        paddingLeft: '20px',
+                        fontSize: isVerySmallScreen ? '12px' : '14px',
+                      }}
+                    >
                       {order.cartItems.map((item, idx) => (
                         <li key={idx} className="d-flex align-items-center mb-2">
                           <img
                             src={item.productImage || 'https://via.placeholder.com/50?text=No+Image'}
                             alt={item.name}
                             style={{
-                              width: '50px',
-                              height: '50px',
+                              width: isVerySmallScreen ? '40px' : '50px',
+                              height: isVerySmallScreen ? '40px' : '50px',
                               objectFit: 'cover',
-                              marginRight: '10px',
+                              marginRight: isVerySmallScreen ? '8px' : '10px',
                               borderRadius: '4px',
                             }}
                             loading="lazy"
@@ -206,7 +234,10 @@ const ProfilePage = () => {
                         </li>
                       ))}
                     </ul>
-                    <p className="fw-bold mt-2" style={{ fontSize: '14px' }}>
+                    <p
+                      className="fw-bold mt-2"
+                      style={{ fontSize: isVerySmallScreen ? '12px' : '14px' }}
+                    >
                       Total: ₦{order.totalAmount.toFixed(2)}
                     </p>
                   </div>
@@ -221,19 +252,19 @@ const ProfilePage = () => {
                 style={{
                   display: 'flex',
                   justifyContent: 'center',
-                  gap: '0.5rem',
+                  gap: isVerySmallScreen ? '0.3rem' : '0.5rem',
                   flexWrap: 'wrap',
                 }}
                 role="group"
               >
                 <button
                   style={{
-                    padding: '8px 12px',
+                    padding: isVerySmallScreen ? '6px 10px' : '8px 12px',
                     border: '1px solid #dee2e6',
                     borderRadius: '4px',
                     backgroundColor: currentPage === 1 ? '#f8f9fa' : '#fff',
                     cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                    fontSize: isSmallScreen ? '12px' : '14px',
+                    fontSize: isVerySmallScreen ? '10px' : isSmallScreen ? '12px' : '14px',
                   }}
                   onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
@@ -245,12 +276,12 @@ const ProfilePage = () => {
                   <button
                     key={index}
                     style={{
-                      padding: '8px 12px',
+                      padding: isVerySmallScreen ? '6px 10px' : '8px 12px',
                       border: currentPage === index + 1 ? '2px solid #ffc107' : '1px solid #dee2e6',
                       borderRadius: '4px',
                       backgroundColor: currentPage === index + 1 ? '#fff3cd' : '#fff',
                       cursor: 'pointer',
-                      fontSize: isSmallScreen ? '12px' : '14px',
+                      fontSize: isVerySmallScreen ? '10px' : isSmallScreen ? '12px' : '14px',
                     }}
                     onClick={() => setCurrentPage(index + 1)}
                     aria-label={`Page ${index + 1}`}
@@ -260,12 +291,12 @@ const ProfilePage = () => {
                 ))}
                 <button
                   style={{
-                    padding: '8px 12px',
+                    padding: isVerySmallScreen ? '6px 10px' : '8px 12px',
                     border: '1px solid #dee2e6',
                     borderRadius: '4px',
                     backgroundColor: currentPage === totalPages ? '#f8f9fa' : '#fff',
                     cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                    fontSize: isSmallScreen ? '12px' : '14px',
+                    fontSize: isVerySmallScreen ? '10px' : isSmallScreen ? '12px' : '14px',
                   }}
                   onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                   disabled={currentPage === totalPages}

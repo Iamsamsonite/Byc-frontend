@@ -419,7 +419,7 @@ const Home = () => {
               {blog.blogDescription}
             </p>
             <div className="mt-auto">
-              <button className="btn border-dark rounded-0 w-100">
+              <button className="btn border-dark rounded-0">
                 <a href="blog" className="text-decoration-none text-dark">
                   Read more <i className="bi bi-arrow-right"></i>
                 </a>
