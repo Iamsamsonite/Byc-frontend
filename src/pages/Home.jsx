@@ -26,14 +26,14 @@ import { Link } from 'react-router-dom';
 const styles = {
   categoryImage: {
     width: '100%',
-    height: '200px', // Fixed height for small screens
+    height: '200px',
     objectFit: 'cover',
     display: 'block',
     borderRadius: '8px',
   },
   categoryImageLarge: {
     width: '100%',
-    height: '250px', // Slightly larger for large screens
+    height: '250px',
     objectFit: 'cover',
     display: 'block',
     borderRadius: '8px',
@@ -61,8 +61,6 @@ const Home = () => {
 
   const categories = ['Men', 'Women', 'Children'];
   const sentences = ['yourself', 'Men', 'Women', 'Kids'];
-
-  // Determine items per view based on screen size
   const itemsPerView = screenSize.isLargeScreen ? 3 : screenSize.isSmallScreen ? 2 : 1;
 
   // Handle window resize
@@ -73,7 +71,7 @@ const Home = () => {
         isSmallScreen: window.innerWidth >= 576 && window.innerWidth < 992,
         isSmallerScreen: window.innerWidth < 576,
       });
-      setCarouselIndex(0); // Reset carousel index on resize
+      setCarouselIndex(0);
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -93,7 +91,6 @@ const Home = () => {
 
   // Fetch products and blogs
   useEffect(() => {
-    // Fetch products for carousel
     axios
       .get('https://byc-backend-hkgk.onrender.com/api/byc/products')
       .then((response) => {
@@ -122,11 +119,6 @@ const Home = () => {
             subCategory: product.subCategory || product.category.name,
           }));
         console.log('Valid Products:', validProducts);
-        validProducts.forEach((p) =>
-          console.log(
-            `Product: ${p.productName}, Category: "${p.category.name}", SubCategory: "${p.subCategory}"`
-          )
-        );
         const uniqueCategories = [
           ...new Set(validProducts.map((p) => p.category.name)),
         ];
@@ -141,7 +133,6 @@ const Home = () => {
         setLoading(false);
       });
 
-    // Fetch blogs
     axios
       .get('https://byc-backend-hkgk.onrender.com/api/byc/blogs')
       .then((response) => {
@@ -174,19 +165,17 @@ const Home = () => {
 
   const handlePrev = () => {
     if (carouselIndex <= 0) {
-      // Move to previous category
       const currentCategoryIndex = categories.indexOf(activeCategory);
       const prevCategoryIndex = (currentCategoryIndex - 1 + categories.length) % categories.length;
       setActiveCategory(categories[prevCategoryIndex]);
       setCarouselIndex(0);
     } else {
-      setCarouselIndex((prev) => prev - itemsPerView);
+      setCarouselIndex((prev) => Math.max(prev - itemsPerView, 0));
     }
   };
 
   const handleNext = () => {
     if (carouselIndex + itemsPerView >= filteredProducts.length) {
-      // Move to next category
       const currentCategoryIndex = categories.indexOf(activeCategory);
       const nextCategoryIndex = (currentCategoryIndex + 1) % categories.length;
       setActiveCategory(categories[nextCategoryIndex]);
@@ -196,11 +185,181 @@ const Home = () => {
     }
   };
 
-  // Filter products case-insensitively using category.name
   const filteredProducts = products.filter(
     (p) => p.category.name.toLowerCase() === activeCategory.toLowerCase()
   );
 
+  // Rest of the component remains unchanged until the carousel section
+  // ...
+
+  // Product Carousel
+  const renderCarousel = () => (
+    <div className="container my-5">
+      <div
+        style={{
+          position: 'relative',
+          padding: '1rem 0',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'nowrap',
+            overflow: 'hidden',
+            gap: '1rem',
+            transition: 'transform 0.3s ease',
+            transform: `translateX(-${carouselIndex * (100 / itemsPerView)}%)`,
+          }}
+        >
+          {loading ? (
+            <div style={{ width: '100%', textAlign: 'center', padding: '1rem' }}>
+              Loading products...
+            </div>
+          ) : error ? (
+            <div style={{ width: '100%', textAlign: 'center', color: '#dc3545', padding: '1rem' }}>
+              {error}
+            </div>
+          ) : filteredProducts.length > 0 ? (
+            filteredProducts.map((product, index) => (
+              <div
+                key={product._id}
+                style={{
+                  flex: `0 0 ${100 / itemsPerView}%`,
+                  maxWidth: `${100 / itemsPerView}%`,
+                  padding: '10px',
+                  boxSizing: 'border-box',
+                  opacity: index >= carouselIndex && index < carouselIndex + itemsPerView ? 1 : 0,
+                  transition: 'opacity 0.3s ease',
+                }}
+              >
+                <div
+                  className="shadow-sm"
+                  style={{
+                    backgroundColor: '#fff',
+                    borderRadius: '8px',
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    border: '1px solid #dee2e6',
+                    transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.05)';
+                    e.currentTarget.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.15)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                >
+                  <Link to={`/products?category=${encodeURIComponent(product.subCategory || product.category.name)}`}>
+                    <img
+                      src={
+                        Array.isArray(product.productImage) &&
+                        product.productImage.length > 0
+                          ? product.productImage[0]
+                          : 'https://via.placeholder.com/300?text=No+Image'
+                      }
+                      style={screenSize.isSmallerScreen ? styles.categoryImage : styles.categoryImageLarge}
+                      alt={product.productName}
+                      loading="lazy"
+                    />
+                  </Link>
+                  <div style={{ padding: '10px', flexGrow: 1, textAlign: 'center' }}>
+                    <h5
+                      style={{
+                        fontWeight: 'bold',
+                        fontSize: screenSize.isSmallerScreen ? '14px' : '16px',
+                        margin: '10px 0 5px',
+                      }}
+                    >
+                      {product.productName}
+                    </h5>
+                    <p
+                      style={{
+                        fontSize: screenSize.isSmallerScreen ? '12px' : '14px',
+                        color: '#333',
+                        margin: '0 0 5px',
+                      }}
+                    >
+                      <b>{product.category.name}</b> {product.productNumber}
+                    </p>
+                    <p
+                      style={{
+                        fontWeight: 'bold',
+                        fontSize: screenSize.isSmallerScreen ? '12px' : '14px',
+                        margin: '0 0 5px',
+                      }}
+                    >
+                      ₦{product.productPrice.toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div style={{ width: '100%', textAlign: 'center', padding: '1rem' }}>
+              No products found for {activeCategory}
+            </div>
+          )}
+        </div>
+        {!showAll && filteredProducts.length > itemsPerView && (
+          <>
+            <div
+              style={{
+                position: 'absolute',
+                left: '-30px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                zIndex: 1,
+              }}
+            >
+              <i
+                className="bi bi-caret-left"
+                style={{
+                  cursor: carouselIndex > 0 || categories.indexOf(activeCategory) > 0 ? 'pointer' : 'not-allowed',
+                  fontSize: '24px',
+                  color: carouselIndex > 0 || categories.indexOf(activeCategory) > 0 ? '#000' : '#ccc',
+                }}
+                onClick={handlePrev}
+                aria-label="Previous products"
+              ></i>
+            </div>
+            <div
+              style={{
+                position: 'absolute',
+                right: '-30px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                zIndex: 1,
+              }}
+            >
+              <i
+                className="bi bi-caret-right"
+                style={{
+                  cursor: 'pointer',
+                  fontSize: '24px',
+                  color: '#000',
+                }}
+                onClick={handleNext}
+                aria-label="Next products"
+              ></i>
+            </div>
+          </>
+        )}
+      </div>
+      <div className="text-center mt-4">
+        <button
+          className="btn btn-outline-secondary btn-md border border-1 border-black"
+          onClick={handleViewAll}
+        >
+          {showAll ? 'View Less' : 'View All'}
+        </button>
+      </div>
+    </div>
+  );
+
+  // Replace the original carousel section in the return statement with renderCarousel()
   return (
     <>
       <div>
@@ -354,169 +513,7 @@ const Home = () => {
         </div>
 
         {/* Product Carousel */}
-        <div className="container my-5">
-          <div
-            style={{
-              position: 'relative',
-              padding: '1rem 0',
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                flexWrap: 'nowrap',
-                overflow: 'hidden',
-                gap: '1rem',
-                transition: 'transform 0.3s ease',
-                transform: `translateX(-${carouselIndex * (100 / itemsPerView)}%)`,
-              }}
-            >
-              {loading ? (
-                <div style={{ width: '100%', textAlign: 'center', padding: '1rem' }}>
-                  Loading products...
-                </div>
-              ) : error ? (
-                <div style={{ width: '100%', textAlign: 'center', color: '#dc3545', padding: '1rem' }}>
-                  {error}
-                </div>
-              ) : filteredProducts.length > 0 ? (
-                filteredProducts.map((product, index) => (
-                  <div
-                    key={product._id}
-                    style={{
-                      flex: `0 0 ${100 / itemsPerView}%`,
-                      maxWidth: `${100 / itemsPerView}%`,
-                      padding: '10px',
-                      boxSizing: 'border-box',
-                      opacity: index >= carouselIndex && index < carouselIndex + itemsPerView ? 1 : 0,
-                      transition: 'opacity 0.3s ease',
-                    }}
-                  >
-                    <div
-                      className="shadow-sm"
-                      style={{
-                        backgroundColor: '#fff',
-                        borderRadius: '8px',
-                        height: '100%',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        border: '1px solid #dee2e6',
-                        transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'scale(1.05)';
-                        e.currentTarget.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.15)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'scale(1)';
-                        e.currentTarget.style.boxShadow = 'none';
-                      }}
-                    >
-                      <Link to={`/products?category=${encodeURIComponent(product.subCategory || product.category.name)}`}>
-                        <img
-                          src={
-                            Array.isArray(product.productImage) &&
-                            product.productImage.length > 0
-                              ? product.productImage[0]
-                              : 'https://via.placeholder.com/300?text=No+Image'
-                          }
-                          style={screenSize.isSmallerScreen ? styles.categoryImage : styles.categoryImageLarge}
-                          alt={product.productName}
-                          loading="lazy"
-                        />
-                      </Link>
-                      <div style={{ padding: '10px', flexGrow: 1, textAlign: 'center' }}>
-                        <h5
-                          style={{
-                            fontWeight: 'bold',
-                            fontSize: screenSize.isSmallerScreen ? '14px' : '16px',
-                            margin: '10px 0 5px',
-                          }}
-                        >
-                          {product.productName}
-                        </h5>
-                        <p
-                          style={{
-                            fontSize: screenSize.isSmallerScreen ? '12px' : '14px',
-                            color: '#333',
-                            margin: '0 0 5px',
-                          }}
-                        >
-                          <b>{product.category.name}</b> {product.productNumber}
-                        </p>
-                        <p
-                          style={{
-                            fontWeight: 'bold',
-                            fontSize: screenSize.isSmallerScreen ? '12px' : '14px',
-                            margin: '0 0 5px',
-                          }}
-                        >
-                          ₦{product.productPrice.toLocaleString()}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div style={{ width: '100%', textAlign: 'center', padding: '1rem' }}>
-                  No products found for {activeCategory}
-                </div>
-              )}
-            </div>
-            {!showAll && filteredProducts.length > itemsPerView && (
-              <>
-                <div
-                  style={{
-                    position: 'absolute',
-                    left: '-30px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    zIndex: 1,
-                  }}
-                >
-                  <i
-                    className="bi bi-caret-left"
-                    style={{
-                      cursor: 'pointer',
-                      fontSize: '24px',
-                      color: '#000',
-                    }}
-                    onClick={handlePrev}
-                    aria-label="Previous products"
-                  ></i>
-                </div>
-                <div
-                  style={{
-                    position: 'absolute',
-                    right: '-30px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    zIndex: 1,
-                  }}
-                >
-                  <i
-                    className="bi bi-caret-right"
-                    style={{
-                      cursor: 'pointer',
-                      fontSize: '24px',
-                      color: '#000',
-                    }}
-                    onClick={handleNext}
-                    aria-label="Next products"
-                  ></i>
-                </div>
-              </>
-            )}
-          </div>
-          <div className="text-center mt-4">
-            <button
-              className="btn btn-outline-secondary btn-md border border-1 border-black"
-              onClick={handleViewAll}
-            >
-              {showAll ? 'View Less' : 'View All'}
-            </button>
-          </div>
-        </div>
+        {renderCarousel()}
 
         {/* Blog News */}
         <div className="text-center fw-bold">

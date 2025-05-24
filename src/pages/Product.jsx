@@ -161,76 +161,7 @@ const Products = () => {
                 <i className="bi bi-star-half" style={{ color: '#FB8200' }}></i>
                 <span className="ms-2 fw-bold">{product.ratings}</span>
               </div>
-            </div>
-            <div className="d-flex pb-3 bot d-none">
-              <button
-                className="btn btn-sm border-danger mt-3"
-                onClick={() => handleWishlistToggle(product)}
-              >
-                <i
-                  className={`bi ${isInWishlist(product.id) ? 'bi-heart-fill' : 'bi-heart'} me-1 text-danger`}
-                  style={{ fontSize: '10px' }}
-                ></i>
-                <span className="text-danger" style={{ fontSize: '10px' }}>
-                  {isInWishlist(product.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
-                </span>
-              </button>
-              <button
-                className="btn btn-sm border-danger btn-danger ms-1 mt-3"
-                onClick={() => handleBuyNow(product)}
-              >
-                <i className="bi bi-cart3 text-white"></i>
-                <span className="text-white" style={{ fontSize: '10px' }}>Buy Now</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-
-  const renderListView = () => (
-    <div className="list-group">
-      {currentProducts.map((product, index) => (
-        <div key={index} className="list-group-item">
-          <div
-            className="d-flex align-items-center singlet shadow-sm"
-            style={{ transition: 'transform 0.3s ease, box-shadow 0.3s ease' }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'scale(1.05)';
-              e.currentTarget.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.15)';
-              e.currentTarget.querySelector('.bot').classList.remove('d-none');
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'scale(1)';
-              e.currentTarget.style.boxShadow = 'none';
-              e.currentTarget.querySelector('.bot').classList.add('d-none');
-            }}
-          >
-            <img
-              src={product.productImage}
-              alt={product.productName}
-              style={{
-                width: '200px',
-                height: '200px',
-                objectFit: 'cover',
-                marginRight: '50px',
-              }}
-            />
-            <div>
-              <h5>{product.productName}</h5>
-              <p style={{ fontSize: '14px', color: '#333', margin: '5px 0' }}>
-                {product.productNumber || 'N/A'}
-              </p>
-              <p style={{ fontSize: '12px' }}>{product.productDescription}</p>
-              <p><b>₦{product.productPrice.toFixed(2)}</b></p>
-              <div className="d-flex align-items-center">
-                {[...Array(4)].map((_, i) => (
-                  <i key={i} className="bi bi-star-fill" style={{ color: '#FB8200' }}></i>
-                ))}
-                <i className="bi bi-star-half" style={{ color: '#FB8200' }}></i>
-                <span className="ms-2 fw-bold">{product.ratings}</span>
-                <div className="d-flex pb-3 bot d-none">
+              <div className="d-flex pb-3 bot d-none">
                 <button
                   className="btn btn-sm border-danger mt-3"
                   onClick={() => handleWishlistToggle(product)}
@@ -251,10 +182,82 @@ const Products = () => {
                   <span className="text-white" style={{ fontSize: '10px' }}>Buy Now</span>
                 </button>
               </div>
-              </div>
-              
             </div>
-          
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
+  const renderListView = () => (
+    <div className="list-group">
+      {currentProducts.map((product, index) => (
+        <div key={index} className="list-group-item">
+          <div
+            className="d-flex align-items-center singlet shadow-sm"
+            style={{ 
+              transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+              padding: '15px',
+              borderRadius: '8px',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'scale(1.02)';
+              e.currentTarget.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.15)';
+              e.currentTarget.querySelector('.bot').classList.remove('d-none');
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.boxShadow = 'none';
+              e.currentTarget.querySelector('.bot').classList.add('d-none');
+            }}
+          >
+            <img
+              src={product.productImage}
+              alt={product.productName}
+              style={{
+                width: '200px',
+                height: '200px',
+                objectFit: 'cover',
+                marginRight: '20px',
+                borderRadius: '8px',
+              }}
+            />
+            <div style={{ flexGrow: 1 }}>
+              <h5 style={{ fontWeight: 'bold', fontSize: '18px' }}>{product.productName}</h5>
+              <p style={{ fontSize: '14px', color: '#333', margin: '5px 0' }}>
+                {product.productNumber || 'N/A'}
+              </p>
+              <p style={{ fontSize: '12px', margin: '5px 0' }}>{product.productDescription}</p>
+              <p style={{ fontWeight: 'bold', margin: '5px 0' }}>₦{product.productPrice.toFixed(2)}</p>
+              <div className="d-flex align-items-center mb-3">
+                {[...Array(4)].map((_, i) => (
+                  <i key={i} className="bi bi-star-fill" style={{ color: '#FB8200' }}></i>
+                ))}
+                <i className="bi bi-star-half" style={{ color: '#FB8200' }}></i>
+                <span className="ms-2 fw-bold">{product.ratings}</span>
+              </div>
+              <div className="d-flex bot d-none">
+                <button
+                  className="btn btn-sm border-danger"
+                  onClick={() => handleWishlistToggle(product)}
+                >
+                  <i
+                    className={`bi ${isInWishlist(product.id) ? 'bi-heart-fill' : 'bi-heart'} me-1 text-danger`}
+                    style={{ fontSize: '10px' }}
+                  ></i>
+                  <span className="text-danger" style={{ fontSize: '10px' }}>
+                    {isInWishlist(product.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                  </span>
+                </button>
+                <button
+                  className="btn btn-sm border-danger btn-danger ms-1"
+                  onClick={() => handleBuyNow(product)}
+                >
+                  <i className="bi bi-cart3 text-white"></i>
+                  <span className="text-white" style={{ fontSize: '10px' }}>Buy Now</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       ))}
@@ -293,7 +296,6 @@ const Products = () => {
           </div>
           <div className="col-6 col-md-4 d-flex justify-content-end align-items-center gap-2">
             <SortByDrop onSortChange={handleSortChange} />
-           
           </div>
         </div>
 
@@ -302,7 +304,6 @@ const Products = () => {
             <p style={{ fontSize: '14px' }}>{products.length} Products Found</p>
           </div>
           <div className="col-6 col-md-4 d-flex justify-content-end align-items-center gap-2">
-            
             <ToggleButton activeView={viewMode} onToggle={setViewMode} />
           </div>
         </div>
