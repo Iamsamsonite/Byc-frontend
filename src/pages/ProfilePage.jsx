@@ -1,4 +1,4 @@
- import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import { UserContext } from '../context/UserContext';
 import { Container } from 'react-bootstrap';
@@ -14,8 +14,7 @@ const ProfilePage = () => {
   const [isVerySmallScreen, setIsVerySmallScreen] = useState(window.innerWidth < 576);
 
   const itemsPerPageLarge = 15; // 15 orders per page on large screens
-  const itemsPerPageSmall = 2; // 2 orders per page after initial 10 on small screens
-  const smallScreenInitialOrders = 10; // 10 orders before paginating on small screens
+  const itemsPerPageSmall = 8;  // 8 orders per page on small screens
 
   // Handle window resize
   useEffect(() => {
@@ -42,7 +41,7 @@ const ProfilePage = () => {
     try {
       const res = await axios.get(
         `https://byc-backend-hkgk.onrender.com/api/byc/orders/my-orders?page=${currentPage}&limit=${
-          isSmallScreen ? (currentPage === 1 ? smallScreenInitialOrders : itemsPerPageSmall) : itemsPerPageLarge
+          isSmallScreen ? itemsPerPageSmall : itemsPerPageLarge
         }`,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
@@ -78,18 +77,14 @@ const ProfilePage = () => {
 
   // Pagination logic
   const getPaginationParams = () => {
-    if (isSmallScreen) {
-      if (orders.length <= smallScreenInitialOrders) {
-        return { currentOrders: orders, paginate: false };
-      }
-      const indexOfLastItem = (currentPage - 1) * itemsPerPageSmall + smallScreenInitialOrders;
-      const indexOfFirstItem = indexOfLastItem - itemsPerPageSmall;
-      return {
-        currentOrders: currentPage === 1 ? orders.slice(0, smallScreenInitialOrders) : orders.slice(indexOfFirstItem, indexOfLastItem),
-        paginate: true,
-      };
-    }
-    return { currentOrders: orders, paginate: totalPages > 1 };
+    const totalItems = orders.length;
+    const itemsPerPage = isSmallScreen ? itemsPerPageSmall : itemsPerPageLarge;
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    return {
+      currentOrders: orders.slice(indexOfFirstItem, indexOfLastItem),
+      paginate: totalPages > 1,
+    };
   };
 
   const { currentOrders, paginate } = getPaginationParams();
@@ -125,19 +120,92 @@ const ProfilePage = () => {
         borderRadius: '8px',
       }}
     >
+      {/* Customer Details Section */}
       <h3
         className="fw-bold mb-3"
         style={{ fontSize: isVerySmallScreen ? '1.5rem' : '2rem' }}
       >
         Hello, {user.name}
       </h3>
-      <p
-        className="text-muted mb-4"
-        style={{ fontSize: isVerySmallScreen ? '0.9rem' : '1rem' }}
+      <div
+        style={{
+          backgroundColor: '#fff',
+          padding: isVerySmallScreen ? '1rem' : '1.5rem',
+          borderRadius: '8px',
+          border: '1px solid #dee2e6',
+          marginBottom: '2rem',
+        }}
       >
-        {user.email}
-      </p>
-      <hr className="my-4" />
+        <h5
+          style={{
+            fontSize: isVerySmallScreen ? '1.2rem' : '1.5rem',
+            marginBottom: '1rem',
+          }}
+        >
+          Profile Details
+        </h5>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.5rem',
+          }}
+        >
+          <p
+            style={{
+              fontSize: isVerySmallScreen ? '0.9rem' : '1rem',
+              margin: 0,
+            }}
+          >
+            <strong>Email:</strong> {user.email}
+          </p>
+          {user.phone && (
+            <p
+              style={{
+                fontSize: isVerySmallScreen ? '0.9rem' : '1rem',
+                margin: 0,
+              }}
+            >
+              <strong>Phone:</strong> {user.phone}
+            </p>
+          )}
+          {user.address && (
+            <p
+              style={{
+                fontSize: isVerySmallScreen ? '0.9rem' : '1rem',
+                margin: 0,
+              }}
+            >
+              <strong>Address:</strong> {user.address}
+            </p>
+          )}
+          <p
+            style={{
+              fontSize: isVerySmallScreen ? '0.9rem' : '1rem',
+              margin: 0,
+            }}
+          >
+            <strong>Member Since:</strong>{' '}
+            {new Date(user.createdAt || Date.now()).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+            })}
+          </p>
+        </div>
+        <button
+          className="btn btn-danger btn-sm mt-3"
+          style={{
+            fontSize: isVerySmallScreen ? '0.8rem' : '0.9rem',
+            padding: isVerySmallScreen ? '4px 8px' : '6px 12px',
+          }}
+          onClick={() => toast.info('Edit profile functionality coming soon!')}
+        >
+          Edit Profile
+        </button>
+      </div>
+
+      {/* Orders Section */}
       <h5
         className="mb-4"
         style={{ fontSize: isVerySmallScreen ? '1.2rem' : '1.5rem' }}
@@ -176,16 +244,8 @@ const ProfilePage = () => {
               <div
                 key={order._id}
                 style={{
-                  flex: isVerySmallScreen
-                    ? '1 1 100%'
-                    : isSmallScreen
-                    ? '1 1 48%'
-                    : '1 1 24%',
-                  maxWidth: isVerySmallScreen
-                    ? '100%'
-                    : isSmallScreen
-                    ? '48%'
-                    : '24%',
+                  flex: isSmallScreen ? '0 0 48%' : '0 0 24%',
+                  maxWidth: isSmallScreen ? '48%' : '24%',
                   padding: isVerySmallScreen ? '5px' : '8px',
                   boxSizing: 'border-box',
                 }}
@@ -203,7 +263,6 @@ const ProfilePage = () => {
                   }}
                   onMouseEnter={(e) => {
                     if (!isSmallScreen) {
-                      // Disable hover on small screens
                       e.currentTarget.style.transform = 'scale(1.05)';
                       e.currentTarget.style.boxShadow =
                         '0 8px 16px rgba(0, 0, 0, 0.15)';

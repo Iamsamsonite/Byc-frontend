@@ -5,7 +5,6 @@ import SortByDrop from '../component/SortByDrop';
 import ToggleButton from '../component/ToggleButton';
 import { RecentViewsContext } from '../context/RecentViewsContext';
 import { WishlistContext } from '../context/WishlistContext';
-import { CartContext } from '../context/CartContext';
 import Sing from '../component/Sing';
 
 const Products = () => {
@@ -21,8 +20,8 @@ const Products = () => {
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 768);
   const [isVerySmallScreen, setIsVerySmallScreen] = useState(window.innerWidth < 576);
 
-  const itemsPerPageLarge = 15; // For large screens
-  const itemsPerPageSmall = 10; // For small and very small screens
+  const itemsPerPageLarge = 15; // 15 products per page for large screens
+  const itemsPerPageSmall = 8;  // 8 products per page for small screens
 
   // Handle window resize
   useEffect(() => {
@@ -111,23 +110,14 @@ const Products = () => {
   // Pagination logic
   const getPaginationParams = () => {
     const totalItems = products.length;
-    if (isSmallScreen) {
-      const indexOfLastItem = Math.min(currentPage * itemsPerPageSmall, totalItems);
-      const indexOfFirstItem = indexOfLastItem - itemsPerPageSmall;
-      const totalPages = Math.ceil(totalItems / itemsPerPageSmall);
-      return {
-        currentProducts: products.slice(indexOfFirstItem, indexOfLastItem),
-        totalPages: Math.max(1, totalPages),
-        paginate: totalItems > itemsPerPageSmall,
-      };
-    }
-    const indexOfLastItem = Math.min(currentPage * itemsPerPageLarge, totalItems);
-    const indexOfFirstItem = indexOfLastItem - itemsPerPageLarge;
-    const totalPages = Math.ceil(totalItems / itemsPerPageLarge);
+    const itemsPerPage = isSmallScreen ? itemsPerPageSmall : itemsPerPageLarge;
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
     return {
       currentProducts: products.slice(indexOfFirstItem, indexOfLastItem),
       totalPages: Math.max(1, totalPages),
-      paginate: totalItems > itemsPerPageLarge,
+      paginate: totalItems > itemsPerPage,
     };
   };
 
@@ -135,7 +125,6 @@ const Products = () => {
 
   // Sorting logic
   const handleSortChange = (option) => {
-    console.log('Sorting by:', option);
     if (!option) return;
     const sortedProducts = [...products];
     if (option === 'price-asc') {
@@ -148,7 +137,7 @@ const Products = () => {
       sortedProducts.sort((a, b) => b.productName.localeCompare(b.productName));
     }
     setProducts(sortedProducts);
-    setCurrentPage(1);
+    setCurrentPage(1); // Reset to first page after sorting
   };
 
   const renderGridView = () => (
@@ -156,7 +145,7 @@ const Products = () => {
       style={{
         display: 'flex',
         flexWrap: 'wrap',
-        justifyContent: 'flex-start',
+        justifyContent: 'space-between',
         gap: isVerySmallScreen ? '0.5rem' : '1rem',
         padding: '1rem 0',
       }}
@@ -170,8 +159,8 @@ const Products = () => {
           <div
             key={product.id}
             style={{
-              flex: isVerySmallScreen ? '1 1 100%' : isSmallScreen ? '1 1 47%' : '1 1 23%',
-              maxWidth: isVerySmallScreen ? '100%' : isSmallScreen ? '47%' : '23%',
+              flex: isSmallScreen ? '0 0 48%' : '0 0 24%',
+              maxWidth: isSmallScreen ? '48%' : '24%',
               padding: isVerySmallScreen ? '5px' : '10px',
               boxSizing: 'border-box',
             }}
@@ -501,114 +490,116 @@ const Products = () => {
   }
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '2rem auto', padding: '0 15px', boxSizing: 'border-box', border: '1px solid #dee2e6' }}>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '1rem 0',
-          borderBottom: '1px solid #dee2e6',
-          flexWrap: 'wrap',
-          gap: '1rem',
-        }}
-      >
-        <div style={{ flex: '0 0 auto' }}>
-          <b style={{ fontSize: isVerySmallScreen ? '12px' : '14px' }}>All Products</b>
-        </div>
-        <div style={{ flex: '1 1 auto' }}></div>
-        <div style={{ flex: '0 0 auto', position: 'relative', zIndex: 1000 }}>
-          <SortByDrop onSortChange={handleSortChange} isSmallScreen={isSmallScreen} />
-        </div>
-      </div>
-
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '1rem 0',
-          borderBottom: '1px solid #dee2e6',
-          flexWrap: 'wrap',
-          gap: '1rem',
-        }}
-      >
-        <div style={{ flex: '0 0 auto' }}>
-          <p style={{ fontSize: isVerySmallScreen ? '12px' : '14px' }}>
-            {products.length} Products Found
-          </p>
-        </div>
-        <div style={{ flex: '1 1 auto' }}></div>
-        <div style={{ flex: '0 0 auto' }}>
-          <ToggleButton activeView={viewMode} onToggle={setViewMode} />
-        </div>
-      </div>
-
-      {viewMode === 'grid' ? renderGridView() : renderListView()}
-
-      {paginate && totalPages > 1 && (
-        <div style={{ textAlign: 'center', padding: '2rem 0' }}>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              gap: isVerySmallScreen ? '0.3rem' : '0.5rem',
-              flexWrap: 'wrap',
-            }}
-            role="group"
-          >
-            <button
-              style={{
-                padding: isVerySmallScreen ? '6px 10px' : '8px 12px',
-                border: '1px solid #dee2e6',
-                borderRadius: '4px',
-                backgroundColor: currentPage === 1 ? '#f8f9fa' : '#fff',
-                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                fontSize: isVerySmallScreen ? '10px' : isSmallScreen ? '12px' : '14px',
-              }}
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              aria-label="Previous page"
-            >
-              <i className="bi bi-arrow-left-short"></i>
-            </button>
-            {[...Array(totalPages)].map((_, index) => (
-              <button
-                key={index}
-                style={{
-                  padding: isVerySmallScreen ? '6px 10px' : '8px 12px',
-                  border: currentPage === index + 1 ? '2px solid #ffc107' : '1px solid #dee2e6',
-                  borderRadius: '4px',
-                  backgroundColor: currentPage === index + 1 ? '#fff3cd' : '#fff',
-                  cursor: 'pointer',
-                  fontSize: isVerySmallScreen ? '10px' : isSmallScreen ? '12px' : '14px',
-                }}
-                onClick={() => setCurrentPage(index + 1)}
-                aria-label={`Page ${index + 1}`}
-              >
-                {index + 1}
-              </button>
-            ))}
-            <button
-              style={{
-                padding: isVerySmallScreen ? '6px 10px' : '8px 12px',
-                border: '1px solid #dee2e6',
-                borderRadius: '4px',
-                backgroundColor: currentPage === totalPages ? '#f8f9fa' : '#fff',
-                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                fontSize: isVerySmallScreen ? '10px' : isSmallScreen ? '12px' : '14px',
-              }}
-              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-              aria-label="Next page"
-            >
-              <i className="bi bi-arrow-right-short"></i>
-            </button>
+    <>
+      <div style={{ maxWidth: '1200px', margin: '2rem auto', padding: '0 15px', boxSizing: 'border-box', border: '1px solid #dee2e6' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '1rem 0',
+            borderBottom: '1px solid #dee2e6',
+            flexWrap: 'wrap',
+            gap: '1rem',
+          }}
+        >
+          <div style={{ flex: '0 0 auto' }}>
+            <b style={{ fontSize: isVerySmallScreen ? '12px' : '14px' }}>All Products</b>
+          </div>
+          <div style={{ flex: '1 1 auto' }}></div>
+          <div style={{ flex: '0 0 auto', position: 'relative', zIndex: 1000 }}>
+            <SortByDrop onSortChange={handleSortChange} isSmallScreen={isSmallScreen} />
           </div>
         </div>
-      )}
+
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '1rem 0',
+            borderBottom: '1px solid #dee2e6',
+            flexWrap: 'wrap',
+            gap: '1rem',
+          }}
+        >
+          <div style={{ flex: '0 0 auto' }}>
+            <p style={{ fontSize: isVerySmallScreen ? '12px' : '14px' }}>
+              {products.length} Products Found
+            </p>
+          </div>
+          <div style={{ flex: '1 1 auto' }}></div>
+          <div style={{ flex: '0 0 auto' }}>
+            <ToggleButton activeView={viewMode} onToggle={setViewMode} />
+          </div>
+        </div>
+
+        {viewMode === 'grid' ? renderGridView() : renderListView()}
+
+        {paginate && totalPages > 1 && (
+          <div style={{ textAlign: 'center', padding: '2rem 0' }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                gap: isVerySmallScreen ? '0.3rem' : '0.5rem',
+                flexWrap: 'wrap',
+              }}
+              role="group"
+            >
+              <button
+                style={{
+                  padding: isVerySmallScreen ? '6px 10px' : '8px 12px',
+                  border: '1px solid #dee2e6',
+                  borderRadius: '4px',
+                  backgroundColor: currentPage === 1 ? '#f8f9fa' : '#fff',
+                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                  fontSize: isVerySmallScreen ? '10px' : isSmallScreen ? '12px' : '14px',
+                }}
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                aria-label="Previous page"
+              >
+                <i className="bi bi-arrow-left-short"></i>
+              </button>
+              {[...Array(totalPages)].map((_, index) => (
+                <button
+                  key={index}
+                  style={{
+                    padding: isVerySmallScreen ? '6px 10px' : '8px 12px',
+                    border: currentPage === index + 1 ? '2px solid #ffc107' : '1px solid #dee2e6',
+                    borderRadius: '4px',
+                    backgroundColor: currentPage === index + 1 ? '#fff3cd' : '#fff',
+                    cursor: 'pointer',
+                    fontSize: isVerySmallScreen ? '10px' : isSmallScreen ? '12px' : '14px',
+                  }}
+                  onClick={() => setCurrentPage(index + 1)}
+                  aria-label={`Page ${index + 1}`}
+                >
+                  {index + 1}
+                </button>
+              ))}
+              <button
+                style={{
+                  padding: isVerySmallScreen ? '6px 10px' : '8px 12px',
+                  border: '1px solid #dee2e6',
+                  borderRadius: '4px',
+                  backgroundColor: currentPage === totalPages ? '#f8f9fa' : '#fff',
+                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                  fontSize: isVerySmallScreen ? '10px' : isSmallScreen ? '12px' : '14px',
+                }}
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                aria-label="Next page"
+              >
+                <i className="bi bi-arrow-right-short"></i>
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
       <Sing />
-    </div>
+    </>
   );
 };
 

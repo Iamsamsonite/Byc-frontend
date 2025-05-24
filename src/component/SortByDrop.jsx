@@ -12,12 +12,12 @@ const SortByDrop = ({ onSortChange, isSmallScreen }) => {
   };
 
   return (
-    <div style={{ width: '100%', margin: '10px 0', maxWidth: '180px' }}>
+    <div style={{ width: '100%', margin: '8px 0', maxWidth: '150px' }}>
       <div
         style={{
           display: 'flex',
           alignItems: 'center',
-          paddingRight: '8px',
+          paddingRight: '6px',
           position: 'relative',
         }}
       >
@@ -25,14 +25,14 @@ const SortByDrop = ({ onSortChange, isSmallScreen }) => {
           <span
             style={{
               position: 'absolute',
-              top: '-8px',
-              left: '8px',
-              fontSize: '10px',
+              top: '-6px',
+              left: '6px',
+              fontSize: '9px',
               fontWeight: '500',
               color: '#6c757d',
               zIndex: 10,
               backgroundColor: '#fff',
-              padding: '0 4px',
+              padding: '0 3px',
             }}
           >
             SORT BY:
@@ -45,17 +45,22 @@ const SortByDrop = ({ onSortChange, isSmallScreen }) => {
             style={{
               backgroundColor: '#fff',
               border: '1px solid #ced4da',
-              padding: '10px 12px',
-              fontSize: isSmallScreen ? '15px' : '16px',
+              padding: '8px 10px',
+              fontSize: isSmallScreen ? '14px' : '15px',
               width: '100%',
               textAlign: 'left',
               cursor: 'pointer',
               color: '#333',
               borderRadius: '4px',
-              appearance: 'auto',
-              height: '44px',
-              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+              height: '40px', // Reduced but still touch-friendly
+              boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
               zIndex: 5,
+              // Remove default arrow
+              appearance: 'none',
+              backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'right 8px center',
+              backgroundSize: '16px',
             }}
             aria-label="Sort products by"
           >
