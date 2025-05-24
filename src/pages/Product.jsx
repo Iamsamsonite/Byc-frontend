@@ -21,8 +21,7 @@ const Products = () => {
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 768);
 
   const itemsPerPageLarge = 15; // For large screens
-  const itemsPerPageSmall = 2; // For small screens after initial 10 products
-  const smallScreenInitialProducts = 10; // Show 10 products before paginating on small screens
+  const itemsPerPageSmall = 2; // For small screens
 
   // Handle window resize for responsive layout
   useEffect(() => {
@@ -104,20 +103,12 @@ const Products = () => {
   // Pagination logic
   const getPaginationParams = () => {
     if (isSmallScreen) {
-      if (products.length <= smallScreenInitialProducts) {
-        return {
-          currentProducts: products,
-          totalPages: 1,
-          paginate: false,
-        };
-      }
-      const indexOfLastItem = (currentPage - 1) * itemsPerPageSmall + smallScreenInitialProducts;
+      const indexOfLastItem = currentPage * itemsPerPageSmall;
       const indexOfFirstItem = indexOfLastItem - itemsPerPageSmall;
-      const totalPages = Math.ceil((products.length - smallScreenInitialProducts) / itemsPerPageSmall) + 1;
       return {
-        currentProducts: currentPage === 1 ? products.slice(0, smallScreenInitialProducts) : products.slice(indexOfFirstItem, indexOfLastItem),
-        totalPages,
-        paginate: true,
+        currentProducts: products.slice(indexOfFirstItem, indexOfLastItem),
+        totalPages: Math.ceil(products.length / itemsPerPageSmall),
+        paginate: products.length > itemsPerPageSmall,
       };
     }
     const indexOfLastItem = currentPage * itemsPerPageLarge;
@@ -125,7 +116,7 @@ const Products = () => {
     return {
       currentProducts: products.slice(indexOfFirstItem, indexOfLastItem),
       totalPages: Math.ceil(products.length / itemsPerPageLarge),
-      paginate: true,
+      paginate: products.length > itemsPerPageLarge,
     };
   };
 
@@ -141,28 +132,19 @@ const Products = () => {
     } else if (option === 'name-asc') {
       sortedProducts.sort((a, b) => a.productName.localeCompare(b.productName));
     } else if (option === 'name-desc') {
-      sortedProducts.sort((a, b) => b.productName.localeCompare(b.productName));
+      sortedProducts.sort((a, b) => b.productName.localeCompare(a.productName));
     }
     setProducts(sortedProducts);
     setCurrentPage(1); // Reset to first page after sorting
   };
 
   const renderGridView = () => (
-    <div
-      style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        justifyContent: 'flex-start',
-        gap: '1rem',
-        padding: '1rem 0'
-      }}
-    >
+    <div className="row" style={{ gap: '1rem 0', padding: '1rem 0' }}>
       {currentProducts.map((product, index) => (
         <div
           key={index}
+          className={isSmallScreen ? "col-6" : "col-6 col-md-4 col-lg-3"}
           style={{
-            flex: isSmallScreen ? '1 1 45%' : '1 1 23%',
-            maxWidth: isSmallScreen ? '45%' : '23%',
             padding: '10px',
             boxSizing: 'border-box'
           }}
@@ -180,12 +162,14 @@ const Products = () => {
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'scale(1.05)';
               e.currentTarget.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.15)';
-              e.currentTarget.querySelector('.bot').classList.remove('d-none');
+              const bot = e.currentTarget.querySelector('.bot');
+              if (bot) bot.classList.remove('d-none');
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'scale(1)';
               e.currentTarget.style.boxShadow = 'none';
-              e.currentTarget.querySelector('.bot').classList.add('d-none');
+              const bot = e.currentTarget.querySelector('.bot');
+              if (bot) bot.classList.add('d-none');
             }}
           >
             <img

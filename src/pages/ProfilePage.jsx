@@ -1,26 +1,57 @@
-import React, { useContext, useEffect, useState } from 'react';
+ import React, { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
-import { UserContext } from '../context/UserContext'; // adjust path as needed
+import { UserContext } from '../context/UserContext';
+import { Container } from 'react-bootstrap';
+import { toast } from 'react-toastify';
 
 const ProfilePage = () => {
   const { user, loading: userLoading } = useContext(UserContext);
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 768);
 
+  const itemsPerPageLarge = 15; // Show 15 orders per page on large screens
+  const itemsPerPageSmall = 2; // 2 orders per page after initial 10 on small screens
+  const smallScreenInitialOrders = 10; // Show 10 orders before paginating on small screens
+
+  // Handle window resize for responsive layout
+  useEffect(() => {
+    const handleResize = () => {
+      setIsSmallScreen(window.innerWidth < 768);
+      setCurrentPage(1); // Reset page on resize
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Fetch orders
   useEffect(() => {
     if (user?._id) {
       fetchOrders();
+    } else {
+      setLoadingOrders(false);
     }
-  }, [user]);
+  }, [user, currentPage]);
 
   const fetchOrders = async () => {
+    setLoadingOrders(true);
     try {
       const res = await axios.get(
-        `https://byc-backend-hkgk.onrender.com/api/byc/orders/user/${user._id}`
+        `https://byc-backend-hkgk.onrender.com/api/byc/orders/my-orders?page=${currentPage}&limit=${
+          isSmallScreen ? (currentPage === 1 ? smallScreenInitialOrders : itemsPerPageSmall) : itemsPerPageLarge
+        }`,
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+          timeout: 5000,
+        }
       );
-      setOrders(res.data || []);
+      setOrders(res.data.orders || []);
+      setTotalPages(res.data.pagination?.totalPages || 1);
     } catch (err) {
       console.error('Failed to fetch orders:', err.response?.data || err.message);
+      toast.error(err.response?.data?.message || 'Failed to load orders', { autoClose: 4000 });
     } finally {
       setLoadingOrders(false);
     }
@@ -28,59 +59,226 @@ const ProfilePage = () => {
 
   const getStatusBadgeClass = (status) => {
     switch (status) {
-      case 'Pending':
+      case 'pending':
         return 'bg-warning';
-      case 'Processing':
+      case 'processing':
         return 'bg-info';
-      case 'Shipped':
+      case 'shipped':
         return 'bg-primary';
-      case 'Delivered':
+      case 'delivered':
         return 'bg-success';
-      case 'Cancelled':
+      case 'cancelled':
         return 'bg-danger';
       default:
         return 'bg-secondary';
     }
   };
 
-  if (userLoading) return <p>Loading user data...</p>;
+  // Pagination logic
+  const getPaginationParams = () => {
+    if (isSmallScreen) {
+      if (orders.length <= smallScreenInitialOrders) {
+        return { currentOrders: orders, paginate: false };
+      }
+      const indexOfLastItem = (currentPage - 1) * itemsPerPageSmall + smallScreenInitialOrders;
+      const indexOfFirstItem = indexOfLastItem - itemsPerPageSmall;
+      return {
+        currentOrders: currentPage === 1 ? orders.slice(0, smallScreenInitialOrders) : orders.slice(indexOfFirstItem, indexOfLastItem),
+        paginate: true,
+      };
+    }
+    return { currentOrders: orders, paginate: totalPages > 1 };
+  };
+
+  const { currentOrders, paginate } = getPaginationParams();
+
+  if (userLoading) {
+    return (
+      <Container className="my-5 text-center">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+        <p>Loading user data...</p>
+      </Container>
+    );
+  }
+
+  if (!user) {
+    return (
+      <Container className="my-5 text-center">
+        <h3>Please log in to view your profile</h3>
+        <a href="/account" className="btn btn-danger">Log In</a>
+      </Container>
+    );
+  }
 
   return (
-    <div className="container my-5">
-      <h3 className="fw-bold">Hello, {user?.name}</h3>
-      <p className="text-muted">{user?.email}</p>
-
+    <Container style={{ maxWidth: '1200px', margin: '2rem auto', padding: '0 15px', boxSizing: 'border-box', border: '1px solid #dee2e6' }}>
+      <h3 className="fw-bold mb-3">Hello, {user.name}</h3>
+      <p className="text-muted mb-4">{user.email}</p>
       <hr className="my-4" />
+      <h5 className="mb-4">Your Orders</h5>
 
-      <h5 className="mb-3">Your Orders</h5>
       {loadingOrders ? (
-        <p>Loading your orders...</p>
-      ) : orders.length === 0 ? (
-        <p>No orders found.</p>
-      ) : (
-        orders.map((order) => (
-          <div key={order._id} className="border rounded p-3 mb-4">
-            <div className="d-flex justify-content-between align-items-center mb-2">
-              <h6 className="mb-0">Order #{order._id.slice(-6).toUpperCase()}</h6>
-              <span className={`badge ${getStatusBadgeClass(order.status)}`}>
-                {order.status}
-              </span>
-            </div>
-            <small className="text-muted">
-              Placed on: {new Date(order.createdAt).toLocaleString()}
-            </small>
-            <ul className="mt-2">
-              {order.items.map((item, idx) => (
-                <li key={idx}>
-                  {item.name} — {item.quantity} × ₦{item.price.toFixed(2)}
-                </li>
-              ))}
-            </ul>
-            <p className="fw-bold mt-2">Total: ₦{order.totalAmount.toFixed(2)}</p>
+        <div className="text-center">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
           </div>
-        ))
+          <p>Loading your orders...</p>
+        </div>
+      ) : orders.length === 0 ? (
+        <div className="text-center">
+          <p>No orders found.</p>
+          <a href="/products" className="btn btn-danger btn-sm">Shop Now</a>
+        </div>
+      ) : (
+        <>
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              justifyContent: 'flex-start',
+              gap: '1rem',
+              padding: '1rem 0',
+            }}
+          >
+            {currentOrders.map((order) => (
+              <div
+                key={order._id}
+                style={{
+                  flex: isSmallScreen ? '1 1 45%' : '1 1 23%',
+                  maxWidth: isSmallScreen ? '45%' : '23%',
+                  padding: '10px',
+                  boxSizing: 'border-box',
+                }}
+              >
+                <div
+                  className="shadow-sm"
+                  style={{
+                    transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                    backgroundColor: '#fff',
+                    borderRadius: '8px',
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    border: '1px solid #dee2e6',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.05)';
+                    e.currentTarget.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.15)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                >
+                  <div style={{ padding: '15px', flexGrow: 1 }}>
+                    <div className="d-flex justify-content-between align-items-center mb-2">
+                      <h6 className="mb-0" style={{ fontSize: '16px', fontWeight: 'bold' }}>
+                        Order #{order.orderId || order._id.slice(-6).toUpperCase()}
+                      </h6>
+                      <span className={`badge ${getStatusBadgeClass(order.status.toLowerCase())}`} style={{ fontSize: '12px' }}>
+                        {order.status}
+                      </span>
+                    </div>
+                    <small className="text-muted" style={{ fontSize: '12px' }}>
+                      Placed on: {new Date(order.orderDate).toLocaleDateString()}
+                    </small>
+                    <ul className="mt-2" style={{ paddingLeft: '20px', fontSize: '14px' }}>
+                      {order.cartItems.map((item, idx) => (
+                        <li key={idx} className="d-flex align-items-center mb-2">
+                          <img
+                            src={item.productImage || 'https://via.placeholder.com/50?text=No+Image'}
+                            alt={item.name}
+                            style={{
+                              width: '50px',
+                              height: '50px',
+                              objectFit: 'cover',
+                              marginRight: '10px',
+                              borderRadius: '4px',
+                            }}
+                            loading="lazy"
+                            onError={(e) => (e.target.src = 'https://via.placeholder.com/50?text=Image+Error')}
+                          />
+                          <div>
+                            <span>{item.name}</span> — {item.quantity} × ₦{item.price.toFixed(2)}
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                    <p className="fw-bold mt-2" style={{ fontSize: '14px' }}>
+                      Total: ₦{order.totalAmount.toFixed(2)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {paginate && totalPages > 1 && (
+            <div style={{ textAlign: 'center', padding: '2rem 0' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  flexWrap: 'wrap',
+                }}
+                role="group"
+              >
+                <button
+                  style={{
+                    padding: '8px 12px',
+                    border: '1px solid #dee2e6',
+                    borderRadius: '4px',
+                    backgroundColor: currentPage === 1 ? '#f8f9fa' : '#fff',
+                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                    fontSize: isSmallScreen ? '12px' : '14px',
+                  }}
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  aria-label="Previous page"
+                >
+                  <i className="bi bi-arrow-left-short"></i>
+                </button>
+                {[...Array(totalPages)].map((_, index) => (
+                  <button
+                    key={index}
+                    style={{
+                      padding: '8px 12px',
+                      border: currentPage === index + 1 ? '2px solid #ffc107' : '1px solid #dee2e6',
+                      borderRadius: '4px',
+                      backgroundColor: currentPage === index + 1 ? '#fff3cd' : '#fff',
+                      cursor: 'pointer',
+                      fontSize: isSmallScreen ? '12px' : '14px',
+                    }}
+                    onClick={() => setCurrentPage(index + 1)}
+                    aria-label={`Page ${index + 1}`}
+                  >
+                    {index + 1}
+                  </button>
+                ))}
+                <button
+                  style={{
+                    padding: '8px 12px',
+                    border: '1px solid #dee2e6',
+                    borderRadius: '4px',
+                    backgroundColor: currentPage === totalPages ? '#f8f9fa' : '#fff',
+                    cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                    fontSize: isSmallScreen ? '12px' : '14px',
+                  }}
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  aria-label="Next page"
+                >
+                  <i className="bi bi-arrow-right-short"></i>
+                </button>
+              </div>
+            </div>
+          )}
+        </>
       )}
-    </div>
+    </Container>
   );
 };
 
