@@ -175,15 +175,7 @@ const About = () => {
                 <img src={Award} alt="Award" className="award-img img-fluid mb-3" />
                 <p>{award.title}</p>
                 <h4 className="fw-bolder text-danger mb-3">Year: {award.year}</h4>
-                <button
-                  className="bot btn btn-danger btn-sm d-none"
-                  style={{
-                    fontSize: '0.9rem',
-                    padding: '4px 8px',
-                  }}
-                >
-                  View Details
-                </button>
+                
               </div>
             </div>
           ))}

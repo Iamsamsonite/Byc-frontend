@@ -53,16 +53,26 @@ const Home = () => {
   const [activeCategory, setActiveCategory] = useState('Men');
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [availableCategories, setAvailableCategories] = useState([]);
-  const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 768);
+  const [screenSize, setScreenSize] = useState({
+    isLargeScreen: window.innerWidth >= 992,
+    isSmallScreen: window.innerWidth >= 576 && window.innerWidth < 992,
+    isSmallerScreen: window.innerWidth < 576,
+  });
 
   const categories = ['Men', 'Women', 'Children'];
   const sentences = ['yourself', 'Men', 'Women', 'Kids'];
-  const itemsPerView = isSmallScreen ? 1 : 2; // 1 product on small screens, 2 on large
+
+  // Determine items per view based on screen size
+  const itemsPerView = screenSize.isLargeScreen ? 3 : screenSize.isSmallScreen ? 2 : 1;
 
   // Handle window resize
   useEffect(() => {
     const handleResize = () => {
-      setIsSmallScreen(window.innerWidth < 768);
+      setScreenSize({
+        isLargeScreen: window.innerWidth >= 992,
+        isSmallScreen: window.innerWidth >= 576 && window.innerWidth < 992,
+        isSmallerScreen: window.innerWidth < 576,
+      });
       setCarouselIndex(0); // Reset carousel index on resize
     };
     window.addEventListener('resize', handleResize);
@@ -163,22 +173,33 @@ const Home = () => {
   };
 
   const handlePrev = () => {
-    setCarouselIndex((prev) => Math.max(prev - itemsPerView, 0));
+    if (carouselIndex <= 0) {
+      // Move to previous category
+      const currentCategoryIndex = categories.indexOf(activeCategory);
+      const prevCategoryIndex = (currentCategoryIndex - 1 + categories.length) % categories.length;
+      setActiveCategory(categories[prevCategoryIndex]);
+      setCarouselIndex(0);
+    } else {
+      setCarouselIndex((prev) => prev - itemsPerView);
+    }
   };
 
   const handleNext = () => {
-    setCarouselIndex((prev) =>
-      Math.min(prev + itemsPerView, filteredProducts.length - itemsPerView)
-    );
+    if (carouselIndex + itemsPerView >= filteredProducts.length) {
+      // Move to next category
+      const currentCategoryIndex = categories.indexOf(activeCategory);
+      const nextCategoryIndex = (currentCategoryIndex + 1) % categories.length;
+      setActiveCategory(categories[nextCategoryIndex]);
+      setCarouselIndex(0);
+    } else {
+      setCarouselIndex((prev) => prev + itemsPerView);
+    }
   };
 
   // Filter products case-insensitively using category.name
   const filteredProducts = products.filter(
     (p) => p.category.name.toLowerCase() === activeCategory.toLowerCase()
   );
-  const displayedProducts = showAll
-    ? filteredProducts
-    : filteredProducts.slice(carouselIndex, carouselIndex + itemsPerView);
 
   return (
     <>
@@ -198,7 +219,7 @@ const Home = () => {
             className="my-4 flex items-center justify-center"
             style={{ fontWeight: 'bolder' }}
           >
-            <h2 className={`text-4xl font-bold transition-opacity duration-500`}>
+            <h2 className={`text-4xl font-bold transition-opacity duration-500 ${fadeState}`}>
               Get the best for <span>{sentences[currentIndex]}</span>
             </h2>
           </div>
@@ -206,7 +227,7 @@ const Home = () => {
             {sentences.map((_, index) => (
               <div
                 key={index}
-                className={` ${
+                className={`inline-block w-2 h-2 rounded-full mx-1 ${
                   index === currentIndex ? 'bg-blue-600' : 'bg-gray-300'
                 }`}
               />
@@ -399,7 +420,7 @@ const Home = () => {
                               ? product.productImage[0]
                               : 'https://via.placeholder.com/300?text=No+Image'
                           }
-                          style={isSmallScreen ? styles.categoryImage : styles.categoryImageLarge}
+                          style={screenSize.isSmallerScreen ? styles.categoryImage : styles.categoryImageLarge}
                           alt={product.productName}
                           loading="lazy"
                         />
@@ -408,7 +429,7 @@ const Home = () => {
                         <h5
                           style={{
                             fontWeight: 'bold',
-                            fontSize: isSmallScreen ? '14px' : '16px',
+                            fontSize: screenSize.isSmallerScreen ? '14px' : '16px',
                             margin: '10px 0 5px',
                           }}
                         >
@@ -416,7 +437,7 @@ const Home = () => {
                         </h5>
                         <p
                           style={{
-                            fontSize: isSmallScreen ? '12px' : '14px',
+                            fontSize: screenSize.isSmallerScreen ? '12px' : '14px',
                             color: '#333',
                             margin: '0 0 5px',
                           }}
@@ -426,7 +447,7 @@ const Home = () => {
                         <p
                           style={{
                             fontWeight: 'bold',
-                            fontSize: isSmallScreen ? '12px' : '14px',
+                            fontSize: screenSize.isSmallerScreen ? '12px' : '14px',
                             margin: '0 0 5px',
                           }}
                         >
@@ -456,11 +477,11 @@ const Home = () => {
                   <i
                     className="bi bi-caret-left"
                     style={{
-                      cursor: carouselIndex > 0 ? 'pointer' : 'not-allowed',
+                      cursor: 'pointer',
                       fontSize: '24px',
-                      color: carouselIndex > 0 ? '#000' : '#ccc',
+                      color: '#000',
                     }}
-                    onClick={carouselIndex > 0 ? handlePrev : null}
+                    onClick={handlePrev}
                     aria-label="Previous products"
                   ></i>
                 </div>
@@ -476,11 +497,11 @@ const Home = () => {
                   <i
                     className="bi bi-caret-right"
                     style={{
-                      cursor: carouselIndex + itemsPerView < filteredProducts.length ? 'pointer' : 'not-allowed',
+                      cursor: 'pointer',
                       fontSize: '24px',
-                      color: carouselIndex + itemsPerView < filteredProducts.length ? '#000' : '#ccc',
+                      color: '#000',
                     }}
-                    onClick={carouselIndex + itemsPerView < filteredProducts.length ? handleNext : null}
+                    onClick={handleNext}
                     aria-label="Next products"
                   ></i>
                 </div>
