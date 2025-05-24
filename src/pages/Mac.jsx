@@ -9,14 +9,19 @@ import { WishlistContext } from '../context/WishlistContext';
 const Mac = () => {
   const [cart, setCart] = useState([]);
   const [viewMode, setViewMode] = useState('grid');
-  const [sortOption, setSortOption] = useState('');
+  const [sortOption, setSortOption] = useState('Most Sold');
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const location = useLocation();
   const navigate = useNavigate();
   const { addToRecentViews } = useContext(RecentViewsContext);
   const { addToWishlist, removeFromWishlist, isInWishlist } = useContext(WishlistContext);
+
+  // Responsive items per page
+  const isLargeScreen = window.innerWidth >= 992;
+  const itemsPerPage = isLargeScreen ? 16 : 8;
 
   // Extract category from URL query parameter
   const queryParams = new URLSearchParams(location.search);
@@ -47,27 +52,19 @@ const Mac = () => {
     axios
       .get('https://byc-backend-hkgk.onrender.com/api/byc/products')
       .then((response) => {
-        const validProducts = response.data
-          .filter(
-            (product) =>
-              product._id &&
-              typeof product.productPrice === 'number' &&
-              !isNaN(product.productPrice) &&
-              product.productImage &&
-              Array.isArray(product.productImage) &&
-              product.productImage.length > 0 &&
-              product.category &&
-              typeof product.category === 'object' &&
-              typeof product.category.name === 'string' &&
-              product.category.name.trim() !== ''
-          )
-          .map((product) => ({
-            ...product,
-            productName: product.productName || 'Unknown Product',
-            ratings: typeof product.ratings === 'number' ? product.ratings : 4.5,
-            popularity: product.popularity || 0,
-            createdAt: product.createdAt || new Date().toISOString(),
-          }));
+        const validProducts = response.data.filter(
+          (product) =>
+            product._id &&
+            typeof product.productPrice === 'number' &&
+            !isNaN(product.productPrice) &&
+            product.productImage &&
+            Array.isArray(product.productImage) &&
+            product.productImage.length > 0 &&
+            product.category &&
+            typeof product.category === 'object' &&
+            typeof product.category.name === 'string' &&
+            product.category.name.trim() !== ''
+        );
         console.log('Valid Products:', validProducts);
         console.log('Unique Categories:', [...new Set(validProducts.map((p) => p.category.name))]);
         setProducts(validProducts);
@@ -95,13 +92,7 @@ const Mac = () => {
         return productCategory.toLowerCase() === selectedCategory.toLowerCase();
       });
 
-  // Handle sort option change
-  const handleSortChange = (option) => {
-    console.log('Mac: Received sort option:', option);
-    setSortOption(option);
-  };
-
-  // Sorting logic aligned with SortByDrop
+  // Sorting logic
   const getSortedProducts = () => {
     let sorted = [...filteredProducts];
     switch (sortOption) {
@@ -118,27 +109,16 @@ const Mac = () => {
         sorted.sort((a, b) => b.productName.localeCompare(a.productName));
         break;
       default:
-        // No sorting for empty or unrecognized option
         break;
     }
     return sorted;
   };
 
   const sortedProducts = getSortedProducts();
-
-  // Debugging logs
-  console.log('URL:', location.search);
-  console.log('Selected Category:', selectedCategory);
-  console.log(
-    'Filtered Products:',
-    filteredProducts.map((p) => ({
-      id: p._id,
-      name: p.productName,
-      category: p.category.name,
-    }))
-  );
-  console.log('Sort Option:', sortOption);
-  console.log('Sorted Products:', sortedProducts.map((p) => p.productName));
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const productsToDisplay = sortedProducts.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(sortedProducts.length / itemsPerPage);
 
   // Generate breadcrumb items
   const getBreadcrumbItems = () => {
@@ -165,7 +145,7 @@ const Mac = () => {
   };
 
   const handleWishlistToggle = (product) => {
-    const productId = product._id;
+    const productId = product.productId || product._id;
     if (isInWishlist(productId)) {
       removeFromWishlist(productId);
     } else {
@@ -175,36 +155,16 @@ const Mac = () => {
 
   const cardStyle = {
     transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-    backgroundColor: '#fff',
-    border: '1px solid #dee2e6',
+    backgroundColor: '#FBFBFB',
     borderRadius: '8px',
     cursor: 'pointer',
     height: '100%',
-    display: 'flex',
-    flexDirection: 'column',
   };
 
   const renderGridView = () => (
-    <div
-      style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: '1rem',
-        justifyContent: 'flex-start',
-      }}
-    >
-      {sortedProducts.map((product) => (
-        <div
-          key={product._id}
-          style={{
-            flex: '1 1 100%',
-            maxWidth: '100%',
-            padding: '5px',
-            boxSizing: 'border-box',
-            '@media (min-width: 576px)': { flex: '1 1 47%', maxWidth: '47%' },
-            '@media (min-width: 768px)': { flex: '1 1 31%', maxWidth: '31%' },
-          }}
-        >
+    <div className="row" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-start' }}>
+      {productsToDisplay.map((product) => (
+        <div key={product._id} className="col-lg-3 col-md-6 my-3 d-flex flex-column" style={{ padding: '10px' }}>
           <div
             className="singlet shadow-sm"
             style={cardStyle}
@@ -225,59 +185,52 @@ const Mac = () => {
                   ? product.productImage[0]
                   : 'https://via.placeholder.com/150?text=No+Image'
               }
+              className="img-fluid"
               alt={product.productName}
               style={{
-                width: '100%',
                 height: '200px',
                 objectFit: 'cover',
                 borderTopLeftRadius: '8px',
                 borderTopRightRadius: '8px',
-                loading: 'lazy',
               }}
             />
-            <div style={{ padding: '10px', flexGrow: 1 }}>
-              <h5 style={{ fontWeight: 'bold', fontSize: '16px', margin: '10px 0 5px' }}>
-                {product.productName}
-              </h5>
-              <p style={{ fontSize: '12px', margin: '0 0 5px' }}>{product.productNumber || 'N/A'}</p>
-              <p style={{ fontSize: '12px', color: '#787885', margin: '0 0 5px' }}>
-                {product.productDescription?.substring(0, 50) || 'No description'}...
+            <div className="px-2" style={{ flexGrow: 1 }}>
+              <h5 style={{ fontWeight: 'bold', fontSize: '16px', marginTop: '10px' }}>{product.productName}</h5>
+              <p style={{ fontSize: '12px' }}>{product.productNumber || 'N/A'}</p>
+              <p style={{ color: '#787885', fontSize: '12px' }}>
+                {product.productDescription || 'No description available'}
               </p>
-              <p style={{ fontWeight: 'bold', fontSize: '14px', margin: '0 0 5px' }}>
-                ₦{product.productPrice.toLocaleString()}
+              <p>
+                <b>₦{product.productPrice.toLocaleString()}</b>
               </p>
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                {[...Array(Math.floor(product.ratings))].map((_, i) => (
-                  <i key={i} className="bi bi-star-fill" style={{ color: '#FB8200', fontSize: '12px' }}></i>
+              <div className="d-flex align-items-center">
+                {[...Array(4)].map((_, i) => (
+                  <i key={i} className="bi bi-star-fill" style={{ color: '#FB8200' }}></i>
                 ))}
-                {product.ratings % 1 !== 0 && (
-                  <i className="bi bi-star-half" style={{ color: '#FB8200', fontSize: '12px' }}></i>
-                )}
-                <span style={{ fontSize: '12px', fontWeight: 'bold', marginLeft: '4px' }}>
-                  {product.ratings.toFixed(1)}
+                <i className="bi bi-star-half" style={{ color: '#FB8200' }}></i>
+                <span className="ms-2 fw-bold">{product.ratings || 4.5}</span>
+              </div>
+            </div>
+            <div className="d-flex pb-3">
+              <button
+                className="btn btn-sm border-danger mt-3 d-none bot"
+                onClick={() => handleWishlistToggle(product)}
+              >
+                <i
+                  className={`bi ${isInWishlist(product.productId || product._id) ? 'bi-heart-fill' : 'bi-heart'} me-1 text-danger`}
+                  style={{ fontSize: '10px' }}
+                ></i>
+                <span className="text-danger" style={{ fontSize: '10px' }}>
+                  {isInWishlist(product.productId || product._id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
                 </span>
-              </div>
-              <div style={{ display: 'flex', gap: '8px' }} className="bot d-none">
-                <button
-                  className="btn btn-sm border-danger"
-                  style={{ fontSize: '10px', padding: '4px 8px', borderRadius: '4px' }}
-                  onClick={() => handleWishlistToggle(product)}
-                >
-                  <i
-                    className={`bi ${isInWishlist(product._id) ? 'bi-heart-fill' : 'bi-heart'} me-1 text-danger`}
-                    style={{ fontSize: '10px' }}
-                  ></i>
-                  {isInWishlist(product._id) ? 'Remove' : 'Wishlist'}
-                </button>
-                <button
-                  className="btn btn-sm border-danger btn-danger"
-                  style={{ fontSize: '10px', padding: '4px 8px', borderRadius: '4px' }}
-                  onClick={() => handleBuyNow(product)}
-                >
-                  <i className="bi bi-cart3 me-1" style={{ fontSize: '10px' }}></i>
-                  Buy Now
-                </button>
-              </div>
+              </button>
+              <button
+                className="btn btn-sm border-danger btn-danger d-none ms-1 mt-3 bot"
+                onClick={() => handleBuyNow(product)}
+              >
+                <i className="bi bi-cart3 text-white"></i>
+                <span className="text-white" style={{ fontSize: '10px' }}>Buy Now</span>
+              </button>
             </div>
           </div>
         </div>
@@ -286,17 +239,12 @@ const Mac = () => {
   );
 
   const renderListView = () => (
-    <div style={{ width: '100%' }}>
-      {sortedProducts.map((product) => (
+    <div className="list-group" style={{ width: '100%' }}>
+      {productsToDisplay.map((product) => (
         <div
           key={product._id}
-          className="mb-3"
-          style={{
-            padding: '15px',
-            border: '1px solid #dee2e6',
-            borderRadius: '8px',
-            backgroundColor: '#fff',
-          }}
+          className="list-group-item d-flex flex-column mb-3"
+          style={{ padding: '15px', border: '1px solid #ddd', borderRadius: '8px' }}
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = 'scale(1.05)';
             e.currentTarget.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.15)';
@@ -308,65 +256,54 @@ const Mac = () => {
             e.currentTarget.querySelectorAll('.bot').forEach((btn) => btn.classList.add('d-none'));
           }}
         >
-          <div style={{ display: 'flex', flexDirection: 'row', gap: '1rem' }}>
-            <div style={{ flex: '0 0 150px' }}>
+          <div className="container d-flex">
+            <div className="col-sm-3">
               <img
                 src={
                   Array.isArray(product.productImage) && product.productImage.length > 0
                     ? product.productImage[0]
                     : 'https://via.placeholder.com/150?text=No+Image'
                 }
+                className="img-fluid"
                 alt={product.productName}
-                style={{
-                  width: '100%',
-                  height: '150px',
-                  objectFit: 'cover',
-                  borderRadius: '8px',
-                  loading: 'lazy',
-                }}
+                style={{ height: '200px', objectFit: 'cover', borderRadius: '8px', marginBottom: '15px' }}
               />
             </div>
-            <div style={{ flex: '1', padding: '10px' }}>
-              <h5 style={{ fontWeight: 'bold', fontSize: '16px', margin: '0 0 5px' }}>
-                {product.productName}
-              </h5>
-              <p style={{ fontSize: '12px', margin: '0 0 5px' }}>{product.productNumber || 'N/A'}</p>
-              <p style={{ fontSize: '12px', color: '#787885', margin: '0 0 5px' }}>
-                {product.productDescription?.substring(0, 100) || 'No description'}...
-              </p>
-              <p style={{ fontWeight: 'bold', fontSize: '14px', margin: '0 0 5px' }}>
-                ₦{product.productPrice.toLocaleString()}
-              </p>
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                {[...Array(Math.floor(product.ratings))].map((_, i) => (
-                  <i key={i} className="bi bi-star-fill" style={{ color: '#FB8200', fontSize: '12px' }}></i>
-                ))}
-                {product.ratings % 1 !== 0 && (
-                  <i className="bi bi-star-half" style={{ color: '#FB8200', fontSize: '12px' }}></i>
-                )}
-                <span style={{ fontSize: '12px', fontWeight: 'bold', marginLeft: '4px' }}>
-                  {product.ratings.toFixed(1)}
-                </span>
+            <div className="col-sm-4 ms-5">
+              <div className="ms-3 w-50" style={{ ...cardStyle, flexGrow: 1 }}>
+                <h5>{product.productName}</h5>
+                <p>{product.productDescription || 'No description available'}</p>
+                <p>
+                  <b>₦{product.productPrice.toLocaleString()}</b>
+                </p>
+                <div className="d-flex align-items-center">
+                  {[...Array(4)].map((_, i) => (
+                    <i key={i} className="bi bi-star-fill" style={{ color: '#FB8200' }}></i>
+                  ))}
+                  <i className="bi bi-star-half" style={{ color: '#FB8200' }}></i>
+                  <span className="ms-2 fw-bold">{product.ratings || 4.5}</span>
+                </div>
               </div>
-              <div style={{ display: 'flex', gap: '8px' }} className="bot d-none">
+              <div className="d-flex gap-2 mt-2 ms-3">
                 <button
-                  className="btn btn-sm border-danger"
-                  style={{ fontSize: '10px', padding: '4px 8px', borderRadius: '4px' }}
+                  className="btn btn-sm border-danger mt-2 bot d-none"
+                  style={{ backgroundColor: '#fff', borderColor: '#BD3A3A', color: '#BD3A3A', fontSize: '12px' }}
                   onClick={() => handleWishlistToggle(product)}
                 >
                   <i
-                    className={`bi ${isInWishlist(product._id) ? 'bi-heart-fill' : 'bi-heart'} me-1 text-danger`}
+                    className={`bi ${isInWishlist(product.productId || product._id) ? 'bi-heart-fill' : 'bi-heart'} me-1 text-danger`}
                     style={{ fontSize: '10px' }}
                   ></i>
-                  {isInWishlist(product._id) ? 'Remove' : 'Wishlist'}
+                  <span className="text-danger" style={{ fontSize: '10px' }}>
+                    {isInWishlist(product.productId || product._id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                  </span>
                 </button>
                 <button
-                  className="btn btn-sm border-danger btn-danger"
-                  style={{ fontSize: '10px', padding: '4px 8px', borderRadius: '4px' }}
+                  className="btn btn-sm mt-2 bot d-none"
                   onClick={() => handleBuyNow(product)}
+                  style={{ backgroundColor: '#BD3A3A', borderColor: '#BD3A3A', color: '#fff', fontSize: '12px' }}
                 >
-                  <i className="bi bi-cart3 me-1" style={{ fontSize: '10px' }}></i>
-                  Buy Now
+                  <i className="bi bi-cart3 me-1"></i> Buy Now
                 </button>
               </div>
             </div>
@@ -396,35 +333,19 @@ const Mac = () => {
       </nav>
 
       <div className="container mt-5 pt-1 mb-2 border">
-        <div
-          className="row border-bottom align-items-center"
-          style={{ flexWrap: 'wrap', gap: '1rem' }}
-        >
-          <div className="col-md-2 col-12">
+        <div className="row border-bottom align-items-center mb-3">
+          <div className="col-6 col-md-8">
             <b style={{ fontSize: '14px' }}>{selectedCategory}</b>
           </div>
-          <div className="col-md-8 col-12"></div>
-          <div
-            className="col-md-2 col-12 d-flex justify-content-end"
-            style={{ minWidth: '150px' }}
-          >
-            <SortByDrop onSortChange={handleSortChange} />
+          <div className="col-6 col-md-4 d-flex justify-content-end align-items-center gap-2">
+            <SortByDrop onSortChange={setSortOption} />
+            <ToggleButton activeView={viewMode} onToggle={setViewMode} />
           </div>
         </div>
 
-        <div
-          className="row my-3 border-bottom"
-          style={{ flexWrap: 'wrap', gap: '1rem' }}
-        >
-          <div className="col-md-2 col-12">
+        <div className="row my-3 border-bottom">
+          <div className="col-12">
             <p style={{ fontSize: '14px' }}>{sortedProducts.length} Products Found</p>
-          </div>
-          <div className="col-md-8 col-12"></div>
-          <div
-            className="col-md-2 col-12 d-flex justify-content-end"
-            style={{ minWidth: '150px' }}
-          >
-            <ToggleButton activeView={viewMode} onToggle={setViewMode} />
           </div>
         </div>
 
@@ -436,6 +357,37 @@ const Mac = () => {
           viewMode === 'grid' ? renderGridView() : renderListView()
         ) : (
           <p>No products found for this category.</p>
+        )}
+
+        {totalPages > 1 && (
+          <div className="text-center">
+            <div className="btn-group rounded-0 shadow-sm gap-2 my-5" role="group">
+              <button
+                type="button"
+                className="btn shadow-sm"
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              >
+                <i className="bi bi-arrow-left-short"></i>
+              </button>
+              {[...Array(totalPages)].map((_, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  className={`btn shadow-sm ${currentPage === index + 1 ? 'border-warning' : ''}`}
+                  onClick={() => setCurrentPage(index + 1)}
+                >
+                  {index + 1}
+                </button>
+              ))}
+              <button
+                type="button"
+                className="btn shadow-sm"
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              >
+                <i className="bi bi-arrow-right-short"></i>
+              </button>
+            </div>
+          </div>
         )}
       </div>
     </>

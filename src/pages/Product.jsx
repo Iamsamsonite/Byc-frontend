@@ -5,6 +5,7 @@ import SortByDrop from '../component/SortByDrop';
 import ToggleButton from '../component/ToggleButton';
 import { RecentViewsContext } from '../context/RecentViewsContext';
 import { WishlistContext } from '../context/WishlistContext';
+import { CartContext } from '../context/CartContext'; // eslint-disable-line no-unused-vars
 import Sing from '../component/Sing';
 
 const Products = () => {
@@ -12,29 +13,17 @@ const Products = () => {
   const navigate = useNavigate();
   const { addToRecentViews } = useContext(RecentViewsContext);
   const { addToWishlist, removeFromWishlist, isInWishlist } = useContext(WishlistContext);
+
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [viewMode, setViewMode] = useState('grid');
   const [currentPage, setCurrentPage] = useState(1);
-  const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 768);
-  const [isVerySmallScreen, setIsVerySmallScreen] = useState(window.innerWidth < 576);
 
-  const itemsPerPageLarge = 15; // 15 products per page for large screens
-  const itemsPerPageSmall = 8;  // 8 products per page for small screens
+  // Responsive items per page
+  const isLargeScreen = window.innerWidth >= 992;
+  const itemsPerPage = isLargeScreen ? 16 : 8;
 
-  // Handle window resize
-  useEffect(() => {
-    const handleResize = () => {
-      setIsSmallScreen(window.innerWidth < 768);
-      setIsVerySmallScreen(window.innerWidth < 576);
-      setCurrentPage(1); // Reset page on resize
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // Fetch products
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
@@ -50,31 +39,30 @@ const Products = () => {
           headers: { 'Content-Type': 'application/json' },
           timeout: 5000,
         });
+        console.log('Fetched products:', response.data);
+
         const validProducts = response.data
           .filter((product) => product && (product.id || product._id) && product.productName)
           .map((product) => ({
             id: product.id || product._id,
             productName: product.productName || 'Unknown Product',
-            productDescription: product.productDescription || 'No description available',
-            productPrice: typeof product.productPrice === 'number' ? product.productPrice : 0,
+            productDescription: product.productDescription || 'No description',
+            productPrice: product.productPrice || 0,
             productImage:
               Array.isArray(product.productImage) && product.productImage.length > 0
                 ? product.productImage[0]
                 : product.productImage || 'https://via.placeholder.com/300?text=No+Image',
-            ratings: typeof product.ratings === 'number' ? product.ratings : 4.0,
-            sizes: Array.isArray(product.sizes) && product.sizes.length > 0 ? product.sizes : ['S', 'M', 'L', 'XL'],
-            colors: Array.isArray(product.colors) ? product.colors : [],
-            category: product.category && typeof product.category === 'object' ? product.category : { name: 'Uncategorized' },
-            productStock: typeof product.productStock === 'number' ? product.productStock : 0,
+            ratings: product.ratings ?? 4.02,
+            sizes: product.sizes || ['S', 'M', 'L', 'XL'],
+            colors: product.colors || [],
+            category: product.category || { name: 'Uncategorized' },
+            productStock: product.productStock || 0,
             productNumber: product.productNumber || 'N/A',
           }));
-        if (validProducts.length === 0) {
-          setError('No products found for this category.');
-        }
+
         setProducts(validProducts);
-        setCurrentPage(1);
       } catch (error) {
-        console.error('Fetch products error:', error);
+        console.error('Error fetching products:', error.message, error);
         let errorMessage = 'Failed to load products. Please try again later.';
         if (error.code === 'ECONNREFUSED') {
           errorMessage = 'Backend server is not running. Please start the server.';
@@ -92,13 +80,11 @@ const Products = () => {
   }, [location.search]);
 
   const handleBuyNow = (product) => {
-    if (!product || !product.id) return;
     navigate(`/product/${product.id}`);
     addToRecentViews(product);
   };
 
   const handleWishlistToggle = (product) => {
-    if (!product || !product.id) return;
     const productId = product.id;
     if (isInWishlist(productId)) {
       removeFromWishlist(productId);
@@ -108,24 +94,13 @@ const Products = () => {
   };
 
   // Pagination logic
-  const getPaginationParams = () => {
-    const totalItems = products.length;
-    const itemsPerPage = isSmallScreen ? itemsPerPageSmall : itemsPerPageLarge;
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
-    return {
-      currentProducts: products.slice(indexOfFirstItem, indexOfLastItem),
-      totalPages: Math.max(1, totalPages),
-      paginate: totalItems > itemsPerPage,
-    };
-  };
-
-  const { currentProducts, totalPages, paginate } = getPaginationParams();
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentProducts = products.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(products.length / itemsPerPage);
 
   // Sorting logic
   const handleSortChange = (option) => {
-    if (!option) return;
     const sortedProducts = [...products];
     if (option === 'price-asc') {
       sortedProducts.sort((a, b) => a.productPrice - b.productPrice);
@@ -137,338 +112,156 @@ const Products = () => {
       sortedProducts.sort((a, b) => b.productName.localeCompare(b.productName));
     }
     setProducts(sortedProducts);
-    setCurrentPage(1); // Reset to first page after sorting
   };
 
   const renderGridView = () => (
-    <div
-      style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
-        gap: isVerySmallScreen ? '0.5rem' : '1rem',
-        padding: '1rem 0',
-      }}
-    >
-      {currentProducts.length === 0 ? (
-        <p style={{ fontSize: isVerySmallScreen ? '12px' : '14px', color: '#787885', width: '100%', textAlign: 'center' }}>
-          No products available.
-        </p>
-      ) : (
-        currentProducts.map((product) => (
+    <div className="row" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-start' }}>
+      {currentProducts.map((product, index) => (
+        <div 
+          key={index} 
+          className="col-lg-3 col-md-6 my-3 d-flex flex-column" 
+          style={{ padding: '10px' }}
+        >
           <div
-            key={product.id}
-            style={{
-              flex: isSmallScreen ? '0 0 48%' : '0 0 24%',
-              maxWidth: isSmallScreen ? '48%' : '24%',
-              padding: isVerySmallScreen ? '5px' : '10px',
-              boxSizing: 'border-box',
+            className="singlet shadow-sm"
+            style={{ transition: 'transform 0.3s ease, box-shadow 0.3s ease', height: '100%' }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'scale(1.05)';
+              e.currentTarget.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.15)';
+              e.currentTarget.querySelector('.bot').classList.remove('d-none');
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.boxShadow = 'none';
+              e.currentTarget.querySelector('.bot').classList.add('d-none');
             }}
           >
-            <div
-              className="singlet shadow-sm"
+            <img
+              src={product.productImage}
+              className="img-fluid"
+              alt={product.productName}
               style={{
-                transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-                backgroundColor: '#fff',
-                borderRadius: '8px',
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                border: '1px solid #dee2e6',
+                height: '200px',
+                objectFit: 'cover',
+                borderTopLeftRadius: '8px',
+                borderTopRightRadius: '8px',
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.05)';
-                e.currentTarget.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.15)';
-                const bot = e.currentTarget.querySelector('.bot');
-                if (bot) bot.classList.remove('d-none');
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.boxShadow = 'none';
-                const bot = e.currentTarget.querySelector('.bot');
-                if (bot) bot.classList.add('d-none');
-              }}
-            >
-              <Link to={`/product/${product.id}`}>
-                <img
-                  src={product.productImage}
-                  alt={product.productName}
-                  style={{
-                    width: '100%',
-                    height: isVerySmallScreen ? '150px' : '200px',
-                    objectFit: 'cover',
-                    borderTopLeftRadius: '8px',
-                    borderTopRightRadius: '8px',
-                  }}
-                  loading="lazy"
-                  onError={(e) => (e.target.src = 'https://via.placeholder.com/300?text=Image+Error')}
-                />
-              </Link>
-              <div style={{ padding: isVerySmallScreen ? '8px' : '10px', flexGrow: '1' }}>
-                <h5
-                  style={{
-                    fontWeight: 'bold',
-                    fontSize: isVerySmallScreen ? '14px' : '16px',
-                    margin: '10px 0 5px',
-                  }}
-                >
-                  {product.productName}
-                </h5>
-                <p
-                  style={{
-                    fontSize: isVerySmallScreen ? '12px' : '14px',
-                    color: '#333',
-                    margin: '0 0 5px',
-                  }}
-                >
-                  {product.productNumber}
-                </p>
-                <p
-                  style={{
-                    fontSize: isVerySmallScreen ? '10px' : '12px',
-                    margin: '0 0 5px',
-                  }}
-                >
-                  {product.productDescription.substring(0, 50)}...
-                </p>
-                <p
-                  style={{
-                    fontWeight: 'bold',
-                    fontSize: isVerySmallScreen ? '12px' : '14px',
-                    margin: '0 0 5px',
-                  }}
-                >
-                  ₦{product.productPrice.toFixed(2)}
-                </p>
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                  {[...Array(Math.floor(product.ratings))].map((_, i) => (
-                    <i
-                      key={i}
-                      className="bi bi-star-fill"
-                      style={{
-                        color: '#FB8200',
-                        fontSize: isVerySmallScreen ? '10px' : '12px',
-                      }}
-                    ></i>
-                  ))}
-                  {product.ratings % 1 !== 0 && (
-                    <i
-                      className="bi bi-star-half"
-                      style={{
-                        color: '#FB8200',
-                        fontSize: isVerySmallScreen ? '10px' : '12px',
-                      }}
-                    ></i>
-                  )}
-                  <span
-                    style={{
-                      fontSize: isVerySmallScreen ? '10px' : '12px',
-                      fontWeight: 'bold',
-                      marginLeft: '4px',
-                    }}
-                  >
-                    {product.ratings.toFixed(1)}
-                  </span>
-                </div>
-                <div
-                  style={{ display: 'flex', gap: isVerySmallScreen ? '4px' : '8px' }}
-                  className="bot d-none"
-                >
-                  <button
-                    className="btn btn-sm border-danger"
-                    style={{
-                      fontSize: isVerySmallScreen ? '8px' : '10px',
-                      padding: isVerySmallScreen ? '4px 6px' : '4px 8px',
-                      borderRadius: '4px',
-                    }}
-                    onClick={() => handleWishlistToggle(product)}
-                  >
-                    <i
-                      className={`bi ${isInWishlist(product.id) ? 'bi-heart-fill' : 'bi-heart'} me-1 text-danger`}
-                      style={{ fontSize: isVerySmallScreen ? '8px' : '10px' }}
-                    ></i>
-                    {isInWishlist(product.id) ? 'Remove' : 'Wishlist'}
-                  </button>
-                  <button
-                    className="btn btn-sm border-danger btn-danger"
-                    style={{
-                      fontSize: isVerySmallScreen ? '8px' : '10px',
-                      padding: isVerySmallScreen ? '4px 6px' : '4px 8px',
-                      borderRadius: '4px',
-                    }}
-                    onClick={() => handleBuyNow(product)}
-                  >
-                    <i
-                      className="bi bi-cart3 me-1"
-                      style={{ fontSize: isVerySmallScreen ? '8px' : '10px' }}
-                    ></i>
-                    Buy Now
-                  </button>
-                </div>
+            />
+            <div className="px-2" style={{ flexGrow: 1 }}>
+              <h5 style={{ fontWeight: 'bold', fontSize: '16px', marginTop: '10px' }}>{product.productName}</h5>
+              <p style={{ fontSize: '14px', color: '#333', margin: '5px 0' }}>
+                {product.productNumber || 'N/A'}
+              </p>
+              <p style={{ fontSize: '12px' }}>{product.productDescription}</p>
+              <p><b>₦{product.productPrice.toFixed(2)}</b></p>
+              <div className="d-flex align-items-center">
+                {[...Array(4)].map((_, i) => (
+                  <i key={i} className="bi bi-star-fill" style={{ color: '#FB8200' }}></i>
+                ))}
+                <i className="bi bi-star-half" style={{ color: '#FB8200' }}></i>
+                <span className="ms-2 fw-bold">{product.ratings}</span>
               </div>
             </div>
+            <div className="d-flex pb-3 bot d-none">
+              <button
+                className="btn btn-sm border-danger mt-3"
+                onClick={() => handleWishlistToggle(product)}
+              >
+                <i
+                  className={`bi ${isInWishlist(product.id) ? 'bi-heart-fill' : 'bi-heart'} me-1 text-danger`}
+                  style={{ fontSize: '10px' }}
+                ></i>
+                <span className="text-danger" style={{ fontSize: '10px' }}>
+                  {isInWishlist(product.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                </span>
+              </button>
+              <button
+                className="btn btn-sm border-danger btn-danger ms-1 mt-3"
+                onClick={() => handleBuyNow(product)}
+              >
+                <i className="bi bi-cart3 text-white"></i>
+                <span className="text-white" style={{ fontSize: '10px' }}>Buy Now</span>
+              </button>
+            </div>
           </div>
-        ))
-      )}
+        </div>
+      ))}
     </div>
   );
 
   const renderListView = () => (
-    <div className="list-group" style={{ padding: '1rem 0' }}>
-      {currentProducts.length === 0 ? (
-        <p style={{ fontSize: isVerySmallScreen ? '12px' : '14px', color: '#787885', textAlign: 'center' }}>
-          No products available.
-        </p>
-      ) : (
-        currentProducts.map((product) => (
+    <div className="list-group">
+      {currentProducts.map((product, index) => (
+        <div key={index} className="list-group-item">
           <div
-            key={product.id}
-            className="list-group-item"
-            style={{ padding: isVerySmallScreen ? '8px' : '10px', border: '1px solid #dee2e6', marginBottom: '10px', borderRadius: '4px' }}
+            className="d-flex align-items-center singlet shadow-sm"
+            style={{ transition: 'transform 0.3s ease, box-shadow 0.3s ease' }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'scale(1.05)';
+              e.currentTarget.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.15)';
+              e.currentTarget.querySelector('.bot').classList.remove('d-none');
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.boxShadow = 'none';
+              e.currentTarget.querySelector('.bot').classList.add('d-none');
+            }}
           >
-            <div
-              className="d-flex align-items-center singlet shadow-sm"
-              style={{ transition: 'transform 0.3s ease, box-shadow 0.3s ease' }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.02)';
-                e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
-                const bot = e.currentTarget.querySelector('.bot');
-                if (bot) bot.classList.remove('d-none');
+            <img
+              src={product.productImage}
+              alt={product.productName}
+              style={{
+                width: '200px',
+                height: '200px',
+                objectFit: 'cover',
+                marginRight: '50px',
               }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.boxShadow = 'none';
-                const bot = e.currentTarget.querySelector('.bot');
-                if (bot) bot.classList.add('d-none');
-              }}
-            >
-              <Link to={`/product/${product.id}`}>
-                <img
-                  src={product.productImage}
-                  alt={product.productName}
-                  style={{
-                    width: isVerySmallScreen ? '100px' : isSmallScreen ? '120px' : '150px',
-                    height: isVerySmallScreen ? '100px' : isSmallScreen ? '120px' : '150px',
-                    objectFit: 'cover',
-                    marginRight: isVerySmallScreen ? '10px' : '20px',
-                    borderRadius: '4px',
-                  }}
-                  loading="lazy"
-                  onError={(e) => (e.target.src = 'https://via.placeholder.com/300?text=Image+Error')}
-                />
-              </Link>
-              <div style={{ flex: '1' }}>
-                <h5
-                  style={{
-                    fontSize: isVerySmallScreen ? '14px' : '16px',
-                    fontWeight: 'bold',
-                    margin: '0 0 5px',
-                  }}
+            />
+            <div>
+              <h5>{product.productName}</h5>
+              <p style={{ fontSize: '14px', color: '#333', margin: '5px 0' }}>
+                {product.productNumber || 'N/A'}
+              </p>
+              <p style={{ fontSize: '12px' }}>{product.productDescription}</p>
+              <p><b>₦{product.productPrice.toFixed(2)}</b></p>
+              <div className="d-flex align-items-center">
+                {[...Array(4)].map((_, i) => (
+                  <i key={i} className="bi bi-star-fill" style={{ color: '#FB8200' }}></i>
+                ))}
+                <i className="bi bi-star-half" style={{ color: '#FB8200' }}></i>
+                <span className="ms-2 fw-bold">{product.ratings}</span>
+              </div>
+              <div className="d-flex pb-3 bot d-none">
+                <button
+                  className="btn btn-sm border-danger mt-3"
+                  onClick={() => handleWishlistToggle(product)}
                 >
-                  {product.productName}
-                </h5>
-                <p
-                  style={{
-                    fontSize: isVerySmallScreen ? '12px' : '14px',
-                    color: '#333',
-                    margin: '0 0 5px',
-                  }}
-                >
-                  {product.productNumber}
-                </p>
-                <p
-                  style={{
-                    fontSize: isVerySmallScreen ? '10px' : '12px',
-                    margin: '0 0 5px',
-                  }}
-                >
-                  {product.productDescription.substring(0, 100)}...
-                </p>
-                <p
-                  style={{
-                    fontWeight: 'bold',
-                    fontSize: isVerySmallScreen ? '12px' : '14px',
-                    margin: '0 0 5px',
-                  }}
-                >
-                  ₦{product.productPrice.toFixed(2)}
-                </p>
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                  {[...Array(Math.floor(product.ratings))].map((_, i) => (
-                    <i
-                      key={i}
-                      className="bi bi-star-fill"
-                      style={{
-                        color: '#FB8200',
-                        fontSize: isVerySmallScreen ? '10px' : '12px',
-                      }}
-                    ></i>
-                  ))}
-                  {product.ratings % 1 !== 0 && (
-                    <i
-                      className="bi bi-star-half"
-                      style={{
-                        color: '#FB8200',
-                        fontSize: isVerySmallScreen ? '10px' : '12px',
-                      }}
-                    ></i>
-                  )}
-                  <span
-                    style={{
-                      fontSize: isVerySmallScreen ? '10px' : '12px',
-                      fontWeight: 'bold',
-                      marginLeft: '4px',
-                    }}
-                  >
-                    {product.ratings.toFixed(1)}
+                  <i
+                    className={`bi ${isInWishlist(product.id) ? 'bi-heart-fill' : 'bi-heart'} me-1 text-danger`}
+                    style={{ fontSize: '10px' }}
+                  ></i>
+                  <span className="text-danger" style={{ fontSize: '10px' }}>
+                    {isInWishlist(product.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
                   </span>
-                </div>
-                <div
-                  style={{ display: 'flex', gap: isVerySmallScreen ? '4px' : '8px' }}
-                  className="bot d-none"
+                </button>
+                <button
+                  className="btn btn-sm border-danger btn-danger ms-1 mt-3"
+                  onClick={() => handleBuyNow(product)}
                 >
-                  <button
-                    className="btn btn-sm border-danger"
-                    style={{
-                      fontSize: isVerySmallScreen ? '8px' : '10px',
-                      padding: isVerySmallScreen ? '4px 6px' : '4px 8px',
-                      borderRadius: '4px',
-                    }}
-                    onClick={() => handleWishlistToggle(product)}
-                  >
-                    <i
-                      className={`bi ${isInWishlist(product.id) ? 'bi-heart-fill' : 'bi-heart'} me-1 text-danger`}
-                      style={{ fontSize: isVerySmallScreen ? '8px' : '10px' }}
-                    ></i>
-                    {isInWishlist(product.id) ? 'Remove' : 'Wishlist'}
-                  </button>
-                  <button
-                    className="btn btn-sm border-danger btn-danger"
-                    style={{
-                      fontSize: isVerySmallScreen ? '8px' : '10px',
-                      padding: isVerySmallScreen ? '4px 6px' : '4px 8px',
-                      borderRadius: '4px',
-                    }}
-                    onClick={() => handleBuyNow(product)}
-                  >
-                    <i
-                      className="bi bi-cart3 me-1"
-                      style={{ fontSize: isVerySmallScreen ? '8px' : '10px' }}
-                    ></i>
-                    Buy Now
-                  </button>
-                </div>
+                  <i className="bi bi-cart3 text-white"></i>
+                  <span className="text-white" style={{ fontSize: '10px' }}>Buy Now</span>
+                </button>
               </div>
             </div>
           </div>
-        ))
-      )}
+        </div>
+      ))}
     </div>
   );
 
   if (loading) {
     return (
-      <div style={{ maxWidth: '1200px', margin: '2rem auto', textAlign: 'center', padding: '2rem' }}>
+      <div className="container mt-5 text-center">
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
@@ -479,9 +272,9 @@ const Products = () => {
 
   if (error) {
     return (
-      <div style={{ maxWidth: '1200px', margin: '2rem auto', textAlign: 'center', padding: '2rem' }}>
+      <div className="container mt-5 text-center">
         <h5 className="text-danger">{error}</h5>
-        <p>Please try again or contact support if the issue persists.</p>
+        <p>Please check if the backend server is running and try again.</p>
         <Link to="/" className="btn btn-primary mt-3">
           Back to Home
         </Link>
@@ -491,106 +284,49 @@ const Products = () => {
 
   return (
     <>
-      <div style={{ maxWidth: '1200px', margin: '2rem auto', padding: '0 15px', boxSizing: 'border-box', border: '1px solid #dee2e6' }}>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '1rem 0',
-            borderBottom: '1px solid #dee2e6',
-            flexWrap: 'wrap',
-            gap: '1rem',
-          }}
-        >
-          <div style={{ flex: '0 0 auto' }}>
-            <b style={{ fontSize: isVerySmallScreen ? '12px' : '14px' }}>All Products</b>
+      <div className="container mt-5 border">
+        <div className="row border-bottom align-items-center mb-3">
+          <div className="col-6 col-md-8">
+            <b style={{ fontSize: '14px' }}>All Products</b>
           </div>
-          <div style={{ flex: '1 1 auto' }}></div>
-          <div style={{ flex: '0 0 auto', position: 'relative', zIndex: 1000 }}>
-            <SortByDrop onSortChange={handleSortChange} isSmallScreen={isSmallScreen} />
+          <div className="col-6 col-md-4 d-flex justify-content-end align-items-center gap-2">
+            <SortByDrop onSortChange={handleSortChange} />
+            <ToggleButton activeView={viewMode} onToggle={setViewMode} />
           </div>
         </div>
 
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '1rem 0',
-            borderBottom: '1px solid #dee2e6',
-            flexWrap: 'wrap',
-            gap: '1rem',
-          }}
-        >
-          <div style={{ flex: '0 0 auto' }}>
-            <p style={{ fontSize: isVerySmallScreen ? '12px' : '14px' }}>
-              {products.length} Products Found
-            </p>
-          </div>
-          <div style={{ flex: '1 1 auto' }}></div>
-          <div style={{ flex: '0 0 auto' }}>
-            <ToggleButton activeView={viewMode} onToggle={setViewMode} />
+        <div className="row my-3 border-bottom">
+          <div className="col-12">
+            <p style={{ fontSize: '14px' }}>{products.length} Products Found</p>
           </div>
         </div>
 
         {viewMode === 'grid' ? renderGridView() : renderListView()}
 
-        {paginate && totalPages > 1 && (
-          <div style={{ textAlign: 'center', padding: '2rem 0' }}>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                gap: isVerySmallScreen ? '0.3rem' : '0.5rem',
-                flexWrap: 'wrap',
-              }}
-              role="group"
-            >
+        {totalPages > 1 && (
+          <div className="text-center">
+            <div className="btn-group rounded-0 shadow-sm gap-2 my-5" role="group">
               <button
-                style={{
-                  padding: isVerySmallScreen ? '6px 10px' : '8px 12px',
-                  border: '1px solid #dee2e6',
-                  borderRadius: '4px',
-                  backgroundColor: currentPage === 1 ? '#f8f9fa' : '#fff',
-                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                  fontSize: isVerySmallScreen ? '10px' : isSmallScreen ? '12px' : '14px',
-                }}
+                type="button"
+                className="btn shadow-sm"
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-                aria-label="Previous page"
               >
                 <i className="bi bi-arrow-left-short"></i>
               </button>
               {[...Array(totalPages)].map((_, index) => (
                 <button
                   key={index}
-                  style={{
-                    padding: isVerySmallScreen ? '6px 10px' : '8px 12px',
-                    border: currentPage === index + 1 ? '2px solid #ffc107' : '1px solid #dee2e6',
-                    borderRadius: '4px',
-                    backgroundColor: currentPage === index + 1 ? '#fff3cd' : '#fff',
-                    cursor: 'pointer',
-                    fontSize: isVerySmallScreen ? '10px' : isSmallScreen ? '12px' : '14px',
-                  }}
+                  type="button"
+                  className={`btn shadow-sm ${currentPage === index + 1 ? 'border-warning' : ''}`}
                   onClick={() => setCurrentPage(index + 1)}
-                  aria-label={`Page ${index + 1}`}
                 >
                   {index + 1}
                 </button>
               ))}
               <button
-                style={{
-                  padding: isVerySmallScreen ? '6px 10px' : '8px 12px',
-                  border: '1px solid #dee2e6',
-                  borderRadius: '4px',
-                  backgroundColor: currentPage === totalPages ? '#f8f9fa' : '#fff',
-                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                  fontSize: isVerySmallScreen ? '10px' : isSmallScreen ? '12px' : '14px',
-                }}
+                type="button"
+                className="btn shadow-sm"
                 onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                disabled={currentPage === totalPages}
-                aria-label="Next page"
               >
                 <i className="bi bi-arrow-right-short"></i>
               </button>

@@ -60,19 +60,17 @@ const Home = () => {
   const [activeCategory, setActiveCategory] = useState('Men');
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [availableCategories, setAvailableCategories] = useState([]);
-  const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 768);
-  const [isVerySmallScreen, setIsVerySmallScreen] = useState(window.innerWidth < 576);
+  const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 992);
 
   const categories = ['Men', 'Women', 'Children'];
   const sentences = ['yourself', 'Men', 'Women', 'Kids'];
-  const itemsPerView = isSmallScreen ? 10 : 15; // 10 cards small, 15 large
+  const itemsPerView = isSmallScreen ? 2 : 3; // 2 cards on small screens, 3 on large
 
   // Handle window resize
   useEffect(() => {
     const handleResize = () => {
-      setIsSmallScreen(window.innerWidth < 768);
-      setIsVerySmallScreen(window.innerWidth < 576);
-      setCarouselIndex(0);
+      setIsSmallScreen(window.innerWidth < 992);
+      setCarouselIndex(0); // Reset carousel index on resize
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -177,7 +175,7 @@ const Home = () => {
 
   const handleNext = () => {
     setCarouselIndex((prev) =>
-      Math.min(prev + itemsPerView, Math.max(filteredProducts.length - itemsPerView, 0))
+      Math.min(prev + itemsPerView, filteredProducts.length - itemsPerView)
     );
   };
 
@@ -371,9 +369,11 @@ const Home = () => {
             <div
               style={{
                 display: 'flex',
-                flexWrap: 'wrap',
-                gap: isVerySmallScreen ? '0.5rem' : '1rem',
-                justifyContent: 'flex-start',
+                flexWrap: 'nowrap',
+                overflow: 'hidden',
+                gap: '1rem',
+                transition: 'transform 0.3s ease',
+                transform: `translateX(-${carouselIndex * (100 / itemsPerView)}%)`,
               }}
             >
               {loading ? (
@@ -384,14 +384,14 @@ const Home = () => {
                 <div style={{ width: '100%', textAlign: 'center', color: '#dc3545', padding: '1rem' }}>
                   {error}
                 </div>
-              ) : displayedProducts.length > 0 ? (
-                displayedProducts.map((product) => (
+              ) : filteredProducts.length > 0 ? (
+                filteredProducts.map((product) => (
                   <div
                     key={product.id}
                     style={{
-                      flex: isVerySmallScreen ? '1 1 100%' : isSmallScreen ? '1 1 47%' : '1 1 31%',
-                      maxWidth: isVerySmallScreen ? '100%' : isSmallScreen ? '47%' : '31%',
-                      padding: isVerySmallScreen ? '5px' : '10px',
+                      flex: `0 0 ${100 / itemsPerView}%`,
+                      maxWidth: `${100 / itemsPerView}%`,
+                      padding: '10px',
                       boxSizing: 'border-box',
                     }}
                   >
@@ -427,16 +427,16 @@ const Home = () => {
                               ? product.productImage[0]
                               : 'https://via.placeholder.com/300?text=No+Image'
                           }
-                          style={isVerySmallScreen ? styles.categoryImage : styles.categoryImageLarge}
+                          style={isSmallScreen ? styles.categoryImage : styles.categoryImageLarge}
                           alt={product.productName}
                           loading="lazy"
                         />
                       </Link>
-                      <div style={{ padding: isVerySmallScreen ? '8px' : '10px', flexGrow: '1' }}>
+                      <div style={{ padding: '10px', flexGrow: '1' }}>
                         <h5
                           style={{
                             fontWeight: 'bold',
-                            fontSize: isVerySmallScreen ? '14px' : '16px',
+                            fontSize: isSmallScreen ? '14px' : '16px',
                             margin: '10px 0 5px',
                           }}
                         >
@@ -444,7 +444,7 @@ const Home = () => {
                         </h5>
                         <p
                           style={{
-                            fontSize: isVerySmallScreen ? '12px' : '14px',
+                            fontSize: isSmallScreen ? '12px' : '14px',
                             color: '#333',
                             margin: '0 0 5px',
                           }}
@@ -453,7 +453,7 @@ const Home = () => {
                         </p>
                         <p
                           style={{
-                            fontSize: isVerySmallScreen ? '10px' : '12px',
+                            fontSize: isSmallScreen ? '10px' : '12px',
                             margin: '0 0 5px',
                           }}
                         >
@@ -462,7 +462,7 @@ const Home = () => {
                         <p
                           style={{
                             fontWeight: 'bold',
-                            fontSize: isVerySmallScreen ? '12px' : '14px',
+                            fontSize: isSmallScreen ? '12px' : '14px',
                             margin: '0 0 5px',
                           }}
                         >
@@ -475,7 +475,7 @@ const Home = () => {
                               className="bi bi-star-fill"
                               style={{
                                 color: '#FB8200',
-                                fontSize: isVerySmallScreen ? '10px' : '12px',
+                                fontSize: isSmallScreen ? '10px' : '12px',
                               }}
                             ></i>
                           ))}
@@ -484,13 +484,13 @@ const Home = () => {
                               className="bi bi-star-half"
                               style={{
                                 color: '#FB8200',
-                                fontSize: isVerySmallScreen ? '10px' : '12px',
+                                fontSize: isSmallScreen ? '10px' : '12px',
                               }}
                             ></i>
                           )}
                           <span
                             style={{
-                              fontSize: isVerySmallScreen ? '10px' : '12px',
+                              fontSize: isSmallScreen ? '10px' : '12px',
                               fontWeight: 'bold',
                               marginLeft: '4px',
                             }}
@@ -499,36 +499,36 @@ const Home = () => {
                           </span>
                         </div>
                         <div
-                          style={{ display: 'flex', gap: isVerySmallScreen ? '4px' : '8px' }}
+                          style={{ display: 'flex', gap: '8px' }}
                           className="bot d-none"
                         >
                           <button
                             className="btn btn-sm border-danger"
                             style={{
-                              fontSize: isVerySmallScreen ? '8px' : '10px',
-                              padding: isVerySmallScreen ? '4px 6px' : '4px 8px',
+                              fontSize: isSmallScreen ? '8px' : '10px',
+                              padding: isSmallScreen ? '4px 6px' : '4px 8px',
                               borderRadius: '4px',
                             }}
                             onClick={() => handleWishlistToggle(product)}
                           >
                             <i
                               className={`bi ${isInWishlist(product.id) ? 'bi-heart-fill' : 'bi-heart'} me-1 text-danger`}
-                              style={{ fontSize: isVerySmallScreen ? '8px' : '10px' }}
+                              style={{ fontSize: isSmallScreen ? '8px' : '10px' }}
                             ></i>
                             {isInWishlist(product.id) ? 'Remove' : 'Wishlist'}
                           </button>
                           <button
                             className="btn btn-sm border-danger btn-danger"
                             style={{
-                              fontSize: isVerySmallScreen ? '8px' : '10px',
-                              padding: isVerySmallScreen ? '4px 6px' : '4px 8px',
+                              fontSize: isSmallScreen ? '8px' : '10px',
+                              padding: isSmallScreen ? '4px 6px' : '4px 8px',
                               borderRadius: '4px',
                             }}
                             onClick={() => handleBuyNow(product)}
                           >
                             <i
                               className="bi bi-cart3 me-1"
-                              style={{ fontSize: isVerySmallScreen ? '8px' : '10px' }}
+                              style={{ fontSize: isSmallScreen ? '8px' : '10px' }}
                             ></i>
                             Buy Now
                           </button>
@@ -548,7 +548,7 @@ const Home = () => {
                 <div
                   style={{
                     position: 'absolute',
-                    left: isVerySmallScreen ? '-20px' : '-30px',
+                    left: '-30px',
                     top: '50%',
                     transform: 'translateY(-50%)',
                     zIndex: 1,
@@ -558,7 +558,7 @@ const Home = () => {
                     className="bi bi-caret-left"
                     style={{
                       cursor: carouselIndex > 0 ? 'pointer' : 'not-allowed',
-                      fontSize: isVerySmallScreen ? '18px' : '24px',
+                      fontSize: '24px',
                       color: carouselIndex > 0 ? '#000' : '#ccc',
                     }}
                     onClick={carouselIndex > 0 ? handlePrev : null}
@@ -568,7 +568,7 @@ const Home = () => {
                 <div
                   style={{
                     position: 'absolute',
-                    right: isVerySmallScreen ? '-20px' : '-30px',
+                    right: '-30px',
                     top: '50%',
                     transform: 'translateY(-50%)',
                     zIndex: 1,
@@ -578,7 +578,7 @@ const Home = () => {
                     className="bi bi-caret-right"
                     style={{
                       cursor: carouselIndex + itemsPerView < filteredProducts.length ? 'pointer' : 'not-allowed',
-                      fontSize: isVerySmallScreen ? '18px' : '24px',
+                      fontSize: '24px',
                       color: carouselIndex + itemsPerView < filteredProducts.length ? '#000' : '#ccc',
                     }}
                     onClick={carouselIndex + itemsPerView < filteredProducts.length ? handleNext : null}
