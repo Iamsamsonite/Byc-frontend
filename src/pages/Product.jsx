@@ -192,12 +192,17 @@ const Products = () => {
   const renderListView = () => (
     <div className="list-group">
       {currentProducts.map((product, index) => (
-        <div key={index} className="list-group-item">
+        <div key={index} className="list-group-item mb-3">
           <div
-            className="d-flex align-items-center singlet shadow-sm"
-            style={{ transition: 'transform 0.3s ease, box-shadow 0.3s ease' }}
+            className="d-flex singlet shadow-sm"
+            style={{ 
+              transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+              padding: '15px',
+              borderRadius: '8px',
+              backgroundColor: '#fff',
+            }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'scale(1.05)';
+              e.currentTarget.style.transform = 'scale(1.02)';
               e.currentTarget.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.15)';
               e.currentTarget.querySelector('.bot').classList.remove('d-none');
             }}
@@ -214,24 +219,25 @@ const Products = () => {
                 width: '200px',
                 height: '200px',
                 objectFit: 'cover',
-                marginRight: '50px',
+                marginRight: '20px',
+                borderRadius: '8px',
               }}
             />
-            <div>
-              <h5>{product.productName}</h5>
+            <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', padding: '10px' }}>
+              <h5 style={{ fontWeight: 'bold', fontSize: '18px', marginBottom: '10px' }}>{product.productName}</h5>
               <p style={{ fontSize: '14px', color: '#333', margin: '5px 0' }}>
                 {product.productNumber || 'N/A'}
               </p>
-              <p style={{ fontSize: '12px' }}>{product.productDescription}</p>
-              <p><b>₦{product.productPrice.toFixed(2)}</b></p>
-              <div className="d-flex align-items-center">
+              <p style={{ fontSize: '12px', margin: '5px 0' }}>{product.productDescription}</p>
+              <p style={{ fontWeight: 'bold', margin: '5px 0' }}>₦{product.productPrice.toFixed(2)}</p>
+              <div className="d-flex align-items-center mb-3">
                 {[...Array(4)].map((_, i) => (
                   <i key={i} className="bi bi-star-fill" style={{ color: '#FB8200' }}></i>
                 ))}
                 <i className="bi bi-star-half" style={{ color: '#FB8200' }}></i>
                 <span className="ms-2 fw-bold">{product.ratings}</span>
               </div>
-              <div className="d-flex pb-3 bot d-none">
+              <div className="d-flex bot d-none">
                 <button
                   className="btn btn-sm border-danger mt-3"
                   onClick={() => handleWishlistToggle(product)}
