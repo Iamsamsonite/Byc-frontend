@@ -230,8 +230,7 @@ const Products = () => {
                 ))}
                 <i className="bi bi-star-half" style={{ color: '#FB8200' }}></i>
                 <span className="ms-2 fw-bold">{product.ratings}</span>
-              </div>
-              <div className="d-flex pb-3 bot d-none">
+                <div className="d-flex pb-3 bot d-none">
                 <button
                   className="btn btn-sm border-danger mt-3"
                   onClick={() => handleWishlistToggle(product)}
@@ -252,6 +251,8 @@ const Products = () => {
                   <span className="text-white" style={{ fontSize: '10px' }}>Buy Now</span>
                 </button>
               </div>
+              </div>
+              
             </div>
           
           </div>
