@@ -192,7 +192,7 @@ const Products = () => {
   const renderListView = () => (
     <div className="list-group">
       {currentProducts.map((product, index) => (
-        <div key={index} className="list-group-item mb-3">
+        <div key={index} className="list-group-item mb-3 ">
           <div
             className="d-flex singlet shadow-sm"
             style={{ 
@@ -236,8 +236,7 @@ const Products = () => {
                 ))}
                 <i className="bi bi-star-half" style={{ color: '#FB8200' }}></i>
                 <span className="ms-2 fw-bold">{product.ratings}</span>
-              </div>
-              <div className="d-flex bot d-none">
+                 <div className="d-flex bot d-none">
                 <button
                   className="btn btn-sm border-danger mt-3"
                   onClick={() => handleWishlistToggle(product)}
@@ -257,6 +256,7 @@ const Products = () => {
                   <i className="bi bi-cart3 text-white"></i>
                   <span className="text-white" style={{ fontSize: '10px' }}>Buy Now</span>
                 </button>
+              </div>
               </div>
             </div>
           </div>
