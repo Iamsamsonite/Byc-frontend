@@ -190,16 +190,32 @@ const Products = () => {
   );
 
   const renderListView = () => (
+  <>
+    <style>
+      {`
+        @media (max-width: 576px) {
+          .list-card-small {
+            margin-left: 15px;
+            margin-right: 15px;
+          }
+          .list-img-small {
+            width: 150px !important;
+            height: 150px !important;
+          }
+        }
+      `}
+    </style>
     <div className="list-group">
       {currentProducts.map((product, index) => (
-        <div key={index} className="list-group-item mb-3 ">
+        <div key={index} className="list-group-item mb-3 list-card-small">
           <div
             className="d-flex singlet shadow-sm"
             style={{ 
               transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-              padding: '15px',
+              padding: '20px',
               borderRadius: '8px',
               backgroundColor: '#fff',
+              minHeight: '300px',
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'scale(1.02)';
@@ -215,6 +231,7 @@ const Products = () => {
             <img
               src={product.productImage}
               alt={product.productName}
+              className="list-img-small"
               style={{
                 width: '200px',
                 height: '200px',
@@ -223,7 +240,7 @@ const Products = () => {
                 borderRadius: '8px',
               }}
             />
-            <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', padding: '10px' }}>
+            <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', padding: '10px', minHeight: '200px' }}>
               <h5 style={{ fontWeight: 'bold', fontSize: '18px', marginBottom: '10px' }}>{product.productName}</h5>
               <p style={{ fontSize: '14px', color: '#333', margin: '5px 0' }}>
                 {product.productNumber || 'N/A'}
@@ -236,9 +253,10 @@ const Products = () => {
                 ))}
                 <i className="bi bi-star-half" style={{ color: '#FB8200' }}></i>
                 <span className="ms-2 fw-bold">{product.ratings}</span>
-                 <div className="d-flex bot d-none">
+              </div>
+              <div className="d-flex bot d-none" style={{ paddingBottom: '10px', marginTop: 'auto' }}>
                 <button
-                  className="btn btn-sm border-danger mt-3"
+                  className="btn btn-sm border-danger"
                   onClick={() => handleWishlistToggle(product)}
                 >
                   <i
@@ -250,103 +268,81 @@ const Products = () => {
                   </span>
                 </button>
                 <button
-                  className="btn btn-sm border-danger btn-danger ms-1 mt-3"
+                  className="btn btn-sm border-danger btn-danger ms-1"
                   onClick={() => handleBuyNow(product)}
                 >
                   <i className="bi bi-cart3 text-white"></i>
                   <span className="text-white" style={{ fontSize: '10px' }}>Buy Now</span>
                 </button>
               </div>
-              </div>
             </div>
           </div>
         </div>
       ))}
     </div>
-  );
+  </>
+);
 
-  if (loading) {
-    return (
-      <div className="container mt-5 text-center">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+return (
+  <>
+    <div className="container mt-5 border">
+      <div className="row border-bottom align-items-center">
+        <div className="col-md-2">
+          <b style={{ fontSize: '14px' }}>All Products</b>
         </div>
-        <h5>Loading products...</h5>
+        <div className="col-md-8"></div>
+        <div className="col-md-2 d-flex justify-content-end">
+          <SortByDrop onSortChange={handleSortChange} />
+        </div>
       </div>
-    );
-  }
 
-  if (error) {
-    return (
-      <div className="container mt-5 text-center">
-        <h5 className="text-danger">{error}</h5>
-        <p>Please check if the backend server is running and try again.</p>
-        <Link to="/" className="btn btn-primary mt-3">
-          Back to Home
-        </Link>
+      <div className="row my-3 border-bottom">
+        <div className="col-md-2">
+          <p style={{ fontSize: '14px' }}>{products.length} Products Found</p>
+        </div>
+        <div className="col-md-8"></div>
+        <div className="col-md-2 d-flex justify-content-end">
+          <ToggleButton activeView={viewMode} onToggle={setViewMode} />
+        </div>
       </div>
-    );
-  }
 
-  return (
-    <>
-      <div className="container mt-5 border">
-        <div className="row border-bottom align-items-center">
-          <div className="col-md-2">
-            <b style={{ fontSize: '14px' }}>All Products</b>
-          </div>
-          <div className="col-md-8"></div>
-          <div className="col-md-2 d-flex justify-content-end">
-            <SortByDrop onSortChange={handleSortChange} />
-          </div>
-        </div>
+      {viewMode === 'grid' ? renderGridView() : renderListView()}
 
-        <div className="row my-3 border-bottom">
-          <div className="col-md-2">
-            <p style={{ fontSize: '14px' }}>{products.length} Products Found</p>
-          </div>
-          <div className="col-md-8"></div>
-          <div className="col-md-2 d-flex justify-content-end">
-            <ToggleButton activeView={viewMode} onToggle={setViewMode} />
-          </div>
-        </div>
-
-        {viewMode === 'grid' ? renderGridView() : renderListView()}
-
-        {totalPages > 1 && (
-          <div className="text-center">
-            <div className="btn-group rounded-0 shadow-sm gap-2 my-5" role="group">
+      {totalPages > 1 && (
+        <div className="text-center">
+          <div className="btn-group rounded-0 shadow-sm gap-2 my-5" role="group">
+            <button
+              type="button"
+              className="btn shadow-sm"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            >
+              <i className="bi bi-arrow-left-short"></i>
+            </button>
+            {[...Array(totalPages)].map((_, index) => (
               <button
+                key={index}
                 type="button"
-                className="btn shadow-sm"
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                className={`btn shadow-sm ${currentPage === index + 1 ? 'border-warning' : ''}`}
+                onClick={() => setCurrentPage(index + 1)}
               >
-                <i className="bi bi-arrow-left-short"></i>
+                {index + 1}
               </button>
-              {[...Array(totalPages)].map((_, index) => (
-                <button
-                  key={index}
-                  type="button"
-                  className={`btn shadow-sm ${currentPage === index + 1 ? 'border-warning' : ''}`}
-                  onClick={() => setCurrentPage(index + 1)}
-                >
-                  {index + 1}
-                </button>
-              ))}
-              <button
-                type="button"
-                className="btn shadow-sm"
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-              >
-                <i className="bi bi-arrow-right-short"></i>
-              </button>
-            </div>
+            ))}
+            <button
+              type="button"
+              className="btn shadow-sm"
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            >
+              <i className="bi bi-arrow-right-short"></i>
+            </button>
           </div>
-        )}
-      </div>
-      <Sing />
-    </>
-  );
+        </div>
+      )}
+    </div>
+    <Sing />
+  </>
+);
 };
 
+ 
 export default Products;
