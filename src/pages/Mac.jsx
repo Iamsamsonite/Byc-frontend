@@ -301,7 +301,7 @@ const Mac = () => {
                 <div className="d-flex gap-2 mt-2" style={{ marginTop: 'auto', paddingBottom: '10px' }}>
                   <button
                     className="btn btn-sm border-danger bot d-none"
-                    style={{ backgroundColor: '#fff', borderColor: '#BD3A3A', color: '#BD3A3A', fontSize: '10px' }}
+                    style={{ backgroundColor: '#fff', borderColor: '#BD3A3A', color: '#BD3A3A', fontSize: '10px', width:"50px" }}
                     onClick={() => handleWishlistToggle(product)}
                   >
                     <i
@@ -315,7 +315,7 @@ const Mac = () => {
                   <button
                     className="btn btn-sm bot d-none"
                     onClick={() => handleBuyNow(product)}
-                    style={{ backgroundColor: '#BD3A3A', borderColor: '#BD3A3A', color: '#fff', fontSize: '10px' }}
+                    style={{ backgroundColor: '#BD3A3A', borderColor: '#BD3A3A', color: '#fff', fontSize: '10px', width:"50px"}}
                   >
                     <i className="bi bi-cart3 me-1"></i> Buy Now
                   </button>
