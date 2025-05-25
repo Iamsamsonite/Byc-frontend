@@ -239,12 +239,27 @@ const Mac = () => {
   );
 
   const renderListView = () => (
+  <>
+    <style>
+      {`
+        @media (max-width: 576px) {
+          .list-card-small {
+            margin-left: 15px;
+            margin-right: 15px;
+          }
+          .list-img-small {
+            width: 150px !important;
+            height: 150px !important;
+          }
+        }
+      `}
+    </style>
     <div className="list-group" style={{ width: '100%' }}>
       {productsToDisplay.map((product) => (
         <div
           key={product._id}
-          className="list-group-item d-flex flex-column mb-3"
-          style={{ padding: '15px', border: '1px solid #ddd', borderRadius: '8px' }}
+          className="list-group-item d-flex flex-column mb-3 list-card-small"
+          style={{ padding: '20px', border: '1px solid #ddd', borderRadius: '8px', minHeight: '300px' }}
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = 'scale(1.05)';
             e.currentTarget.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.15)';
@@ -264,13 +279,13 @@ const Mac = () => {
                     ? product.productImage[0]
                     : 'https://via.placeholder.com/150?text=No+Image'
                 }
-                className="img-fluid"
+                className="img-fluid list-img-small"
                 alt={product.productName}
                 style={{ height: '200px', objectFit: 'cover', borderRadius: '8px', marginBottom: '15px' }}
               />
             </div>
             <div className="col-sm-4 ms-5">
-              <div className="ms-3 w-50" style={{ ...cardStyle, flexGrow: 1 }}>
+              <div className="ms-3 w-50" style={{ ...cardStyle, flexGrow: 1, minHeight: '200px', display: 'flex', flexDirection: 'column' }}>
                 <h5>{product.productName}</h5>
                 <p>{product.productDescription || 'No description available'}</p>
                 <p>
@@ -283,35 +298,36 @@ const Mac = () => {
                   <i className="bi bi-star-half" style={{ color: '#FB8200' }}></i>
                   <span className="ms-2 fw-bold">{product.ratings || 4.5}</span>
                 </div>
-              </div>
-              <div className="d-flex gap-2 mt-2 ms-3">
-                <button
-                  className="btn btn-sm border-danger mt-2 bot d-none"
-                  style={{ backgroundColor: '#fff', borderColor: '#BD3A3A', color: '#BD3A3A', fontSize: '12px' }}
-                  onClick={() => handleWishlistToggle(product)}
-                >
-                  <i
-                    className={`bi ${isInWishlist(product.productId || product._id) ? 'bi-heart-fill' : 'bi-heart'} me-1 text-danger`}
-                    style={{ fontSize: '10px' }}
-                  ></i>
-                  <span className="text-danger" style={{ fontSize: '10px' }}>
-                    {isInWishlist(product.productId || product._id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
-                  </span>
-                </button>
-                <button
-                  className="btn btn-sm mt-2 bot d-none"
-                  onClick={() => handleBuyNow(product)}
-                  style={{ backgroundColor: '#BD3A3A', borderColor: '#BD3A3A', color: '#fff', fontSize: '12px' }}
-                >
-                  <i className="bi bi-cart3 me-1"></i> Buy Now
-                </button>
+                <div className="d-flex gap-2 mt-2 ms-3" style={{ marginTop: 'auto', paddingBottom: '10px' }}>
+                  <button
+                    className="btn btn-sm border-danger bot d-none"
+                    style={{ backgroundColor: '#fff', borderColor: '#BD3A3A', color: '#BD3A3A', fontSize: '12px' }}
+                    onClick={() => handleWishlistToggle(product)}
+                  >
+                    <i
+                      className={`bi ${isInWishlist(product.productId || product._id) ? 'bi-heart-fill' : 'bi-heart'} me-1 text-danger`}
+                      style={{ fontSize: '10px' }}
+                    ></i>
+                    <span className="text-danger" style={{ fontSize: '10px' }}>
+                      {isInWishlist(product.productId || product._id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                    </span>
+                  </button>
+                  <button
+                    className="btn btn-sm bot d-none"
+                    onClick={() => handleBuyNow(product)}
+                    style={{ backgroundColor: '#BD3A3A', borderColor: '#BD3A3A', color: '#fff', fontSize: '12px' }}
+                  >
+                    <i className="bi bi-cart3 me-1"></i> Buy Now
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
       ))}
     </div>
-  );
+  </>
+);
 
   return (
     <>
