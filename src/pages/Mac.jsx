@@ -288,6 +288,7 @@ const Mac = () => {
             <div className="col-sm-5 ms-5">
               <div className="ms-3 w-100" style={{ ...cardStyle, flexGrow: 1, minHeight: '200px', display: 'flex', flexDirection: 'column' }}>
                 <h5>{product.productName}</h5>
+                <p style={{ fontSize: '12px' }}>{product.productNumber || 'N/A'}</p>
                 <p>{product.productDescription || 'No description available'}</p>
                 <p>
                   <b>₦{product.productPrice.toLocaleString()}</b>
